@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>   
+    <string name="app_name">释放内存</string>     
+    <string name="total_memory">全部内存:</string>
+    <string name="avail_memory">可用内存:</string>
+    <string name="used_memory">已用内存:</string>
+    <string name="tips">已释放内存:</string>
+    <string name="free_momery">释放内存</string>
+</resources>

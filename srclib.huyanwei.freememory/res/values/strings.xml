@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>   
+    <string name="app_name">Free Memory</string>
+    <string name="total_memory">Total Memory:</string>
+    <string name="avail_memory">Avail Memory:</string>
+    <string name="used_memory">used Memory:</string>
+    <string name="tips">released momery: </string>
+    <string name="free_momery">Free Momery</string>
+</resources>

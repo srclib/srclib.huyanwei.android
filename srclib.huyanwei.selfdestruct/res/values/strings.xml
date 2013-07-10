@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">self-destruct</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_self_destruct">self-destruct</string>
+    <string name="action_anti_self_destruct">anti-self-destruct </string>
+    <string name="handle_message_finished">handle message finished !</string>
+</resources>

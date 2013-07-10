@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">自毁</string>
+    <string name="action_settings">设置</string>
+    <string name="action_self_destruct">自我销毁</string>
+    <string name="action_anti_self_destruct">撤销自我销毁</string>
+    <string name="handle_message_finished">警告，警告，这不是演习，手机关机之后，将自我销毁！友情提示：不会爆炸</string>
+</resources>

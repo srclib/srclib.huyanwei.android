@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">通知程序</string>
+    <string name="menu_settings">设置</string>
+    <string name="title_activity_notifycation">通知</string>
+    <string name="make_notification">产生通知</string>
+    <string name="clear_notification">清除通知</string>
+	<string name="notification_remote_view">更新通知栏远程视图控件</string>    
+	<string name="notification_brief">您有新的通知啦~~~</string>    
+    <string name="notification_title">应用程序产生通知</string>
+    <string name="notification_context">警告！严重警告！</string>
+    <string name="baidu">百度</string>
+    <string name="google">谷歌</string>
+    <string name="again">重试</string>
+    <string name="minus">减少5</string>
+    <string name="plus">增加5</string>
+    <string name="auto">自动动画</string>
+</resources>

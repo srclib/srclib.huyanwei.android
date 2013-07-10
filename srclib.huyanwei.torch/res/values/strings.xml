@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">torch</string>
+    <string name="action_settings">Settings</string>
+    <string name="torch_on">torch on</string>
+    <string name="torch_off">torch off</string>
+</resources>

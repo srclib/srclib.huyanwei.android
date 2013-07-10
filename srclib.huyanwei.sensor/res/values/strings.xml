@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">距离感应和光感应</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">距离感应和光感应</string>
+    <string name="light">光感应</string>
+    <string name="proximity">接近感应</string>
+</resources>

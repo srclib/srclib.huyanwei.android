@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/lcm_width_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:gravity="left"
+            android:text="@string/lcm_width_name"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/lcm_width_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:gravity="right"
+            android:textColor="#FF00FF00"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/lcm_height_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:gravity="left"
+            android:text="@string/lcm_height_name"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/lcm_height_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:gravity="right"
+            android:textColor="#FF00FF00"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <TextView
+            android:id="@+id/lcm_density_value"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="#FF00FF00"
+            android:textSize="20sp" />
+
+</LinearLayout>
+

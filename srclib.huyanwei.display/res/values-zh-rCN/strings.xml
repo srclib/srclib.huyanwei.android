@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>    
+    <string name="app_name">显示分辨率</string>
+    <string name="lcm_width_name">屏幕宽度</string>
+    <string name="lcm_height_name">屏幕高度</string>
+    <string name="unknown">未知</string>
+</resources>

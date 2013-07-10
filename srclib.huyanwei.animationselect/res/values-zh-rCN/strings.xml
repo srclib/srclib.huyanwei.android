@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">开关机动画选择</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">设置</string>
+    <string name="title_activity_main">开关机动画选择</string>
+    <string name="Animation1">第一套开关机动画</string>
+    <string name="Animation2">第二套开关机动画</string>
+</resources>

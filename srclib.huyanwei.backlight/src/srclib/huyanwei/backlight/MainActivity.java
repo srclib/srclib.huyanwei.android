@@ -5,6 +5,7 @@ import android.os.IPowerManager;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -18,6 +19,8 @@ public class MainActivity extends Activity {
 	private SeekBar mSeekBar;
 	
 	private PowerManager mPowerManager;
+
+	private PowerManager.WakeLock wl;
 	
 	private int brightness;
 	
@@ -71,6 +74,11 @@ public class MainActivity extends Activity {
        */	    
 	   mPowerManager.setBacklightBrightness(brightness);
 
+	   if(brightness == 0)
+	   {
+		   mPowerManager.goToSleep(SystemClock.uptimeMillis());
+	   }
+
 	   Settings.System.putInt(resolver,Settings.System.SCREEN_BRIGHTNESS, brightness);
 	   
    }
@@ -90,7 +98,12 @@ public class MainActivity extends Activity {
 
 		mSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
 		
-		mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);		
+		mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
+		//wl = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "srclib.huyanwei.backloght"); //cpu on ,other off
+		//wl = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "srclib.huyanwei.backloght");//only scr dim
+		wl = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "srclib.huyanwei.backloght"); //only scr on
+		//wl = mPowerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "srclib.huyanwei.backloght"); //all on
 	}
 
 	@Override
@@ -109,6 +122,12 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
+
+		if(wl.isHeld())
+		{
+			wl.release(); // release
+		}
+
 		super.onPause();
 	}
 
@@ -126,6 +145,11 @@ public class MainActivity extends Activity {
 
 		mSeekBar.setProgress(brightness);
 		
+		if(!wl.isHeld())
+		{
+			wl.acquire(); // request
+		}
+
 		super.onResume();
 	}
 
@@ -138,6 +162,8 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onStop() {
 		// TODO Auto-generated method stub
+		
+
 		super.onStop();
 	}
 

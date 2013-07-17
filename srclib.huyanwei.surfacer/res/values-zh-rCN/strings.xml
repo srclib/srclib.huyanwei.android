@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">surface</string>
+    <string name="prev">上一个</string>
+    <string name="next">下一个</string>
+</resources>

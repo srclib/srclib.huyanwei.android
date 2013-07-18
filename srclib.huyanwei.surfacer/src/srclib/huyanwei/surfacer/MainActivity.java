@@ -142,6 +142,9 @@ public class MainActivity extends Activity{
 				tv_buffer.setTextColor(0x80ff0000);
 				tv_buffer.setBackgroundColor(0x00000000);
 				tv_buffer.setTextSize((float)24);
+				
+				mSeekBar.setSecondaryProgress(mSeekBar.getMax() * percent / 100); // second progress
+				
 			}
 	 };
 	 
@@ -582,6 +585,7 @@ public class MainActivity extends Activity{
 		
 		mSeekBar.setMax(100);
 		mSeekBar.setProgress(0);
+		mSeekBar.setSecondaryProgress(0);
 		mSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener);		
 		
 		btn_prev = (Button) findViewById(R.id.prev);

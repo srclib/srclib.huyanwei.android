@@ -17,7 +17,8 @@
     <RelativeLayout
         android:id="@+id/RelativeLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:background="#00000000" >
 
          <Button
              android:id="@+id/next"
@@ -36,6 +37,24 @@
              android:layout_alignParentLeft="true"
              android:layout_marginLeft="50dp"
              android:text="@string/prev" />
+
+         <TextView
+             android:id="@+id/bufferpercent"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_alignParentLeft="true"
+             android:layout_alignParentTop="true"
+             android:gravity="center_horizontal"
+             android:text="@string/app_name"
+             android:textSize="18sp" />
+
+         <SeekBar
+             android:id="@+id/seekBar"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_above="@+id/next"
+             android:layout_alignParentLeft="true"
+             android:layout_marginBottom="19dp" />
 
     </RelativeLayout>
 

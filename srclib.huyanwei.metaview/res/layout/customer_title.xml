@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" 
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent"
+  	>
+    <LinearLayout android:gravity="center_vertical" 
+        android:orientation="horizontal" 
+        android:background="@drawable/about_device_title_bg" 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content">
+        <ImageButton android:id="@+id/btn_back" 
+            android:background="@drawable/about_device_back" 
+            android:layout_width="wrap_content" 
+            android:layout_height="wrap_content" />
+        <TextView android:textSize="18.0sp" 
+            android:textColor="#ffffffff" 
+            android:id="@+id/window_title_text" 
+            android:layout_width="wrap_content" 
+            android:layout_height="wrap_content" 
+            android:text="@string/app_name" />
+    </LinearLayout>
+    <ImageView android:layout_gravity="center" 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content" 
+        android:src="@drawable/miui_logo" 
+        android:scaleType="fitXY" />
+</LinearLayout>

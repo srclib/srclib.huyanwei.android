@@ -1,0 +1,16 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+        android:title="@string/title">
+    <PreferenceCategory android:key="debug_applications_category"
+         android:title="@string/title">
+         
+         <CheckBoxPreference
+            android:key="checkbox1"
+            android:title="@string/item1"
+            android:summary="@string/item1"/>
+        
+         <CheckBoxPreference
+            android:key="checkbox2"
+            android:title="@string/item2"
+            android:summary="@string/item2"/>
+    </PreferenceCategory>        
+</PreferenceScreen>

@@ -1,0 +1,42 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+    <!-- huyanwei { -->
+    <style name="Theme.srclib" parent="android:Theme">
+		<item name="android:windowTitleSize">180dip</item>        
+    </style>
+    
+    <!--
+    frameworks/base/core/java/android/widget/ListView.java
+    frameworks/base/core/res/res/values/themes.xml
+    frameworks/base/core/res/res/values/styles.xml
+    frameworks/base/core/res/res/values/attrs.xml
+    -->
+    
+    <style name="Widget.srclib.ListView" parent="android:Widget.ListView">
+         <item name="android:listSelector">#ffff0000</item>
+         <item name="android:cacheColorHint">#ff0000ff</item>
+		 <item name="android:dividerHeight">2dp</item>
+		 <item name="android:divider">#ff000000</item>
+		 <item name="android:headerDividersEnabled">true</item>		 
+    </style>
+    
+    <!-- huyanwei } -->
+    
+</resources>

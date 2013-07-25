@@ -44,7 +44,10 @@ public class MainActivity extends Activity {
 	private Context mContext; 
 	
 	private ListItemAdapter mListItemAdapter;
+	
 	private boolean mScrolling = false;
+	
+	private boolean mIsFloatWindow = false;
 	
 	public void attachView(View view)
 	{
@@ -182,33 +185,42 @@ public class MainActivity extends Activity {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			// TODO Auto-generated method stub
 			Log.d(TAG,"getView("+position+")");
+			
 			LinearLayout ll;
-            if (convertView == null) {
+			// 每次都加载，不让重复使用View
+            //if (convertView == null) {
             	ll = (LinearLayout) LayoutInflater.from(mContext).inflate(R.layout.list_item, parent, false);
-            } else {
-            	ll = (LinearLayout) convertView;
-            }
+            //} else {
+            //	ll = (LinearLayout) convertView;
+            //}
             
             if(position%2 == 0)
             {
             	ll.setBackgroundResource(R.drawable.bottom_button);
-            	//ll.setAlpha(0.618f);            	
-            }	
+            	ll.setAlpha(0.618f);            	
+            }
             else
             {
             	ll.setBackgroundResource(R.drawable.bottom_button);
             }
+            
+            int first = mListView.getFirstVisiblePosition();
+            int last  = mListView.getLastVisiblePosition();
+            int child_count = mListView.getChildCount(); // 可见的view
+            int count = mListView.getCount();     		// 总view
+            int header_count = ((ListView) mListView).getHeaderViewsCount();
+            int footer_count = ((ListView) mListView).getFooterViewsCount();
             
             TextView mTextView = (TextView) ll.findViewById(R.id.textView1);   
             if(mScrolling == true)            
             {
             	mTextView.setTextColor(0xffff00ff);
-            	mTextView.setText("LOADING ITEM"+position+" ......");            	            	
+            	mTextView.setText("LOADING ITEM"+(position+header_count)+" ......");            	            	
             }
             else
             {
             	mTextView.setTextColor(0xff0000ff);
-            	mTextView.setText("ITEM"+position);
+            	mTextView.setText("ITEM"+(position+header_count));
             }
             return ll;
 		}
@@ -246,17 +258,27 @@ public class MainActivity extends Activity {
 	        switch (scrollState) {
 	        	case OnScrollListener.SCROLL_STATE_IDLE:
 	        		// 当滚动停止时：
-	        		mScrolling = false;
+ 	        		mScrolling = false;
 	                int first = view.getFirstVisiblePosition();
-	                int count = view.getChildCount();
-	                for (int i=0; i<count; i++) {
-	                	LinearLayout ll = (LinearLayout)view.getChildAt(i);
-	                    TextView mTextView = (TextView) ll.findViewById(R.id.textView1);                        
-	                    
-	                    mTextView.setTextColor(0xffff0000);
-	                    mTextView.setText("UPDATA ITEM("+first+"+"+i+")");
-	                    //Log.d(TAG,"ChildAt("+i+") at array["+first+i+"]");
-	                }	
+	                int last  = view.getLastVisiblePosition();
+	                int child_count = view.getChildCount(); // 可见的view
+	                int count = view.getCount();     		// 总view
+	                int header_count = ((ListView) view).getHeaderViewsCount();
+	                int footer_count = ((ListView) view).getFooterViewsCount();
+	                Log.d(TAG,"["+first+"-"+last+"]/["+child_count+"-"+count+"]["+header_count+"/"+footer_count+"]");
+
+	                for (int i=0; i<child_count; i++)
+	                {	
+	                	if(((i+first) >= (0+header_count)) && ( (i+first) <= (count -1 - footer_count) ))
+	                	{
+	                		Log.d(TAG,"idle :current item"+ i);
+		                	LinearLayout ll = (LinearLayout)view.getChildAt(i);
+		                    TextView mTextView = (TextView) ll.findViewById(R.id.textView1);                        
+		                    
+		                    mTextView.setTextColor(0xffff0000);
+		                    mTextView.setText("UPDATA ITEM("+(first)+"+"+i+")");
+	                	}
+	                }
 	        		Log.d(TAG,"SCROLL_STATE_IDLE");
 	        		break;
 	        	case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
@@ -278,10 +300,24 @@ public class MainActivity extends Activity {
 				long arg3) {
 				// TODO Auto-generated method stub
 				Log.d(TAG,"onItemClick("+arg0+","+arg1+","+arg2+","+arg3+")");
-				TextView mTextView = (TextView) arg1.findViewById(R.id.textView1);    
-                mTextView.setTextColor(0xff000000);
-                mTextView.setText("clicked Item"+arg2);
-				Toast.makeText(mContext, "Item"+arg2+" is clicked!", Toast.LENGTH_SHORT).show();
+                int first = arg0.getFirstVisiblePosition();
+                int last  = arg0.getLastVisiblePosition();
+                int child_count = arg0.getChildCount();
+                int count = arg0.getCount();
+                int header_count = ((ListView) arg0).getHeaderViewsCount();
+                int footer_count = ((ListView) arg0).getFooterViewsCount();
+                Log.d(TAG,"["+first+"-"+last+"/"+count+"]["+header_count+"/"+footer_count+"]");
+                if((arg2 > (header_count-1)) && (arg2 < (count-footer_count))) // index calc
+				{
+                	TextView mTextView = (TextView) arg1.findViewById(R.id.textView1);
+                	mTextView.setTextColor(0xff000000);
+                	mTextView.setText("clicked Item"+(arg2));
+                	Toast.makeText(mContext, "Item"+(arg2)+" is clicked!", Toast.LENGTH_SHORT).show();
+				}
+                else
+				{
+					Toast.makeText(mContext, "mFloatView("+arg2+") is clicked!", Toast.LENGTH_SHORT).show();
+				}				
 		}
 	};
 	
@@ -306,10 +342,6 @@ public class MainActivity extends Activity {
         
         mListView = (ListView) this.findViewById(R.id.listView1);
         
-        mListItemAdapter = new ListItemAdapter(this);
-        
-        mListView.setAdapter(mListItemAdapter);
-        
         mListView.setOnScrollListener(mOnScrollListener);
         
         mListView.setOnItemClickListener(mOnItemClickListener);
@@ -320,8 +352,21 @@ public class MainActivity extends Activity {
         
         setBtn.setOnClickListener(mOnClickListener);
         
-        attachView(mFloatView);
-        //setListFooter(footView);
+        if(mIsFloatWindow)
+        {
+        	attachView(mFloatView);
+        }
+        else
+        {       
+        	mListView.addHeaderView(mFloatView);  // must appear before setAdapter().
+        	//mListView.setListFooter(mFloatView);
+        	mListView.addFooterView(mFloatView);  // must appear before setAdapter().
+        }
+        
+        mListItemAdapter = new ListItemAdapter(this);
+        
+        mListView.setAdapter(mListItemAdapter);        
+
 	}
 
 	@Override
@@ -335,7 +380,10 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
-		disattachView(mFloatView);
+		if(mIsFloatWindow)
+		{
+			disattachView(mFloatView);
+		}
 		super.onDestroy();
 	}
 

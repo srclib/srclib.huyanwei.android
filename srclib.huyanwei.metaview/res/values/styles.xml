@@ -18,8 +18,11 @@
     </style>
 
     <!-- huyanwei { -->
-    <style name="Theme.srclib" parent="android:Theme">
-		<item name="android:windowTitleSize">180dip</item>        
+    <style name="Theme.srclib"  parent="android:Theme">
+        <item name="android:singleLine">true</item>
+        <item name="android:shadowColor">#BB000000</item>
+        <item name="android:shadowRadius">2.75</item>
+		<item name="android:windowTitleSize">160dip</item>
     </style>
     
     <!--
@@ -34,8 +37,8 @@
          <item name="android:stackFromBottom">false</item>
          <item name="android:listSelector">@drawable/list_item_selector</item>
          <item name="android:cacheColorHint">@null</item>
-		 <item name="android:dividerHeight">5dp</item>
-		 <item name="android:divider">#cc000000</item>
+		 <item name="android:dividerHeight">0dp</item>
+		 <item name="android:divider">#22ffffff</item>
 		 <item name="android:headerDividersEnabled">true</item>
 		 <item name="android:footerDividersEnabled">true</item>
     </style>

@@ -5,14 +5,22 @@
     android:layout_height="100dp"
     android:background="@drawable/bottom_button"
     android:gravity="center"
-    android:orientation="vertical" >
+    android:orientation="horizontal" >
 
-    <ImageButton
-        android:id="@+id/btn_setting"
+	    <ImageButton
+        android:id="@+id/btn_minus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/resource_detail"
+        />    
+
+        <ImageButton
+        android:id="@+id/btn_plus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="@drawable/resource_detail"
         />
-
+    
 </LinearLayout>

@@ -3,6 +3,7 @@
     android:id="@+id/RelativeLayout1"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="#FFFFFFFF"
     android:orientation="vertical" >
        		 <ListView
 	            android:id="@+id/listView1"
@@ -10,6 +11,8 @@
             	android:layout_height="fill_parent"
    	          	android:layout_alignParentLeft="true"
             	android:layout_alignParentTop="true"
+            	android:layout_marginTop="5dp"
+            	android:layout_marginBottom="80dp"            	
             	style="@style/Widget.srclib.ListView">
 	    	 </ListView>
 </RelativeLayout>

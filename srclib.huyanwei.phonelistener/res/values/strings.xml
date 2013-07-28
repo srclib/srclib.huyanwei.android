@@ -1,0 +1,11 @@
+<resources>
+
+    <string name="app_name">ProximitityCall</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">ProximitityCall</string>
+    <string name="help">当来电的时候，用手划过距离感应器上方，就能接听来电!</string>
+
+    <string name="value_off">off</string>
+    <string name="value_on">on</string>
+    
+</resources>

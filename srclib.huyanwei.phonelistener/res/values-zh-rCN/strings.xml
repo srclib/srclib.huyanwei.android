@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">距感通</string>
+    <string name="menu_settings">设置</string>
+    <string name="title_activity_main">距感通</string>
+    <string name="help">来电的时候，用手划过距离感应器上方，即可接听来电</string>
+    
+    <string name="value_off">关</string>
+    <string name="value_on">开</string>
+    
+</resources>

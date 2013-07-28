@@ -66,8 +66,7 @@
             android:layout_gravity="center|right"
             android:background="#00000000"
             android:src="@drawable/setting"
-            android:visibility="gone" 
-            />
+            android:visibility="invisible" />
                 
     </LinearLayout>
 

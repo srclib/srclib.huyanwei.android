@@ -1,5 +1,6 @@
 package srclib.huyanwei.phonelistener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.content.Context;
@@ -55,16 +56,20 @@ public class SlideButton extends FrameLayout {
 	
 	public interface Callback
 	{
-		public void onStateChange();
+		public void onStateChange(boolean state);
 	};
 	
-	//private HashMap<int,Callback> Callbacks;
+	private ArrayList<Callback> Callbacks = new ArrayList<Callback>();
+	
+	public void setCallback(Callback object)
+	{
+		Callbacks.add(object);
+	}
 		
 	public SlideButton(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		// TODO Auto-generated constructor stub
 		Log.d(TAG,"SlideButton(Context context, AttributeSet attrs, int defStyle)");
-		
 	}
 
 	public SlideButton(Context context, AttributeSet attrs) {
@@ -228,6 +233,13 @@ public class SlideButton extends FrameLayout {
 						mTextView.setText(R.string.value_off);
 						
 						pre_state = 1-pre_state ;
+						
+						state = false;
+						int i = 0 ;
+						for(i=0;i<Callbacks.size();i++)
+						{
+							((Callback)Callbacks.get(i)).onStateChange(state);
+						}
 					}
 					else
 					{
@@ -253,6 +265,12 @@ public class SlideButton extends FrameLayout {
 						mLinearLayout.setBackgroundDrawable(mDrawable_on);
 						mTextView.setText(R.string.value_on);
 						pre_state = 1-pre_state ;
+						state = true;
+						int i = 0 ;
+						for(i=0;i<Callbacks.size();i++)
+						{
+							((Callback)Callbacks.get(i)).onStateChange(state);
+						}
 					}
 					else
 					{

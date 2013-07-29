@@ -22,6 +22,7 @@ import android.telephony.ServiceState;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 
 public class PhoneListenerService extends Service  {
 
@@ -40,14 +41,21 @@ public class PhoneListenerService extends Service  {
 	private Context 			mContext;
 
 	private boolean 			mProximitySensorListening   =  false ;
-	private float 				mProximitySensorValue   	=  0.0f ;
-	private float 				mLastProximitySensorValue   =  0.0f ;
+	private float 				mProximitySensorValue   	=  1.0f ;  // left state.
+	private float 				mLastProximitySensorValue   =  1.0f ;  // left state.
 	
 	private boolean 			mEventhappen = false;
 	
 	private boolean             mProcessMothedAnswer = true;  // 缺省是 挂电话.
 	
 	private final int 			MSG_HANDLE_INCOMING_CALL	= 1;
+	
+	private KeyEvent mKeyEvent;
+
+	//ref frameworks/base/services/java/com/android/server/power/DisplayPowerController.java
+    // Trigger proximity if distance is less than 5 cm.
+    private static final float TYPICAL_PROXIMITY_THRESHOLD = 5.0f;
+	private float  mProximityThreshold = TYPICAL_PROXIMITY_THRESHOLD;
 	
 	private Handler            mHandler = new Handler()
 	{
@@ -81,21 +89,21 @@ public class PhoneListenerService extends Service  {
             mLastProximitySensorValue = mProximitySensorValue;
             mProximitySensorValue = arg0.values[0];
             
-            Log.d(TAG, "mProximitySensorEventListener.onSensorChanged: proximity Sensor value: " + arg0.values[0]);
+            //Log.d(TAG, "mProximitySensorEventListener.onSensorChanged: proximity Sensor value: " + arg0.values[0]);
             Log.d(TAG, "mProximitySensorEventListener.onSensorChanged: proximity Sensor mLastProximitySensorValue=" + mLastProximitySensorValue + ",mProximitySensorValue=" + mProximitySensorValue);
             
-            /*
-            // 只在跳变（上伸沿）起作用。_|-
-            if(((mLastProximitySensorValue - 1.0f) < 0.0f) && ((mProximitySensorValue-1.0f) > 0.0f))
-            {
-            	mEventhappen = true ;
+			//boolean positive = ((mProximitySensorValue >= 0.0f) && (mProximitySensorValue < mProximityThreshold));
 
-            	Log.d(TAG,"mProximitySensorEventListener.onSensorChanged("+mEventhappen+")");
-            	
+            // 只在跳变（下降沿）起作用。-\_
+            //if(((mLastProximitySensorValue - 1.0f) >= 0.0f) && ((mProximitySensorValue-1.0f) < 0.0f))
+			
+			// 只要有变化，就发送消息。[上升沿 和 下降沿]
+			if(((int)mLastProximitySensorValue) != ((int)mProximitySensorValue))
+            {
+   				mEventhappen = true ;
+		        Log.d(TAG,"mEventhappen="+mEventhappen);
             	post_handle_incoming_call_message();
-            	
             }
-            */
 		}
 	};
 	
@@ -133,31 +141,24 @@ public class PhoneListenerService extends Service  {
 					Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_IDLE) ");
 					if(mProximitySensorListening)
 					{	
-						uninstall_sensor_listener();
-						mProximitySensorListening = false;
-						
+						unregisterSensorListener();
 						if(mEventhappen)
 						{
-							CloseSpeaker();  // 。如果之前开了 Speaker,关掉Speaker.
+							//CloseSpeaker();  // 。如果之前开了 Speaker,关掉Speaker.
 						}
 					}
 					break; 
 				case  TelephonyManager.CALL_STATE_RINGING: // 来电铃声状态.
-					Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_RINGING) ");					
-					install_sensor_listener(); 				// 让距离感应器 监听
+					Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_RINGING) ");
 					mEventhappen = false ;      			// 初始化 事件还没有发生。
-					mProximitySensorListening = true;  		// 只在来电时候生效。
-
+					registerSensorListener(); 				// 让距离感应器 监听
 					break;
 				case  TelephonyManager.CALL_STATE_OFFHOOK: // 挂机状态(拿起了话筒/接起电话)
 					Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_OFFHOOK) ");
-					// 接听也要把之前的注册 卸载掉。
-					//if(mProximitySensorListening)
-					//{	
-					//	uninstall_sensor_listener();
-					//	mProximitySensorListening = false;
-					//}
-					
+					if(mProximitySensorListening)
+					{	
+						unregisterSensorListener(); 		// 接听也要把之前的注册 卸载掉。
+					}					
 					break;
 				default:
 					break;
@@ -220,17 +221,22 @@ public class PhoneListenerService extends Service  {
 		}		
 	};
 
-	public void install_sensor_listener()
+	public void registerSensorListener()
 	{
-		Log.d(TAG,"install_sensor_listener()");
+		Log.d(TAG,"registerSensorListener()");
+
 		// start lister sensor
-        mSensorManager.registerListener(mLightSensorEventListener, mLightSensor,SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(mProximitySensorEventListener, mProximitySensor,SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(mLightSensorEventListener,     mLightSensor,    SensorManager.SENSOR_DELAY_NORMAL);
+        
+        mProximitySensorListening = true;  		// 只在来电时候生效。
 	}
 	
-	public void uninstall_sensor_listener()
+	public void unregisterSensorListener()
 	{
-		Log.d(TAG,"uninstall_sensor_listener()");
+		mProximitySensorListening = false;  	// 只在来电时候生效。
+		
+		Log.d(TAG,"registerSensorListener()");
 		mSensorManager.unregisterListener(mLightSensorEventListener, mLightSensor);		
 		mSensorManager.unregisterListener(mProximitySensorEventListener, mProximitySensor);	
 	}
@@ -250,28 +256,87 @@ public class PhoneListenerService extends Service  {
 		mAudioManager.setSpeakerphoneOn(false);
 	}
 	
-	public void handle_incoming_call()
+	
+	public void connectPhoneItelephony()
 	{
-    	try {
-			if(mProcessMothedAnswer)
-			{
-				Log.d(TAG,"自动接听");
-				PhoneUtils.getITelephony(mTelephonyManager).silenceRinger();	// 静铃
-				PhoneUtils.getITelephony(mTelephonyManager).answerRingingCall();// 自动接听
-				OpenSpeaker(); // 切换外音模式。
-			}
-			else
-			{
-				Log.d(TAG,"自动挂断");
-				PhoneUtils.getITelephony(mTelephonyManager).endCall();// 挂断
-				PhoneUtils.getITelephony(mTelephonyManager).cancelMissedCallsNotification(); //取消未接显示
-			}
+		Log.d(TAG,"自动接听");
+		try {
+			Log.d(TAG,"Telephony Control");
+			PhoneUtils.getITelephony(mTelephonyManager).silenceRinger();	// 静铃
+			PhoneUtils.getITelephony(mTelephonyManager).answerRingingCall();// 自动接听
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+
+		try 
+		{
+			Log.d(TAG,"line control answer key 1");
+	    	Intent KeyIntent = new Intent("android.intent.action.MEDIA_BUTTON");
+	    	mKeyEvent = new KeyEvent(KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_HEADSETHOOK);
+	    	KeyIntent.putExtra("android.intent.extra.KEY_EVENT", mKeyEvent);
+	    	mContext.sendOrderedBroadcast(KeyIntent, "android.permission.CALL_PRIVILEGED");
+	    	
+	    	KeyIntent = new Intent("android.intent.action.MEDIA_BUTTON");
+	    	mKeyEvent = new KeyEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_HEADSETHOOK);
+	    	KeyIntent.putExtra("android.intent.extra.KEY_EVENT", mKeyEvent);
+	    	mContext.sendOrderedBroadcast(KeyIntent, "android.permission.CALL_PRIVILEGED");
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		try 
+		{
+			Log.d(TAG,"line control answer key 2");		
+			Intent KeyIntent = new Intent("android.intent.action.MEDIA_BUTTON");
+			mKeyEvent = new KeyEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_HEADSETHOOK);
+			KeyIntent.putExtra("android.intent.extra.KEY_EVENT", mKeyEvent);
+			mContext.sendOrderedBroadcast(KeyIntent, null);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+    	if(mEventhappen)
+    	{
+			//OpenSpeaker(); // 切换外音模式。
+    	}
+	}
+	
+	public void disconnectPhoneItelephony()
+	{
+		Log.d(TAG,"自动挂断");
+		try {
+			PhoneUtils.getITelephony(mTelephonyManager).endCall(); 						 // 挂断
+			PhoneUtils.getITelephony(mTelephonyManager).cancelMissedCallsNotification(); //取消未接显示
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void handle_incoming_call()
+	{
+		// 来电状态。
+		if(mTelephonyManager.getCallState() == TelephonyManager.CALL_STATE_RINGING)
+		{
+			if((mProcessMothedAnswer))
+			{
+				connectPhoneItelephony();
+			}
+			else
+			{
+				disconnectPhoneItelephony();
+			}
 		}
 	}
 	
@@ -315,6 +380,12 @@ public class PhoneListenerService extends Service  {
 		
         mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         mLightSensor     = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+
+		// ref frameworks/base/services/java/com/android/server/power/DisplayPowerController.java
+        if (mProximitySensor != null) 
+		{
+               mProximityThreshold = Math.min(mProximitySensor.getMaximumRange(),TYPICAL_PROXIMITY_THRESHOLD);
+        }
         
         // AudioManager
 		mAudioManager = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);       

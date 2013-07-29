@@ -12,6 +12,7 @@
      <!-- 上网 -->
      <uses-permission android:name="android.permission.INTERNET" />
      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+ 
      <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
 
      <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
@@ -29,6 +30,9 @@
      <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
    　　<!-- 挂断电话时需要的权限 -->
      <uses-permission android:name="android.permission.CALL_PHONE" />
+     
+     <!-- 外拨电话 -->
+     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
     
     <application
         android:icon="@drawable/ic_launcher"
@@ -50,11 +54,21 @@
              </intent-filter>
         </receiver>
 
-        <receiver android:name=".PhoneStateReceiver" android:permission="android.permission.READ_PHONE_STATE" android:priority="10000">
+        <receiver android:name=".PhoneStateReceiver" android:priority="10000">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
             </intent-filter>
         </receiver>
+        
+        <service android:name=".PhoneListenerService"
+            android:label="@string/app_name"
+            android:icon="@drawable/ic_launcher"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":remote">
+        </service>
+        
     </application>
 
 </manifest>

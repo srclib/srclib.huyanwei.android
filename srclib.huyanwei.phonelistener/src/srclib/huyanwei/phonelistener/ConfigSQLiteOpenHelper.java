@@ -6,10 +6,13 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 
-	static final String DATABASE_NAME 			= "phonelistener.db";
+	private final String TAG = "srclib.huyanwei.phonelistener.ConfigSQLiteOpenHelper";
+	
+	static final String DATABASE_NAME 			= "config.db";
 
 	static final int    DATABASE_VERSION_NUMBER = 3;
 	
@@ -25,51 +28,112 @@ public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		// TODO Auto-generated method stub
 		
+		//Log.d(TAG,"ConfigSQLiteOpenHelper.onCreate() {");
+		
 		mSQLiteDatabase = db;
 		
 		String defaultconfig = "";
 		
 		// Create Table.
-		String createtable = "create table if not exists config (id integer primary key autoincrement,name text, value integer);";
+		String createtable = "create table if not exists "
+		+ConfigContentProvider.TABLE_NAME+" ("
+		+ConfigContentProvider.TABLE_FIELD_ID+" integer primary key autoincrement,"
+		+ConfigContentProvider.TABLE_FIELD_NAME+" text, "
+		+ConfigContentProvider.TABLE_FIELD_VALUE+" integer);";
 		mSQLiteDatabase.execSQL(createtable);
 		
 		// proximity sensor listen enable.
-		defaultconfig ="insert into config(name,value) values(\"config_proximity_sensor_enable\",1);";
+		defaultconfig ="insert into "
+		+ConfigContentProvider.TABLE_NAME+"("
+		+ConfigContentProvider.TABLE_FIELD_NAME+","
+		+ConfigContentProvider.TABLE_FIELD_VALUE
+		+") values(\""
+		+ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE
+		+"\",1);";
 		mSQLiteDatabase.execSQL(defaultconfig);
 		
 		// proximity sensor listen enable.  answer/reject
-		defaultconfig ="insert into config(name,value) values(\"config_action\",1);";
+		defaultconfig ="insert into "
+		+ConfigContentProvider.TABLE_NAME+"("
+		+ConfigContentProvider.TABLE_FIELD_NAME+","
+		+ConfigContentProvider.TABLE_FIELD_VALUE
+		+") values(\""
+		+ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION
+		+"\",1);";
 		mSQLiteDatabase.execSQL(defaultconfig);
 		
 		// speaker on/off
-		defaultconfig ="insert into config(name,value) values(\"config_speaker\",1);";
+		defaultconfig ="insert into "
+		+ConfigContentProvider.TABLE_NAME+"("
+		+ConfigContentProvider.TABLE_FIELD_NAME+","
+		+ConfigContentProvider.TABLE_FIELD_VALUE
+		+") values(\""
+		+ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER
+		+"\",1);";
 		mSQLiteDatabase.execSQL(defaultconfig);
 		
 		// database inited.
-		defaultconfig ="insert into config(name,value) values(\"config_inited\",0);";
+		defaultconfig ="insert into "
+		+ConfigContentProvider.TABLE_NAME+"("
+		+ConfigContentProvider.TABLE_FIELD_NAME+","
+		+ConfigContentProvider.TABLE_FIELD_VALUE
+		+") values(\""
+		+ConfigContentProvider.TABLE_CONTENT_CONFIG_INITED
+		+"\",0);";
 		mSQLiteDatabase.execSQL(defaultconfig);
+		
+		//Log.d(TAG,"ConfigSQLiteOpenHelper.onCreate() }");
 	}
 
-	public void Init(Context context)
+	public void Init(Context context,SQLiteDatabase db)
 	{
 		String sql = null ;
 		int config_value;
+	
+		//Log.d(TAG,"ConfigSQLiteOpenHelper.Init() {");
+		
+		mSQLiteDatabase = db;
 		
 		config_value = context.getResources().getInteger(R.integer.config_proximity_sensor_enable);
-	    sql = String.format(Locale.ENGLISH, "update config set value=%d where name=config_proximity_sensor_enable",config_value);
+		//Log.d(TAG,"ConfigSQLiteOpenHelper.Init() config_value="+config_value);
+	    sql = String.format(Locale.ENGLISH, 
+	    		"update "+ConfigContentProvider.TABLE_NAME
+	    		+" set "+ConfigContentProvider.TABLE_FIELD_VALUE+"=%d"
+	    		+" where "+ConfigContentProvider.TABLE_FIELD_NAME+"=\""
+	    		+ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE
+	    		+"\"",config_value);
 	    mSQLiteDatabase.execSQL(sql);
 	    
 		config_value = context.getResources().getInteger(R.integer.config_action);
-	    sql = String.format(Locale.ENGLISH, "update config set value=1 where name=config_action");
+		//Log.d(TAG,"ConfigSQLiteOpenHelper.Init() config_value="+config_value);
+	    sql = String.format(Locale.ENGLISH, 
+	    		"update "+ConfigContentProvider.TABLE_NAME
+	    		+" set "+ConfigContentProvider.TABLE_FIELD_VALUE+"=%d "
+	    		+"where "+ConfigContentProvider.TABLE_FIELD_NAME+"=\""
+	    		+ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION
+	    		+"\"",config_value);
 	    mSQLiteDatabase.execSQL(sql);
 	    
 	    config_value = context.getResources().getInteger(R.integer.config_speaker);
-	    sql = String.format(Locale.ENGLISH, "update config set value=1 where name=config_speaker");
+	    //Log.d(TAG,"ConfigSQLiteOpenHelper.Init() config_value="+config_value);
+	    sql = String.format(Locale.ENGLISH, 
+	    		"update "+ConfigContentProvider.TABLE_NAME
+	    		+" set "+ConfigContentProvider.TABLE_FIELD_VALUE+"=%d "
+	    		+"where "+ConfigContentProvider.TABLE_FIELD_NAME+"=\""
+	    		+ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER
+	    		+"\"",config_value);
 	    mSQLiteDatabase.execSQL(sql);
 
 	    // inited 
-	    sql = String.format(Locale.ENGLISH, "update config set value=1 where name=config_inited");
+	    sql = String.format(Locale.ENGLISH, 
+	    		"update "+ConfigContentProvider.TABLE_NAME
+	    		+" set "+ConfigContentProvider.TABLE_FIELD_VALUE+"=1 "
+	    		+"where "+ConfigContentProvider.TABLE_FIELD_NAME+"=\""
+	    		+ConfigContentProvider.TABLE_CONTENT_CONFIG_INITED
+	    		+"\"");
 	    mSQLiteDatabase.execSQL(sql);
+	    
+	    //Log.d(TAG,"ConfigSQLiteOpenHelper.Init() }");
 	}
 	
 	@Override

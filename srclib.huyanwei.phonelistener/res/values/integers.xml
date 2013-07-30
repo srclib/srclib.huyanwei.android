@@ -1,7 +1,12 @@
 <resources>
+    <!-- enable proximity sensor control incoming call action -->
     <integer name="config_proximity_sensor_enable">1</integer>
+    
+    <!-- 1 for auto_answer,0 for reject when proximity sensor enable -->
     <integer name="config_action">1</integer>
-    <integer name="config_speaker">1</integer>
+    
+    <!-- open speaker when connecting -->    
+    <integer name="config_speaker">0</integer>
 </resources>
 
 

@@ -76,20 +76,22 @@ public class PhoneListenerService extends Service  {
 	
 	private final  CallStateHandler   mHandler = new CallStateHandler();
 
-	private boolean             mConfigProximitySensorEnable 	= true;
+	private boolean             mConfigProximitySensorEnable 	= true;  // 缺省是启动功能
 	private boolean             mConfigProcessMothedAnswer 		= true;  // 缺省是 接电话.
 	private boolean             mConfigOpenSpeaker 		   		= true;  // 缺省是 开外放.
 	
 	private ContentResolver mContentResolver;
 	
-	private int query_database(String name)
+	private int query_config_value(String name)
 	{
 		int value = 0 ;
-		final String TABLE_FILED_ID 	= "_id";
-		final String TABLE_FILED_NAME 	= "name";
-		final String TABLE_FILED_VALUE 	= "value";
+		final String TABLE_FILED_ID 	= ConfigContentProvider.TABLE_FIELD_ID;
+		final String TABLE_FILED_NAME 	= ConfigContentProvider.TABLE_FIELD_NAME;
+		final String TABLE_FILED_VALUE 	= ConfigContentProvider.TABLE_FIELD_VALUE;
         final Uri uri = ConfigContentProvider.CONTENT_URI;
 
+        //Log.d(TAG,"query_database("+name+")");
+        
         // select TABLE_FILED_ID,TABLE_FILED_NAME,TABLE_FILED_VALUE where TABLE_FILED_NAME=name;
         Cursor c = mContentResolver.query(uri
         		,new String[]{TABLE_FILED_ID,TABLE_FILED_NAME,TABLE_FILED_VALUE} 
@@ -119,10 +121,16 @@ public class PhoneListenerService extends Service  {
 	
 	private void update_data_from_database()
 	{
+		Log.d(TAG,"update_data_from_database() {");
+		
 		// update Data.
-		mConfigProximitySensorEnable 	= (query_database("config_proximity_sensor_enable")==1) ? true:false;
-		mConfigProcessMothedAnswer 		= (query_database("config_action")==1) ? true : false;
-		mConfigOpenSpeaker		 		= (query_database("config_speaker")==1)? true : false;
+		mConfigProximitySensorEnable 	= (query_config_value("config_proximity_sensor_enable")==1) ? true:false;
+		mConfigProcessMothedAnswer 		= (query_config_value("config_action") >=1) ? true : false;
+		mConfigOpenSpeaker		 		= (query_config_value("config_speaker")==1) ? true : false;
+		
+		Log.d(TAG,"mConfigProximitySensorEnable="+mConfigProximitySensorEnable+",mConfigProcessMothedAnswer="+mConfigProcessMothedAnswer+",mConfigOpenSpeaker="+mConfigOpenSpeaker);
+				
+		Log.d(TAG,"update_data_from_database() }");
 	}
 	
 	private ContentObserver mContentObserver = new ContentObserver(new Handler())

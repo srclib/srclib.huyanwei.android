@@ -1,5 +1,7 @@
 package srclib.huyanwei.phonelistener;
 
+import java.util.Locale;
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -17,19 +19,33 @@ public class ConfigContentProvider extends ContentProvider {
     private static final String TAG = "srclib.huyanwei.phonelistener.DatabaseProvider";
     
 	public static final String AUTHORITY = "srclib.huyanwei.phonelistener"; // AndroidManifest.xml
-	
-	public static final String PARAMETER_TABLE  = "config";
-    public static final String PARAMETER_NOTIFY = "notify";
-	
-    // content://srclib.huyanwei.phonelistener/config/
+
+	// notify Observer
+    public static final String PARAMETER_NOTIFY 	 = "notify";
+
+	// Table name 
+	public static final String TABLE_NAME  = "config";
+
+    // Table record name:
+    public final static String TABLE_CONTENT_CONFIG_ENABLE 	= "config_proximity_sensor_enable";
+    public final static String TABLE_CONTENT_CONFIG_SPEAKER = "config_speaker";
+    public final static String TABLE_CONTENT_CONFIG_ACTION 	= "config_action";
+    public final static String TABLE_CONTENT_CONFIG_INITED  = "config_inited";
+    
+    // Table Field name
+    public final static String TABLE_FIELD_ID  		= "id";
+    public final static String TABLE_FIELD_NAME 	= "name";
+    public final static String TABLE_FIELD_VALUE  	= "value";
+
+	// content://srclib.huyanwei.phonelistener/config/
     // config table
-	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/"+PARAMETER_TABLE);
+	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/"+TABLE_NAME);
 	
     private ConfigSQLiteOpenHelper 	mConfigSQLiteOpenHelper;
     private	SQLiteDatabase 			mSQLiteDatabase;
     
     private int mDatabaseInited = 0 ;
-    
+
     // content://srclib.huyanwei.phonelistener/config/1?notify=true
     // content://srclib.huyanwei.phonelistener/config/2?notify=false
     
@@ -43,7 +59,7 @@ public class ConfigContentProvider extends ContentProvider {
      */
     static Uri getContentUri(long id, boolean notify) {
         return Uri.parse("content://" + AUTHORITY +
-                "/" + PARAMETER_TABLE + "/" + id + "?" +
+                "/" + TABLE_NAME + "/" + id + "?" +
                 PARAMETER_NOTIFY + "=" + notify);
     }
     
@@ -91,7 +107,12 @@ public class ConfigContentProvider extends ContentProvider {
 
 	public void config(ConfigSQLiteOpenHelper hlp,SQLiteDatabase mDatabase)
 	{
-		Cursor mCursor = mDatabase.rawQuery("select value from config where name=config_inited limit 1;",null);
+		//Log.d(TAG,"config() {");
+		String sql = String.format(Locale.ENGLISH,
+				"select "+TABLE_FIELD_VALUE+" from "+TABLE_NAME
+				+" where "+TABLE_FIELD_NAME+"=\"+TABLE_CONTENT_CONFIG_INITED+\" limit 1;");
+		
+		Cursor mCursor = mDatabase.rawQuery(sql,null);
 		if(mCursor.getCount() > 0)
 		{
 			mCursor.moveToFirst();
@@ -107,10 +128,13 @@ public class ConfigContentProvider extends ContentProvider {
 		
 		mCursor.close();
 		
+		//Log.d(TAG,"mDatabaseInited="+mDatabaseInited);
+		
 		if(mDatabaseInited == 0)  // not inited yet.
 		{
-			hlp.Init(this.getContext());
+			hlp.Init(this.getContext(),mDatabase);
 		}
+		//Log.d(TAG,"config() }");
 	}
 	
 	@Override
@@ -168,7 +192,7 @@ public class ConfigContentProvider extends ContentProvider {
 
         SqlArguments(Uri url, String where, String[] args) 
         {
-        	Log.d(TAG,"url.getPathSegments().size()="+url.getPathSegments().size());
+        	//Log.d(TAG,"url.getPathSegments().size()="+url.getPathSegments().size());
             if (url.getPathSegments().size() == 1)
             {
                 this.table = url.getPathSegments().get(0);
@@ -186,7 +210,7 @@ public class ConfigContentProvider extends ContentProvider {
             else
             {
                 this.table = url.getPathSegments().get(0);
-                this.where = "_id=" + ContentUris.parseId(url);                
+                this.where = ""+TABLE_FIELD_ID+"=" + ContentUris.parseId(url);                
                 this.args = null;
             }
         }

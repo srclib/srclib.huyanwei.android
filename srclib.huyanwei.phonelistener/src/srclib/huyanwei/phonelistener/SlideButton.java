@@ -47,6 +47,8 @@ public class SlideButton extends FrameLayout {
 	private float init_right 	=  0.0f ;
 	private float init_bottom 	=  0.0f ;
 	
+	private boolean DBG = false;
+	
 	private LayoutParams mLayoutParams ;
 	
 	public boolean getState()
@@ -69,12 +71,14 @@ public class SlideButton extends FrameLayout {
 	public SlideButton(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		// TODO Auto-generated constructor stub
-		Log.d(TAG,"SlideButton(Context context, AttributeSet attrs, int defStyle)");
+		if(DBG)
+			Log.d(TAG,"SlideButton(Context context, AttributeSet attrs, int defStyle)");
 	}
 
 	public SlideButton(Context context, AttributeSet attrs) {
 		super(context, attrs);		
 		// TODO Auto-generated constructor stub
+		if(DBG)
 		Log.d(TAG,"SlideButton(Context context, AttributeSet attrs)");
 		
 		mContext = context ;
@@ -88,6 +92,7 @@ public class SlideButton extends FrameLayout {
 		mDrawable_off = mContext.getResources().getDrawable(R.drawable.slide_off);
 		mDrawable_on = mContext.getResources().getDrawable(R.drawable.slide_on);
 		
+		if(DBG)
 		Log.d(TAG,"mDrawable_off.getMinimumWidth()="+mDrawable_off.getMinimumWidth());
 		
 		mBackgroundImage = (ImageView) mFrameLayout.findViewById(R.id.slide_area_bg);		 
@@ -105,6 +110,7 @@ public class SlideButton extends FrameLayout {
 	public SlideButton(Context context) {
 		//super(context);		
 		this(context,null);		
+		if(DBG)
 		Log.d(TAG,"SlideButton(Context context)");
 		// TODO Auto-generated constructor stub
 	}
@@ -122,6 +128,7 @@ public class SlideButton extends FrameLayout {
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
 		// TODO Auto-generated method stub
+		if(DBG)
 		Log.d(TAG,"onLayout("+left+","+top+","+right+","+bottom+")");
 		
 		int i = 0 ;
@@ -154,13 +161,15 @@ public class SlideButton extends FrameLayout {
 		width = MeasureSpec.getSize(widthMeasureSpec);
 		height = MeasureSpec.getSize(heightMeasureSpec);
 		
+		if(DBG)
 		Log.d(TAG,"onMeasure("+width+","+height+")");
 		
 		setMeasuredDimension(width,height);
 
 		for(int i= 0;i<getChildCount();i++){
 			View v = getChildAt(i);
-			Log.v(TAG, "measureWidth is " +v.getMeasuredWidth() + ",measureHeight is " +v.getMeasuredHeight());
+			if(DBG)
+				Log.v(TAG, "measureWidth is " +v.getMeasuredWidth() + ",measureHeight is " +v.getMeasuredHeight());
 			int widthSpec = 0;
 			int heightSpec = 0;
 			LayoutParams params = (LayoutParams) v.getLayoutParams();
@@ -188,6 +197,7 @@ public class SlideButton extends FrameLayout {
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		// TODO Auto-generated method stub
+		if(DBG)
 		Log.d(TAG,"onSizeChanged("+w+","+h+","+oldw+","+oldh+")");
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
@@ -206,13 +216,16 @@ public class SlideButton extends FrameLayout {
 			case  MotionEvent.ACTION_DOWN:
 				down_x = (float) event.getX();
 				down_y = (float) event.getY();
+				if(DBG)
 				Log.d(TAG,"down x="+down_x+",y="+down_y);
 				
 				init_left 	=  mLinearLayout.getLeft();
 				init_top 	=  mLinearLayout.getTop();
 				init_right 	=  init_left + mLinearLayout.getWidth();
-				init_bottom =  init_top + mLinearLayout.getHeight();				
-				Log.d(TAG,"down init_left="+init_left+",init_top="+init_top+",init_right="+init_right+",init_bottom="+init_bottom);
+				init_bottom =  init_top + mLinearLayout.getHeight();
+				
+				if(DBG)
+					Log.d(TAG,"down init_left="+init_left+",init_top="+init_top+",init_right="+init_right+",init_bottom="+init_bottom);
 				
 				mLayoutParams = (LayoutParams) mLinearLayout.getLayoutParams();
 				
@@ -224,7 +237,9 @@ public class SlideButton extends FrameLayout {
 				delta_x = x - down_x ; //
 				delta_y = 0 ;          // hor
 				
-				Log.d(TAG,"move x="+x+",y="+y+",delta_x="+delta_x);
+				if(DBG)
+					Log.d(TAG,"move x="+x+",y="+y+",delta_x="+delta_x);
+				
 				if(((init_left+delta_x) >= 0) && (((init_left+delta_x) < (mDrawable_off.getMinimumWidth()/8))))
 				{
 					if(pre_state == 1)
@@ -284,7 +299,8 @@ public class SlideButton extends FrameLayout {
 			case  MotionEvent.ACTION_UP:
 				x = (float) event.getX();
 				y = (float) event.getY();
-				Log.d(TAG,"up x="+x+",y="+y);
+				if(DBG)
+					Log.d(TAG,"up x="+x+",y="+y);
 				break;
 			default:
 				break;

@@ -1,0 +1,7 @@
+<resources>
+    <integer name="config_proximity_sensor_enable">1</integer>
+    <integer name="config_action">1</integer>
+    <integer name="config_speaker">1</integer>
+</resources>
+
+

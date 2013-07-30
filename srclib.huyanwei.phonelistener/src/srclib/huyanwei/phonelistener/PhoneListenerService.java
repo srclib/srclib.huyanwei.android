@@ -4,14 +4,19 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 
 import android.app.Service;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -48,10 +53,13 @@ public class PhoneListenerService extends Service  {
 	
 	private boolean 			mEventhappen = false;
 	
-	private boolean             mProcessMothedAnswer = true;  // 缺省是 挂电话.
-	
 	private final int 			MSG_HANDLE_INCOMING_CALL		= 1;
 	private final int 			MSG_PROXIMITY_SENSOR_DEBOUNCED	= 2;
+
+	//ref frameworks/base/services/java/com/android/server/power/DisplayPowerController.java
+    // Trigger proximity if distance is less than 5 cm.
+    private static final float TYPICAL_PROXIMITY_THRESHOLD = 5.0f;
+	private float  mProximityThreshold = TYPICAL_PROXIMITY_THRESHOLD;	
 	
     // Proximity sensor debounce delay in milliseconds for positive or negative transitions.
     private static final int PROXIMITY_SENSOR_POSITIVE_DEBOUNCE_DELAY = 0;
@@ -65,13 +73,71 @@ public class PhoneListenerService extends Service  {
     private static long 	mProximityDebounceTime;
     
 	private KeyEvent mKeyEvent;
-
-	//ref frameworks/base/services/java/com/android/server/power/DisplayPowerController.java
-    // Trigger proximity if distance is less than 5 cm.
-    private static final float TYPICAL_PROXIMITY_THRESHOLD = 5.0f;
-	private float  mProximityThreshold = TYPICAL_PROXIMITY_THRESHOLD;
 	
 	private final  CallStateHandler   mHandler = new CallStateHandler();
+
+	private boolean             mConfigProximitySensorEnable 	= true;
+	private boolean             mConfigProcessMothedAnswer 		= true;  // 缺省是 接电话.
+	private boolean             mConfigOpenSpeaker 		   		= true;  // 缺省是 开外放.
+	
+	private ContentResolver mContentResolver;
+	
+	private int query_database(String name)
+	{
+		int value = 0 ;
+		final String TABLE_FILED_ID 	= "_id";
+		final String TABLE_FILED_NAME 	= "name";
+		final String TABLE_FILED_VALUE 	= "value";
+        final Uri uri = ConfigContentProvider.CONTENT_URI;
+
+        // select TABLE_FILED_ID,TABLE_FILED_NAME,TABLE_FILED_VALUE where TABLE_FILED_NAME=name;
+        Cursor c = mContentResolver.query(uri
+        		,new String[]{TABLE_FILED_ID,TABLE_FILED_NAME,TABLE_FILED_VALUE} 
+        		,TABLE_FILED_NAME+"=?"
+        		,new String[]{name}
+        		,null
+        );
+        
+        final int IdIndex = c.getColumnIndexOrThrow(TABLE_FILED_ID);
+        final int NameIndex = c.getColumnIndexOrThrow(TABLE_FILED_NAME);
+        final int ValueIndex = c.getColumnIndexOrThrow(TABLE_FILED_VALUE);
+        
+        try {
+            while (c.moveToNext()) 
+            {
+                value = c.getInt(ValueIndex);
+                
+                return value;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            c.close();
+        }
+        return value;
+	}
+	
+	private void update_data_from_database()
+	{
+		// update Data.
+		mConfigProximitySensorEnable 	= (query_database("config_proximity_sensor_enable")==1) ? true:false;
+		mConfigProcessMothedAnswer 		= (query_database("config_action")==1) ? true : false;
+		mConfigOpenSpeaker		 		= (query_database("config_speaker")==1)? true : false;
+	}
+	
+	private ContentObserver mContentObserver = new ContentObserver(new Handler())
+	{
+		@Override
+		public void onChange(boolean selfChange) 
+		{
+			// TODO Auto-generated method stub
+			// 数据已经发生改变，selfChange 最好不要用。		
+			
+			update_data_from_database();
+	        
+			super.onChange(selfChange);
+		}
+	};
 	
 	private final class CallStateHandler extends Handler
 	{
@@ -90,9 +156,9 @@ public class PhoneListenerService extends Service  {
 					break;
 				default:
 					break;
-			}			
+			}
 			super.handleMessage(msg);
-		}		
+		}
 	};
 	
 	private void handleProximitySensorEvent(long time, boolean positive)
@@ -167,7 +233,11 @@ public class PhoneListenerService extends Service  {
 			// 只要有变化，就发送消息。[上升沿 和 下降沿]
 			//boolean positive = (((int)mLastProximitySensorValue) != ((int)mProximitySensorValue));
 			
-            handleProximitySensorEvent(SensorEventUpTimes, positive);
+			// 只有允许这个功能才能使用.
+			if(mConfigProximitySensorEnable)
+            {
+				handleProximitySensorEvent(SensorEventUpTimes, positive);
+            }
 		}
 	};
 	
@@ -206,23 +276,26 @@ public class PhoneListenerService extends Service  {
 					if(mProximitySensorListening)
 					{	
 						unregisterSensorListener();
-						if(mEventhappen)
+						if((mEventhappen) && (mConfigOpenSpeaker))
 						{
-							//CloseSpeaker();  // 。如果之前开了 Speaker,关掉Speaker.
+							CloseSpeaker();  				// 如果之前开了 Speaker,关掉Speaker.
 						}
 					}
 					break; 
 				case  TelephonyManager.CALL_STATE_RINGING: // 来电铃声状态.
 					Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_RINGING) ");
-					mEventhappen = false ;      			// 初始化 事件还没有发生。
-					registerSensorListener(); 				// 让距离感应器 监听
+					//if(mConfigProximitySensorEnable)             // 只有起作用才能使用这个功能,在事件里面截获是不是更加安全？
+					{
+						mEventhappen = false ;      			// 初始化 事件还没有发生。
+						registerSensorListener(); 				// 让距离感应器 监听
+					}					
 					break;
 				case  TelephonyManager.CALL_STATE_OFFHOOK: // 挂机状态(拿起了话筒/接起电话)
 					Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_OFFHOOK) ");
 					if(mProximitySensorListening)
-					{	
+					{
 						unregisterSensorListener(); 		// 接听也要把之前的注册 卸载掉。
-					}					
+					}
 					break;
 				default:
 					break;
@@ -306,7 +379,7 @@ public class PhoneListenerService extends Service  {
 		
 		mProximityState = PROXIMITY_UNKNOWN ;   // 距离感应器处于无效状态. 
 		
-		mHandler.removeMessages(MSG_PROXIMITY_SENSOR_DEBOUNCED);  // 删除稳定态消息
+		mHandler.removeMessages(MSG_PROXIMITY_SENSOR_DEBOUNCED);  // 删除 debounce 消息
 		
 		mSensorManager.unregisterListener(mLightSensorEventListener, mLightSensor);		
 		mSensorManager.unregisterListener(mProximitySensorEventListener, mProximitySensor);	
@@ -376,9 +449,9 @@ public class PhoneListenerService extends Service  {
 			e.printStackTrace();
 		}
 
-    	if(mEventhappen)
+    	if((mEventhappen) && (mConfigOpenSpeaker))
     	{
-			//OpenSpeaker(); // 切换外音模式。
+			OpenSpeaker(); // 切换外音模式。
     	}
 	}
 	
@@ -387,7 +460,7 @@ public class PhoneListenerService extends Service  {
 		Log.d(TAG,"自动挂断");
 		try {
 			PhoneUtils.getITelephony(mTelephonyManager).endCall(); 						 // 挂断
-			PhoneUtils.getITelephony(mTelephonyManager).cancelMissedCallsNotification(); //取消未接显示
+			PhoneUtils.getITelephony(mTelephonyManager).cancelMissedCallsNotification(); // 取消未接显示
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -402,7 +475,7 @@ public class PhoneListenerService extends Service  {
 		// 来电状态。
 		if(mTelephonyManager.getCallState() == TelephonyManager.CALL_STATE_RINGING)
 		{
-			if((mProcessMothedAnswer))
+			if((mConfigProcessMothedAnswer))
 			{
 				connectPhoneItelephony();
 			}
@@ -465,14 +538,17 @@ public class PhoneListenerService extends Service  {
 		
 		// 动态注册  广播接收器
 		mIntentFilter = new IntentFilter();
-		mIntentFilter.addAction("android.intent.action.PHONE_STATE");		 // use-pemission
-		
-		mIntentFilter.addAction(Intent.ACTION_NEW_OUTGOING_CALL);		 	 // use-pemission
-		
-		mIntentFilter.setPriority(Integer.MAX_VALUE);
-		
+		mIntentFilter.addAction("android.intent.action.PHONE_STATE");		 // use-pemission		
+		mIntentFilter.addAction(Intent.ACTION_NEW_OUTGOING_CALL);		 	 // use-pemission		
+		mIntentFilter.setPriority(Integer.MAX_VALUE);		
 		mPhoneStateReceiver = new PhoneStateReceiver();
 		registerReceiver(mPhoneStateReceiver, mIntentFilter);
+		
+		// install ContentObserver
+		mContentResolver = mContext.getContentResolver();		
+		mContentResolver.registerContentObserver(ConfigContentProvider.CONTENT_URI, false, mContentObserver);
+		
+		update_data_from_database(); // init data .
 		
 		Log.d(TAG,"huyanwei debug onCreate() registerReceiver() }");
 
@@ -488,6 +564,9 @@ public class PhoneListenerService extends Service  {
 		}
 		
 		unregisterReceiver(mPhoneStateReceiver);
+		
+		// uninstall ContentObserver
+		mContentResolver.unregisterContentObserver(mContentObserver);
 		
 		super.onDestroy();
 	}

@@ -3,9 +3,14 @@
     <string name="app_name">ProximitityCall</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">ProximitityCall</string>
-    <string name="help">当来电的时候，用手划过距离感应器上方，就能接听来电!</string>
+    <string name="help"> answer the incoming call with proximity sensor control</string>
 
     <string name="value_off">off</string>
     <string name="value_on">on</string>
+    
+    <string name="perm_lab_write_settings">write</string>
+    <string name="perm_desc_write_settings">need permission to write the app\'s database </string>
+    <string name="perm_lab_read_settings">read database</string>
+    <string name="perm_desc_read_settings">need permission to read the app\'s database</string>
     
 </resources>

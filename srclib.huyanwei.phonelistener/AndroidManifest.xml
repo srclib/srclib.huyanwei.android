@@ -33,6 +33,20 @@
      
      <!-- 外拨电话 -->
      <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+     
+     <!-- 自定义 权限 --> 
+     <permission
+        android:name="srclib.huyanwei.phonelistener.permission.READ_SETTINGS"
+        android:permissionGroup="android.permission-group.SYSTEM_TOOLS"
+        android:protectionLevel="normal"
+        android:label="@string/perm_lab_read_settings"
+        android:description="@string/perm_desc_read_settings"/>
+     <permission
+        android:name="srclib.huyanwei.phonelistener.permission..WRITE_SETTINGS"
+        android:permissionGroup="android.permission-group.SYSTEM_TOOLS"
+        android:protectionLevel="normal"
+        android:label="@string/perm_lab_write_settings"
+        android:description="@string/perm_desc_write_settings"/>
     
     <application
         android:icon="@drawable/ic_launcher"
@@ -69,6 +83,12 @@
             android:process=":remote">
         </service>
         
+        <!-- The config provider -->
+        <provider
+            android:name="srclib.huyanwei.phonelistener.ConfigContentProvider"
+            android:authorities="srclib.huyanwei.phonelistener"
+            android:writePermission="srclib.huyanwei.phonelistener.permission.WRITE_SETTINGS"
+            android:readPermission="srclib.huyanwei.phonelistener.permission.READ_SETTINGS" />
     </application>
 
 </manifest>

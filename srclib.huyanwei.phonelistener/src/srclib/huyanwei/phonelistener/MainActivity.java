@@ -1,9 +1,16 @@
 package srclib.huyanwei.phonelistener;
 
+import java.util.Locale;
+
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +32,8 @@ public class MainActivity extends Activity {
 	private ImageButton mImageButton;
 	
 	private LinearLayout mlinearLayout;
+	
+	private	SQLiteDatabase mDatabase;
 	
 	private SlideButton.Callback mCallback = new SlideButton.Callback()
 	{
@@ -60,17 +69,20 @@ public class MainActivity extends Activity {
 		}
 	};
 	
+
+
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        
+
         setContentView(R.layout.activity_main);
-        
+
         mContext= this;
         
-        mlinearLayout = (LinearLayout)findViewById(R.id.linearLayout3);  
+        mlinearLayout = (LinearLayout)findViewById(R.id.linearLayout3);
         
         mSlideButton = (SlideButton) mlinearLayout.findViewById(R.id.SlideButton1);     
         mSlideButton.setCallback(mCallback);
@@ -78,7 +90,6 @@ public class MainActivity extends Activity {
         mImageButton = (ImageButton) mlinearLayout.findViewById(R.id.imageButton1);    
         
         mImageButton.setOnClickListener(mOnClickListener);
-        
     }
  
     @Override

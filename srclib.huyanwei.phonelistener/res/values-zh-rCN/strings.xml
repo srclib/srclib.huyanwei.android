@@ -7,4 +7,9 @@
     <string name="value_off">关</string>
     <string name="value_on">开</string>
     
+    <string name="perm_lab_write_settings">此应用数据库写</string>
+    <string name="perm_desc_write_settings">对此应用的数据库需要写的权限</string>
+    <string name="perm_lab_read_settings">此应用数据库读</string>
+    <string name="perm_desc_read_settings">对此应用的数据库需要读的权限</string>
+    
 </resources>

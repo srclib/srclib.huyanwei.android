@@ -14,8 +14,10 @@ import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
@@ -48,8 +50,20 @@ public class PhoneListenerService extends Service  {
 	
 	private boolean             mProcessMothedAnswer = true;  // 缺省是 挂电话.
 	
-	private final int 			MSG_HANDLE_INCOMING_CALL	= 1;
+	private final int 			MSG_HANDLE_INCOMING_CALL		= 1;
+	private final int 			MSG_PROXIMITY_SENSOR_DEBOUNCED	= 2;
 	
+    // Proximity sensor debounce delay in milliseconds for positive or negative transitions.
+    private static final int PROXIMITY_SENSOR_POSITIVE_DEBOUNCE_DELAY = 0;
+    private static final int PROXIMITY_SENSOR_NEGATIVE_DEBOUNCE_DELAY = 500;
+	
+    private static final int PROXIMITY_UNKNOWN = -1;
+    private static final int PROXIMITY_NEGATIVE = 0;
+    private static final int PROXIMITY_POSITIVE = 1;
+    
+    private static int  	mProximityState = PROXIMITY_UNKNOWN;
+    private static long 	mProximityDebounceTime;
+    
 	private KeyEvent mKeyEvent;
 
 	//ref frameworks/base/services/java/com/android/server/power/DisplayPowerController.java
@@ -57,7 +71,9 @@ public class PhoneListenerService extends Service  {
     private static final float TYPICAL_PROXIMITY_THRESHOLD = 5.0f;
 	private float  mProximityThreshold = TYPICAL_PROXIMITY_THRESHOLD;
 	
-	private Handler            mHandler = new Handler()
+	private final  CallStateHandler   mHandler = new CallStateHandler();
+	
+	private final class CallStateHandler extends Handler
 	{
 		@Override
 		public void handleMessage(Message msg) {
@@ -68,12 +84,61 @@ public class PhoneListenerService extends Service  {
 					Log.d(TAG,"handleMessage(MSG_HANDLE_INCOMING_CALL)");
 					handle_incoming_call();
 					break;
+				case MSG_PROXIMITY_SENSOR_DEBOUNCED:
+					Log.d(TAG,"handleMessage(MSG_PROXIMITY_SENSOR_DEBOUNCED)");
+					debounceProximitySensor();
+					break;
 				default:
 					break;
 			}			
 			super.handleMessage(msg);
 		}		
 	};
+	
+	private void handleProximitySensorEvent(long time, boolean positive)
+	{
+        if (mProximityState == PROXIMITY_NEGATIVE && !positive) {
+            return; // no change
+        }
+        if (mProximityState == PROXIMITY_POSITIVE && positive) {
+            return; // no change
+        }
+        
+        // Only accept a proximity sensor reading if it remains
+        // stable for the entire debounce delay.
+        mHandler.removeMessages(MSG_PROXIMITY_SENSOR_DEBOUNCED);
+        if (positive) {
+        	mProximityState = PROXIMITY_POSITIVE;
+            mProximityDebounceTime = time + PROXIMITY_SENSOR_POSITIVE_DEBOUNCE_DELAY;
+        } else {
+        	mProximityState = PROXIMITY_NEGATIVE;
+            mProximityDebounceTime = time + PROXIMITY_SENSOR_NEGATIVE_DEBOUNCE_DELAY;
+        }
+        debounceProximitySensor();
+	}
+	
+    private void debounceProximitySensor() 
+    {
+        if (mProximityState != PROXIMITY_UNKNOWN)
+        {
+            final long now = SystemClock.uptimeMillis();
+            if (mProximityDebounceTime <= now) // 过了抖动时间
+            {
+            	if(mProximityState == PROXIMITY_POSITIVE) // 只接近时有效
+   				{
+            		mEventhappen = true ;
+    		        Log.d(TAG,"mEventhappen="+mEventhappen);
+                	post_handle_incoming_call_message();
+   				}
+            }
+            else
+            {
+                Message msg = mHandler.obtainMessage(MSG_PROXIMITY_SENSOR_DEBOUNCED);
+                //msg.setAsynchronous(true);
+                mHandler.sendMessageAtTime(msg, mProximityDebounceTime);
+            }
+        }
+    }
 	
 	private SensorEventListener mProximitySensorEventListener = new SensorEventListener()
 	{
@@ -86,24 +151,23 @@ public class PhoneListenerService extends Service  {
 		public void onSensorChanged(SensorEvent arg0) {
 			// TODO Auto-generated method stub
             
+			long SensorEventUpTimes = SystemClock.uptimeMillis();
+
             mLastProximitySensorValue = mProximitySensorValue;
             mProximitySensorValue = arg0.values[0];
-            
-            //Log.d(TAG, "mProximitySensorEventListener.onSensorChanged: proximity Sensor value: " + arg0.values[0]);
+			
             Log.d(TAG, "mProximitySensorEventListener.onSensorChanged: proximity Sensor mLastProximitySensorValue=" + mLastProximitySensorValue + ",mProximitySensorValue=" + mProximitySensorValue);
             
-			//boolean positive = ((mProximitySensorValue >= 0.0f) && (mProximitySensorValue < mProximityThreshold));
-
-            // 只在跳变（下降沿）起作用。-\_
-            //if(((mLastProximitySensorValue - 1.0f) >= 0.0f) && ((mProximitySensorValue-1.0f) < 0.0f))
+            // 从 非0值 到 0值 认为是接近。 从0值到非0值认为是远离. 主要是有些系统的远离值 由驱动ic决定，有些是 1.0f ，有些是5.0f.   
+			boolean positive   = ((((int)mLastProximitySensorValue > 0)) && (((int)mProximitySensorValue) == 0));
+			
+			// 只在跳变（下降沿）起作用。-\_
+			//boolean positive = (((mLastProximitySensorValue - 1.0f) >= 0.0f) && ((mProximitySensorValue-1.0f) < 0.0f));
 			
 			// 只要有变化，就发送消息。[上升沿 和 下降沿]
-			if(((int)mLastProximitySensorValue) != ((int)mProximitySensorValue))
-            {
-   				mEventhappen = true ;
-		        Log.d(TAG,"mEventhappen="+mEventhappen);
-            	post_handle_incoming_call_message();
-            }
+			//boolean positive = (((int)mLastProximitySensorValue) != ((int)mProximitySensorValue));
+			
+            handleProximitySensorEvent(SensorEventUpTimes, positive);
 		}
 	};
 	
@@ -229,16 +293,25 @@ public class PhoneListenerService extends Service  {
         mSensorManager.registerListener(mProximitySensorEventListener, mProximitySensor,SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(mLightSensorEventListener,     mLightSensor,    SensorManager.SENSOR_DELAY_NORMAL);
         
+		mProximityState = PROXIMITY_UNKNOWN ;   // 距离感应器处于无效状态.
+        
         mProximitySensorListening = true;  		// 只在来电时候生效。
 	}
 	
 	public void unregisterSensorListener()
 	{
+		Log.d(TAG,"registerSensorListener()");
+		
 		mProximitySensorListening = false;  	// 只在来电时候生效。
 		
-		Log.d(TAG,"registerSensorListener()");
+		mProximityState = PROXIMITY_UNKNOWN ;   // 距离感应器处于无效状态. 
+		
+		mHandler.removeMessages(MSG_PROXIMITY_SENSOR_DEBOUNCED);  // 删除稳定态消息
+		
 		mSensorManager.unregisterListener(mLightSensorEventListener, mLightSensor);		
 		mSensorManager.unregisterListener(mProximitySensorEventListener, mProximitySensor);	
+		
+		
 	}
 	
 	public void OpenSpeaker()

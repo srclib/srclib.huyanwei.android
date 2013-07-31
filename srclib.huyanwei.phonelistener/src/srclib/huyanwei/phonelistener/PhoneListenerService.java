@@ -121,7 +121,7 @@ public class PhoneListenerService extends Service  {
 	
 	private void update_data_from_database()
 	{
-		Log.d(TAG,"update_data_from_database() {");
+		//Log.d(TAG,"update_data_from_database() {");
 		
 		// update Data.
 		mConfigProximitySensorEnable 	= (query_config_value("config_proximity_sensor_enable")==1) ? true:false;
@@ -130,7 +130,7 @@ public class PhoneListenerService extends Service  {
 		
 		Log.d(TAG,"mConfigProximitySensorEnable="+mConfigProximitySensorEnable+",mConfigProcessMothedAnswer="+mConfigProcessMothedAnswer+",mConfigOpenSpeaker="+mConfigOpenSpeaker);
 				
-		Log.d(TAG,"update_data_from_database() }");
+		//Log.d(TAG,"update_data_from_database() }");
 	}
 	
 	private ContentObserver mContentObserver = new ContentObserver(new Handler())
@@ -155,11 +155,11 @@ public class PhoneListenerService extends Service  {
 			switch(msg.what)
 			{
 				case MSG_HANDLE_INCOMING_CALL:		
-					Log.d(TAG,"handleMessage(MSG_HANDLE_INCOMING_CALL)");
+					//Log.d(TAG,"handleMessage(MSG_HANDLE_INCOMING_CALL)");
 					handle_incoming_call();
 					break;
 				case MSG_PROXIMITY_SENSOR_DEBOUNCED:
-					Log.d(TAG,"handleMessage(MSG_PROXIMITY_SENSOR_DEBOUNCED)");
+					//Log.d(TAG,"handleMessage(MSG_PROXIMITY_SENSOR_DEBOUNCED)");
 					debounceProximitySensor();
 					break;
 				default:
@@ -201,7 +201,7 @@ public class PhoneListenerService extends Service  {
             	if(mProximityState == PROXIMITY_POSITIVE) // 只接近时有效
    				{
             		mEventhappen = true ;
-    		        Log.d(TAG,"mEventhappen="+mEventhappen);
+    		        //Log.d(TAG,"mEventhappen="+mEventhappen);
                 	post_handle_incoming_call_message();
    				}
             }
@@ -230,7 +230,7 @@ public class PhoneListenerService extends Service  {
             mLastProximitySensorValue = mProximitySensorValue;
             mProximitySensorValue = arg0.values[0];
 			
-            Log.d(TAG, "mProximitySensorEventListener.onSensorChanged: proximity Sensor mLastProximitySensorValue=" + mLastProximitySensorValue + ",mProximitySensorValue=" + mProximitySensorValue);
+            //Log.d(TAG, "mProximitySensorEventListener.onSensorChanged: proximity Sensor mLastProximitySensorValue=" + mLastProximitySensorValue + ",mProximitySensorValue=" + mProximitySensorValue);
             
             // 从 非0值 到 0值 认为是接近。 从0值到非0值认为是远离. 主要是有些系统的远离值 由驱动ic决定，有些是 1.0f ，有些是5.0f.   
 			boolean positive   = ((((int)mLastProximitySensorValue > 0)) && (((int)mProximitySensorValue) == 0));
@@ -275,12 +275,12 @@ public class PhoneListenerService extends Service  {
 		public void onCallStateChanged(int state, String incomingNumber) {
 			// TODO Auto-generated method stub
 			
-			Log.d(TAG,"mPhoneStateListener.onCallStateChanged()");
+			//Log.d(TAG,"mPhoneStateListener.onCallStateChanged()");
 			
 			switch(state)
 			{
 				case  TelephonyManager.CALL_STATE_IDLE:    // 空闲状态.
-					Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_IDLE) ");
+					//Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_IDLE) ");
 					if(mProximitySensorListening)
 					{	
 						unregisterSensorListener();
@@ -291,7 +291,7 @@ public class PhoneListenerService extends Service  {
 					}
 					break; 
 				case  TelephonyManager.CALL_STATE_RINGING: // 来电铃声状态.
-					Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_RINGING) ");
+					//Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_RINGING) ");
 					//if(mConfigProximitySensorEnable)             // 只有起作用才能使用这个功能,在事件里面截获是不是更加安全？
 					{
 						mEventhappen = false ;      			// 初始化 事件还没有发生。
@@ -299,7 +299,7 @@ public class PhoneListenerService extends Service  {
 					}					
 					break;
 				case  TelephonyManager.CALL_STATE_OFFHOOK: // 挂机状态(拿起了话筒/接起电话)
-					Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_OFFHOOK) ");
+					//Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_OFFHOOK) ");
 					if(mProximitySensorListening)
 					{
 						unregisterSensorListener(); 		// 接听也要把之前的注册 卸载掉。
@@ -368,7 +368,7 @@ public class PhoneListenerService extends Service  {
 
 	public void registerSensorListener()
 	{
-		Log.d(TAG,"registerSensorListener()");
+		//Log.d(TAG,"registerSensorListener()");
 
 		// start lister sensor
         mSensorManager.registerListener(mProximitySensorEventListener, mProximitySensor,SensorManager.SENSOR_DELAY_NORMAL);
@@ -381,7 +381,7 @@ public class PhoneListenerService extends Service  {
 	
 	public void unregisterSensorListener()
 	{
-		Log.d(TAG,"registerSensorListener()");
+		//Log.d(TAG,"registerSensorListener()");
 		
 		mProximitySensorListening = false;  	// 只在来电时候生效。
 		
@@ -397,7 +397,7 @@ public class PhoneListenerService extends Service  {
 	
 	public void OpenSpeaker()
 	{
-		Log.d(TAG,"OpenSpeaker()");
+		//Log.d(TAG,"OpenSpeaker()");
 		// set speaker on
 		mAudioManager.setMode(AudioManager.MODE_IN_CALL);
 		mAudioManager.setSpeakerphoneOn(true);
@@ -405,7 +405,7 @@ public class PhoneListenerService extends Service  {
 	
 	public void CloseSpeaker()
 	{
-		Log.d(TAG,"CloseSpeaker()");
+		//Log.d(TAG,"CloseSpeaker()");
 		mAudioManager.setMode(AudioManager.MODE_NORMAL);
 		mAudioManager.setSpeakerphoneOn(false);
 	}
@@ -413,9 +413,9 @@ public class PhoneListenerService extends Service  {
 	
 	public void connectPhoneItelephony()
 	{
-		Log.d(TAG,"自动接听");
+		//Log.d(TAG,"自动接听");
 		try {
-			Log.d(TAG,"Telephony Control");
+			//Log.d(TAG,"Telephony Control");
 			PhoneUtils.getITelephony(mTelephonyManager).silenceRinger();	// 静铃
 			PhoneUtils.getITelephony(mTelephonyManager).answerRingingCall();// 自动接听
 		} catch (RemoteException e) {
@@ -428,7 +428,7 @@ public class PhoneListenerService extends Service  {
 
 		try 
 		{
-			Log.d(TAG,"line control answer key 1");
+			//Log.d(TAG,"line control answer key 1");
 	    	Intent KeyIntent = new Intent("android.intent.action.MEDIA_BUTTON");
 	    	mKeyEvent = new KeyEvent(KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_HEADSETHOOK);
 	    	KeyIntent.putExtra("android.intent.extra.KEY_EVENT", mKeyEvent);
@@ -446,7 +446,7 @@ public class PhoneListenerService extends Service  {
 		
 		try 
 		{
-			Log.d(TAG,"line control answer key 2");		
+			//Log.d(TAG,"line control answer key 2");		
 			Intent KeyIntent = new Intent("android.intent.action.MEDIA_BUTTON");
 			mKeyEvent = new KeyEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_HEADSETHOOK);
 			KeyIntent.putExtra("android.intent.extra.KEY_EVENT", mKeyEvent);
@@ -465,7 +465,7 @@ public class PhoneListenerService extends Service  {
 	
 	public void disconnectPhoneItelephony()
 	{
-		Log.d(TAG,"自动挂断");
+		//Log.d(TAG,"自动挂断");
 		try {
 			PhoneUtils.getITelephony(mTelephonyManager).endCall(); 						 // 挂断
 			PhoneUtils.getITelephony(mTelephonyManager).cancelMissedCallsNotification(); // 取消未接显示
@@ -496,7 +496,7 @@ public class PhoneListenerService extends Service  {
 	
 	public void post_handle_incoming_call_message()
 	{
-		Log.d(TAG,"post_handle_incoming_call_message()");
+		//Log.d(TAG,"post_handle_incoming_call_message()");
 		Message msg = mHandler.obtainMessage();
 		msg.what = MSG_HANDLE_INCOMING_CALL;
 		msg.arg1 = 1;
@@ -522,7 +522,7 @@ public class PhoneListenerService extends Service  {
 		// TODO Auto-generated method stub
 		super.onCreate();
 
-		Log.d(TAG,"huyanwei debug onCreate() registerReceiver() {");
+		//Log.d(TAG,"huyanwei debug onCreate() registerReceiver() {");
 		
 		mContext = this;
 
@@ -558,7 +558,7 @@ public class PhoneListenerService extends Service  {
 		
 		update_data_from_database(); // init data .
 		
-		Log.d(TAG,"huyanwei debug onCreate() registerReceiver() }");
+		//Log.d(TAG,"huyanwei debug onCreate() registerReceiver() }");
 
 	}
 

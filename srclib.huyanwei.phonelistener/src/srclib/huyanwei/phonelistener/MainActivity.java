@@ -37,6 +37,9 @@ public class MainActivity extends Activity {
 	
 	private	SQLiteDatabase mDatabase;
 	
+	private int config_proximity_sensor_enable 	= 0;
+	private int config_action 					= 0;
+	private int config_speaker 					= 0;
 
 	private int query_config_value(String name)
 	{
@@ -95,30 +98,41 @@ public class MainActivity extends Activity {
         return c;
 	}
 	
-	private SlideButton.Callback mCallback = new SlideButton.Callback()
+	private SlideButton.OnSwitchChangedListener mOnSwitchChangedListener = new SlideButton.OnSwitchChangedListener()
 	{
-		public void onStateChange(boolean state) {
+		@Override
+		public void onSwitchChanged(SlideButton obj, boolean status) 
+		{		
 			// TODO Auto-generated method stub
-			if(state)
+			switch(obj.getId())
 			{
-				Log.d(TAG,"SlideButton.Callback() true");
-				
-				mImageButton.setVisibility(View.VISIBLE);
-				
-				update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE,1);
-			}
-			else
-			{
-				Log.d(TAG,"SlideButton.Callback() false");
-				
-				mImageButton.setVisibility(View.INVISIBLE);
-				
-				update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE,0);
-				
-				/*
-				Intent svc = new Intent(mContext, PhoneListenerService.class);
-				mContext.stopService(svc);
-				*/
+				case R.id.SlideButton1:
+					if(status)
+					{
+						Log.d(TAG,"SlideButton.onSwitchChanged() true");
+						
+						mImageButton.setVisibility(View.VISIBLE);
+						
+						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE,1);
+					}
+					else
+					{
+						Log.d(TAG,"SlideButton.onSwitchChanged() false");
+						
+						mImageButton.setVisibility(View.INVISIBLE);
+						
+						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE,0);
+						
+						/*
+						Intent svc = new Intent(mContext, PhoneListenerService.class);
+						mContext.stopService(svc);
+						*/
+					}				
+					break;
+				//case R.id.SlideButton2:
+				//	break;
+				default:
+					break;
 			}
 		}
 	};
@@ -152,7 +166,7 @@ public class MainActivity extends Activity {
         mlinearLayout = (LinearLayout)findViewById(R.id.linearLayout3);
         
         mSlideButton = (SlideButton) mlinearLayout.findViewById(R.id.SlideButton1);     
-        mSlideButton.setCallback(mCallback);
+        mSlideButton.setOnSwitchChangedListener(mOnSwitchChangedListener);
         
         mImageButton = (ImageButton) mlinearLayout.findViewById(R.id.imageButton1);    
         
@@ -177,9 +191,21 @@ public class MainActivity extends Activity {
 		super.onPause();
 	}
 
+	public void update_controls_state()
+	{
+			//mSlideButton.setValue((config_proximity_sensor_enable >=1)?true:false);
+		mSlideButton.setValue(false);
+	}
+	
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
+		config_proximity_sensor_enable 	= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE);
+		config_action 					= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION);
+		config_speaker 					= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER);
+		
+		update_controls_state();
+				
 		super.onResume();
 	}
 

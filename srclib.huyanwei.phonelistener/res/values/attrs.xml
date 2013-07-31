@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <!--
+    	在 attr.xml 里面用    declare-styleable 声明  styleable ,貌似这个名称SlideButtomStyle只是在构造函数里面：
+    	
+    	TypedArray a = context.obtainStyledAttributes(attrs,R.styleable.SlideButtomStyle,defStyle,0);
+    	
+    	里面用 attr 就能说明 这个风格有多少属性，使用的时候 android:属性名称
+    	注意 styleable 与 style 的区别.
+    	styles.xml  -> styles             ：实现style
+    	attrs.xml   -> declare-styleable  : 申明 可做成style的属性组
+    	themes.xml  -> 使用的都是 declare-styleable里面声明的attr，而不是名字。
+    	当然，属性的完整名称如下：
+    	代码里面 java：
+    		[com.android.internal.]R.styleable.SlideButtomStyle_text_off
+    		[com.android.internal.]R.styleable.SlideButtomStyle_text_on
+    		[com.android.internal.]R.styleable.SlideButtomStyle_text_off_color
+    		[com.android.internal.]R.styleable.SlideButtomStyle_text_on_color
+	    	[com.android.internal.]R.styleable.SlideButtomStyle_text_size
+	    	[com.android.internal.]R.styleable.SlideButtomStyle_block_size
+	    	[com.android.internal.]R.styleable.SlideButtomStyle_value
+    	资源里面 xml:
+    	    xmlns:local="http://schemas.android.com/apk/res/srclib.huyanwei.phonelistener"
+    		local:text_off
+    		local:text_on
+    		local:text_off_color
+    		local:text_on_color
+    		local:text_size
+    		local:block_size
+    		local:value    	
+    	这点可以参考：frameworks/base/core/java/android/widget/TextView.java    	
+     -->
+    
+    <declare-styleable name="SlideButtomStyle">
+        <attr name="text_off" 		format="reference|string" />
+	<attr name="text_off_color" format="reference|color" />
+    	<attr name="text_on" 		format="reference|string" />
+    	<attr name="text_on_color" format="reference|color" />
+    	<attr name="text_size"    format="reference|dimension" />
+    	<attr name="block_size"  format="reference|dimension" />
+    	<attr name="value"     format="reference|boolean" >
+    	    <enum name="off" value="0" />
+    	    <enum name="on"  value="1" />
+    	</attr>
+    	
+    </declare-styleable>
+    
+    <attr name="SlideButtomDefaultStyle"     format="reference" />
+        
+</resources>

@@ -1,5 +1,17 @@
-<resources>
+<resources
+    xmlns:local="http://schemas.android.com/apk/res/srclib.huyanwei.phonelistener" 
+    >
 
     <style name="AppTheme" parent="android:Theme.Light" />
-
+    
+    <style name="SlideButtomDefaultStyle"  >
+        <item name="text_off">"off"</item>
+    	<item name="text_off_color">#FF000000</item>
+        <item name="text_on">"on"</item>
+		<item name="text_on_color">#FF0FF000</item>
+    	<item name="text_size">12sp</item>
+    	<item name="block_size">60dip</item>
+    	<item name="value">off</item>
+	</style>
+    
 </resources>

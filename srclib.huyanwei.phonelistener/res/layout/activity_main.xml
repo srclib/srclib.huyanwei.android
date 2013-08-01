@@ -1,82 +1,40 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    
     xmlns:local="http://schemas.android.com/apk/res/srclib.huyanwei.phonelistener"
-    
     style="@android:style/Theme.NoTitleBar.Fullscreen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ff000000" >
-
+    android:background="#FF000000">
 
     <LinearLayout
-        android:id="@+id/LinearLayout1"
+        android:id="@+id/LinearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:orientation="vertical" >
 
         <ImageView
-            android:id="@+id/imageView1"
+            android:id="@+id/imageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:scaleType="fitCenter"
             android:src="@drawable/bg" />
-    </LinearLayout>
 
-
-    <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingTop="40dp" >
-
-
-        <TextView
-            android:id="@+id/textView1"
+        <ListView
+            android:id="@+id/listView"
+            style="@style/Widget.srclib.ListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="6.13"
-            android:textColor="#FFFFFFFF"
-            android:text="@string/help"
-	/>
-    </LinearLayout>
+            android:layout_weight="3"
+            android:background="#ff00ff00"
+            android:paddingBottom="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingTop="5dp" >
+            
+        </ListView>
 
-
-    <LinearLayout
-        android:id="@+id/linearLayout3"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:paddingRight="5dp" >
-
-        <srclib.huyanwei.phonelistener.SlideButton
-            android:id="@+id/SlideButton1"
-            android:layout_width="160dip"
-            android:layout_height="30dip"
-            android:layout_gravity="center|left"
-            local:text_off="@string/value_off"
-            local:text_off_color="#CCFF0000"
-            local:text_on="@string/value_on"
-            local:text_on_color="#CC00FF00"
-            local:text_size="24sp"
-            local:block_size="80dp"
-            local:value="off"
-            >
-        </srclib.huyanwei.phonelistener.SlideButton>
-        
-        <ImageButton
-            android:id="@+id/imageButton1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|right"
-            android:background="#00000000"
-            android:src="@drawable/setting"
-            android:visibility="gone" />
-                
     </LinearLayout>
 
 </RelativeLayout>

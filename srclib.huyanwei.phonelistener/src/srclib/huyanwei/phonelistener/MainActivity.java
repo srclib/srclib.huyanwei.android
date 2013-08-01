@@ -1,6 +1,9 @@
 package srclib.huyanwei.phonelistener;
 
+import java.util.ArrayList;
 import java.util.Locale;
+
+import srclib.huyanwei.phonelistener.SlideButton.OnSwitchChangedListener;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,13 +17,20 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 import android.support.v4.app.NavUtils;
 
 public class MainActivity extends Activity {
@@ -29,11 +39,12 @@ public class MainActivity extends Activity {
 	
 	private Context 	mContext;
 	
-	private SlideButton mSlideButton;
-	
-	private ImageButton mImageButton;
-	
+	private SlideButton  mSlideButton;
+	private ImageButton  mImageButton;	
 	private LinearLayout mlinearLayout;
+	private ListView     mListView;
+	
+	private ListItemAdapter mListItemAdapter ;
 	
 	private	SQLiteDatabase mDatabase;
 	
@@ -104,29 +115,19 @@ public class MainActivity extends Activity {
 		public void onSwitchChanged(SlideButton obj, boolean status) 
 		{		
 			// TODO Auto-generated method stub
+			/*
 			switch(obj.getId())
 			{
 				case R.id.SlideButton1:
 					if(status)
 					{
 						Log.d(TAG,"SlideButton.onSwitchChanged() true");
-						
-						//mImageButton.setVisibility(View.VISIBLE);
-						
 						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE,1);
 					}
 					else
 					{
 						Log.d(TAG,"SlideButton.onSwitchChanged() false");
-						
-						//mImageButton.setVisibility(View.INVISIBLE);
-						
-						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE,0);
-						
-						/*
-						Intent svc = new Intent(mContext, PhoneListenerService.class);
-						mContext.stopService(svc);
-						*/
+						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE,0);			
 					}				
 					break;
 				//case R.id.SlideButton2:
@@ -134,6 +135,7 @@ public class MainActivity extends Activity {
 				default:
 					break;
 			}
+			*/
 		}
 	};
 	
@@ -144,12 +146,167 @@ public class MainActivity extends Activity {
 			// TODO Auto-generated method stub
 			switch(v.getId())
 			{
+			/*
 				case R.id.imageButton1:
 					 Log.d(TAG,"huyanwei start service by manual.");
 					 Intent svc = new Intent(mContext, PhoneListenerService.class);
 					 mContext.startService(svc);
 					break;
+		    */
 			}
+		}
+	};
+	
+	public final class ListItemFuction
+	{
+		String   switch_name 	 ;
+		String   switch_off_name ;
+		String   switch_on_name  ;
+		boolean  enable      	 ;
+		SlideButton.OnSwitchChangedListener OnSwitchChangedListener;		
+	}
+	
+	private class ListItemAdapter extends BaseAdapter
+	{
+		
+		private ArrayList<ListItemFuction> mListItemFuction = new ArrayList<ListItemFuction>();
+		
+		private Context mContext; 
+		
+		private int mCount ;
+		
+		public ListItemAdapter(Context c)
+		{
+			mContext = c;
+			mCount = 0 ;
+		}
+		
+		public void addOneItem(ListItemFuction obj)
+		{
+			mListItemFuction.add(mCount++,obj);
+			//mCount++;			
+			this.notifyDataSetChanged();
+		}
+		
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			Log.d(TAG,"getCount()");
+			return mCount;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			// TODO Auto-generated method stub
+			Log.d(TAG,"getItem("+position+")");
+			return position;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			Log.d(TAG,"getItemId("+position+")");
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// TODO Auto-generated method stub
+			Log.d(TAG,"getView("+position+")");
+			
+			LinearLayout ll;
+			// 每次都加载，不让重复使用View
+            //if (convertView == null) {
+            ll = (LinearLayout) LayoutInflater.from(mContext).inflate(R.layout.list_item, parent, false);
+            //} else {
+            //	ll = (LinearLayout) convertView;
+            //}
+            
+            /*
+            if(position%2 == 0)
+            {
+            	ll.setBackgroundResource(R.drawable.bottom_button);
+            	ll.setAlpha(0.618f);            	
+            }
+            else
+            {
+            	ll.setBackgroundResource(R.drawable.bottom_button);
+            }
+            */
+            
+            int first = mListView.getFirstVisiblePosition();
+            int last  = mListView.getLastVisiblePosition();
+            int child_count = mListView.getChildCount(); // 可见的view
+            int count = mListView.getCount();     		// 总view
+            int header_count = ((ListView) mListView).getHeaderViewsCount();
+            int footer_count = ((ListView) mListView).getFooterViewsCount();
+
+            if(count ==1)
+            {
+            	// Only One Item
+            	ll.setBackgroundResource(R.drawable.v5_preference_item_single_bg);
+            }
+            else if(position == 0)
+            {
+            	// first
+            	ll.setBackgroundResource(R.drawable.v5_preference_item_first_bg);
+            }
+            else if(position == count -1)
+            {
+            	// last
+            	ll.setBackgroundResource(R.drawable.v5_preference_item_last_bg);
+            }
+            else
+            {
+            	// moddile
+            	ll.setBackgroundResource(R.drawable.v5_preference_item_middle_bg);
+            }
+            
+            TextView mTextView = (TextView) ll.findViewById(R.id.switch_name);   
+           	mTextView.setTextColor(0xff0000ff);
+           	mTextView.setText("ITEM"+(position+header_count));
+           	
+           	SlideButton mSlideButton = (SlideButton) ll.findViewById(R.id.SlideButton);
+           	mSlideButton.setOnSwitchChangedListener(mOnSwitchChangedListener);
+           	
+            return ll;
+		}
+
+		@Override
+		public boolean isEnabled(int position) {
+			// TODO Auto-generated method stub
+			//Log.d(TAG,"isEnabled("+position+")");
+			return super.isEnabled(position);
+		}
+	};
+	
+	private AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener()
+	{
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+				long arg3) {
+				// TODO Auto-generated method stub
+				Log.d(TAG,"onItemClick("+arg0+","+arg1+","+arg2+","+arg3+")");
+                int first = arg0.getFirstVisiblePosition();
+                int last  = arg0.getLastVisiblePosition();
+                int child_count = arg0.getChildCount();
+                int count = arg0.getCount();
+                int header_count = ((ListView) arg0).getHeaderViewsCount();
+                int footer_count = ((ListView) arg0).getFooterViewsCount();
+                Log.d(TAG,"["+first+"-"+last+"/"+count+"]["+header_count+"/"+footer_count+"]");
+                if((arg2 > (header_count-1)) && (arg2 < (count-footer_count))) // index calc
+				{
+                	/*
+                	TextView mTextView = (TextView) arg1.findViewById(R.id.textView1);                	 
+                	mTextView.setTextColor(0xff000000);
+                	mTextView.setText("clicked Item"+(arg2));
+                	Toast.makeText(mContext, "Item"+(arg2)+" is clicked!", Toast.LENGTH_SHORT).show();
+                	*/
+				}
+                else
+				{
+					Toast.makeText(mContext, "mFloatView("+arg2+") is clicked!", Toast.LENGTH_SHORT).show();
+				}
 		}
 	};
 		
@@ -163,14 +320,12 @@ public class MainActivity extends Activity {
 
         mContext= this;
         
-        mlinearLayout = (LinearLayout)findViewById(R.id.linearLayout3);
+        mlinearLayout = (LinearLayout)findViewById(R.id.LinearLayout);
         
-        mSlideButton = (SlideButton) mlinearLayout.findViewById(R.id.SlideButton1);     
-        mSlideButton.setOnSwitchChangedListener(mOnSwitchChangedListener);
-        
-        mImageButton = (ImageButton) mlinearLayout.findViewById(R.id.imageButton1);    
-        
-        mImageButton.setOnClickListener(mOnClickListener);
+        mListView = (ListView) mlinearLayout.findViewById(R.id.listView);        
+        mListView.setOnItemClickListener(mOnItemClickListener);
+        mListItemAdapter = new ListItemAdapter(this);        
+        mListView.setAdapter(mListItemAdapter);
     }
  
     @Override
@@ -193,8 +348,16 @@ public class MainActivity extends Activity {
 
 	public void update_controls_state()
 	{
-		mSlideButton.setValue((config_proximity_sensor_enable >=1)?true:false);
+		//mSlideButton.setValue((config_proximity_sensor_enable >=1)?true:false);
 		//mSlideButton.setValue(false);
+		
+		ListItemFuction mListItemFuction = new ListItemFuction();		
+		mListItemFuction.switch_name 	 = "启动此功能";
+		mListItemFuction.switch_off_name = "启用";
+		mListItemFuction.switch_on_name  = "禁用";
+		mListItemFuction.enable      	 = true;
+		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+		mListItemAdapter.addOneItem(mListItemFuction);
 	}
 	
 	@Override

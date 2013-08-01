@@ -1,0 +1,42 @@
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+    	xmlns:tools="http://schemas.android.com/tools"    
+    	xmlns:local="http://schemas.android.com/apk/res/srclib.huyanwei.phonelistener"    
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingTop="5dp"
+        android:paddingRight="5dp" 
+        >
+
+    	<TextView
+        android:id="@+id/switch_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|left"
+        android:layout_weight="0.8"
+        android:text="TextView"
+        style="@style/Widget.srclib.TextView" 
+        />
+
+        <srclib.huyanwei.phonelistener.SlideButton
+            android:id="@+id/SlideButton"
+            android:layout_width="160dip"
+            android:layout_height="30dip"
+            android:layout_gravity="center_vertical|right"
+            local:block_size="80dp"
+            local:text_off="@string/value_off"
+            local:text_off_color="#CCFF0000"
+            local:text_on="@string/value_on"
+            local:text_on_color="#CC00FF00"
+            local:text_size="20sp"
+            local:value="off" >
+
+        </srclib.huyanwei.phonelistener.SlideButton>
+</LinearLayout>

@@ -14,4 +14,21 @@
     	<item name="value">off</item>
 	</style>
     
+    <style name="Widget.srclib.ListView" parent="android:Widget.ListView">
+         <item name="android:drawSelectorOnTop">false</item>
+         <item name="android:stackFromBottom">false</item>
+         <item name="android:listSelector">@drawable/list_item_selector</item>
+         <item name="android:cacheColorHint">@null</item>
+		 <item name="android:dividerHeight">0dp</item>
+		 <item name="android:divider">#22ffffff</item>
+		 <item name="android:headerDividersEnabled">true</item>
+		 <item name="android:footerDividersEnabled">true</item>
+    </style>
+    
+    <style name="Widget.srclib.TextView" parent="android:Widget.TextView">
+ 		<item name="android:singleLine">true</item>
+  		<item name="android:shadowColor">#cc000000</item>
+  		<item name="android:shadowRadius">6.18</item>
+    </style>
+    
 </resources>

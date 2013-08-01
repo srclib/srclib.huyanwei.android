@@ -13,4 +13,16 @@
     <string name="perm_lab_read_settings">read database</string>
     <string name="perm_desc_read_settings">need permission to read the app\'s database</string>
     
+    <string name="proximity_sensor_enable_str">proximity sensor control incoming call</string>
+    <string name="proximity_sensor_off_str">disable</string>
+    <string name="proximity_sensor_on_str">enable</string>
+    
+    <string name="default_action_str">default action</string>
+    <string name="default_action_off_str">reject</string>
+    <string name="default_action_on_str">answer</string>
+    
+    <string name="speaker_state_str">speaker</string>
+    <string name="speaker_state_off_str">close</string>
+    <string name="speaker_state_on_str">open</string>
+    
 </resources>

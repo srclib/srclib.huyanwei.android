@@ -14,28 +14,31 @@
         android:paddingTop="5dp"
         android:paddingRight="5dp" 
         >
-
+
     	<TextView
-        android:id="@+id/switch_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|left"
-        android:layout_weight="0.8"
-        android:text="TextView"
-        style="@style/Widget.srclib.TextView" 
-        />
-
+    	    android:id="@+id/switch_name"
+    	    style="@style/Widget.srclib.TextView"
+    	    android:layout_width="wrap_content"
+    	    android:layout_height="wrap_content"
+    	    android:layout_gravity="center|left"
+    	    android:layout_weight="0.8"
+    	    android:paddingLeft="5dp"
+    	    android:textSize="16sp"
+    	    android:textColor="#ffffffff"
+    	    android:text="TextView" 
+    	    />
+    	
         <srclib.huyanwei.phonelistener.SlideButton
             android:id="@+id/SlideButton"
-            android:layout_width="160dip"
+            android:layout_width="120dip"
             android:layout_height="30dip"
             android:layout_gravity="center_vertical|right"
-            local:block_size="80dp"
+            local:block_size="60dp"
             local:text_off="@string/value_off"
             local:text_off_color="#CCFF0000"
             local:text_on="@string/value_on"
             local:text_on_color="#CC00FF00"
-            local:text_size="20sp"
+            local:text_size="16sp"
             local:value="off" >
 
         </srclib.huyanwei.phonelistener.SlideButton>

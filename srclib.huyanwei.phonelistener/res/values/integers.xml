@@ -5,7 +5,7 @@
     <!-- 1 for auto_answer,0 for reject when proximity sensor enable -->
     <integer name="config_action">1</integer>
     
-    <!-- open speaker when connecting -->    
+    <!-- open speaker when connecting -->
     <integer name="config_speaker">0</integer>
 </resources>
 

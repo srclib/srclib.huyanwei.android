@@ -33,7 +33,7 @@ public class SlideButton extends View {
 	
 	private String TAG = "srclib.huyanwei.phonelistener.SlideButton";
 
-	private boolean DBG = true;
+	private boolean DBG = false;
 	
 	private Context mContext ;
 	
@@ -117,6 +117,21 @@ public class SlideButton extends View {
 		this.invalidate();
 	}
 	
+	public void setSwitchOffText(String off_str)
+	{
+		SlideButton_text_off = off_str;
+	}
+	
+	public void setSwitchOnText(String on_str)
+	{
+		SlideButton_text_on = on_str;
+	}
+	
+	public void setBlockWidth(int  block_width)
+	{
+		SlideButton_block_size = block_width ;
+	}
+	
 	// listener
 	public static interface OnSwitchChangedListener
 	{
@@ -148,7 +163,10 @@ public class SlideButton extends View {
 		img_block_w = img_off.getWidth();
 		img_block_h = img_off.getHeight();
 		
-		Log.d(TAG,"["+img_bg_w+","+img_bg_h+","+img_block_w+","+img_block_h+"]");
+		if(DBG)
+		{
+			Log.d(TAG,"["+img_bg_w+","+img_bg_h+","+img_block_w+","+img_block_h+"]");
+		}
 		
 		// init block position
 		slide_block_x = 0 ;
@@ -214,13 +232,16 @@ public class SlideButton extends View {
 			}
 		}
 		
-		Log.d(TAG,"SlideButton_text_off="+SlideButton_text_off);
-		Log.d(TAG,"SlideButton_text_on="+SlideButton_text_on);
-		Log.d(TAG,"SlideButton_text_off_color="+SlideButton_text_off_color);
-		Log.d(TAG,"SlideButton_text_on_color="+SlideButton_text_on_color);
-		Log.d(TAG,"SlideButton_text_size="+SlideButton_text_size);
-		Log.d(TAG,"SlideButton_block_size="+SlideButton_block_size);
-		Log.d(TAG,"SlideButton_value="+SlideButton_value);
+		if(DBG)
+		{	
+			Log.d(TAG,"SlideButton_text_off="+SlideButton_text_off);
+			Log.d(TAG,"SlideButton_text_on="+SlideButton_text_on);
+			Log.d(TAG,"SlideButton_text_off_color="+SlideButton_text_off_color);
+			Log.d(TAG,"SlideButton_text_on_color="+SlideButton_text_on_color);
+			Log.d(TAG,"SlideButton_text_size="+SlideButton_text_size);
+			Log.d(TAG,"SlideButton_block_size="+SlideButton_block_size);
+			Log.d(TAG,"SlideButton_value="+SlideButton_value);
+		}
 		
 		a.recycle();
 				
@@ -273,7 +294,7 @@ public class SlideButton extends View {
 			this.handler = h;
 		}
 
-		@Override
+		//@Override
 		public void run() 
 		{
 			int dir = 1;
@@ -286,12 +307,18 @@ public class SlideButton extends View {
 
 			while( Math.abs((dstX- srcX )) > step_len)
 			{
-				//Log.d(TAG,"AnimationTransRunnable() dstX="+dstX+",srcX="+srcX);
+				if(DBG)
+				{
+					Log.d(TAG,"AnimationTransRunnable() dstX="+dstX+",srcX="+srcX);
+				}
 				
 				srcX += dir * step_len;
 				slide_block_x += dir * step_len; 
 				
-				Log.d(TAG,"run() slide_block_x="+slide_block_x);
+				if(DBG)
+				{
+					Log.d(TAG,"run() slide_block_x="+slide_block_x);
+				}
 				
 				SlideButton.this.postInvalidate();
 				
@@ -303,7 +330,10 @@ public class SlideButton extends View {
 				}
 			}
 			
-			Log.d(TAG,"AnimationTransRunnable() rest dstX="+dstX+",srcX="+srcX);
+			if(DBG)
+			{
+				Log.d(TAG,"AnimationTransRunnable() rest dstX="+dstX+",srcX="+srcX);
+			}
 			
 			// res
 			{
@@ -343,7 +373,10 @@ public class SlideButton extends View {
 		int dst_x =  slide_block_x;
 		int dst_y =  slide_block_y;
 		
-		Log.d(TAG,"slide_block_x="+slide_block_x+",slide_block_w="+slide_block_w);
+		if(DBG)
+		{
+			Log.d(TAG,"slide_block_x="+slide_block_x+",slide_block_w="+slide_block_w);
+		}
 		
 		if( (slide_block_x+(slide_block_w/2)) < (width_size/2)) // 分界点 为 控件的 中点
 		{
@@ -356,7 +389,10 @@ public class SlideButton extends View {
 			dst_x = (width_size-slide_block_w);
 		}
 		
-		Log.d(TAG,"dst_x="+dst_x);
+		if(DBG)
+		{
+			Log.d(TAG,"dst_x="+dst_x);
+		}
 
 		AnimationTransRunnable runnable = new AnimationTransRunnable(src_x, dst_x, mHandler);
 		Thread mThread = new Thread(runnable);
@@ -371,7 +407,10 @@ public class SlideButton extends View {
 		int dst_x =  slide_block_x;
 		int dst_y =  slide_block_y;
 
-		Log.d(TAG,"handle_up_event() mHasScrolled="+mHasScrolled+",SlideButton_value="+SlideButton_value);
+		if(DBG)
+		{
+			Log.d(TAG,"handle_up_event() mHasScrolled="+mHasScrolled+",SlideButton_value="+SlideButton_value);
+		}
 		
 		if(!mHasScrolled)
 		{
@@ -424,7 +463,10 @@ public class SlideButton extends View {
 			slide_block_x = (width_size -  slide_block_w);
 		}
 		
-		Log.d(TAG,"update_slide_block_position() slide_block_x="+slide_block_x);
+		if(DBG)
+		{
+			Log.d(TAG,"update_slide_block_position() slide_block_x="+slide_block_x);
+		}
 		
 		this.invalidate();
 	}
@@ -447,7 +489,10 @@ public class SlideButton extends View {
 				last_down_x =  first_down_x;
 				last_down_y =  first_down_y;
 
-				Log.d(TAG,"ACTION_DOWN first_down_x="+first_down_x+",first_down_y="+first_down_y);
+				if(DBG)
+				{
+					Log.d(TAG,"ACTION_DOWN first_down_x="+first_down_x+",first_down_y="+first_down_y);
+				}
 
 				mHasSelected = false ; 
 				scrolling 	 = false ; // init state
@@ -462,10 +507,18 @@ public class SlideButton extends View {
 			case  MotionEvent.ACTION_MOVE:
 				x = (float) event.getX();
 				y = (float) event.getY();
-				Log.d(TAG,"ACTION_MOVE x="+x+",y="+y);
+				
+				if(DBG)
+				{
+					Log.d(TAG,"ACTION_MOVE x="+x+",y="+y);
+				}
+				
 				if(mHasSelected)
 				{	
-					Log.d(TAG,"ACTION_MOVE scrolling="+scrolling);
+					if(DBG)
+					{
+						Log.d(TAG,"ACTION_MOVE scrolling="+scrolling);
+					}
 					//if( Math.abs((x-first_down_x )) > 10)
 					{
 						scrolling    = true ;
@@ -482,14 +535,16 @@ public class SlideButton extends View {
 				}				
 				break;
 			case  MotionEvent.ACTION_UP:
+			case  MotionEvent.ACTION_CANCEL:
 				x = (float) event.getX();
 				y = (float) event.getY();
-				Log.d(TAG,"ACTION_UP x="+x+",y="+y);
+				
+				if(DBG)
+				{
+					Log.d(TAG,"ACTION_UP x="+x+",y="+y);
+				}
 				handle_up_event((int)x,(int)y); 
 				mHasScrolled = false ;
-				break;
-			case  MotionEvent.ACTION_CANCEL:
-				scrolling = false ;
 				break;
 			default:
 				break;
@@ -503,7 +558,10 @@ public class SlideButton extends View {
 	protected void onDraw(Canvas canvas) {
 		// TODO Auto-generated method stub
 		
-		Log.d(TAG,"draw() {");
+		if(DBG)
+		{
+			Log.d(TAG,"draw() {");
+		}
 		
 		Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		
@@ -511,9 +569,11 @@ public class SlideButton extends View {
 		
 		mPaint.setTypeface(Typeface.DEFAULT_BOLD);
 		
-		Log.d(TAG,"onDraw() :width_size="+width_size+",height_size="+height_size);		
-		
-		Log.d(TAG,"SlideButton_block_size="+SlideButton_block_size);		
+		if(DBG)
+		{
+			Log.d(TAG,"onDraw() :width_size="+width_size+",height_size="+height_size);		
+			Log.d(TAG,"SlideButton_block_size="+SlideButton_block_size);
+		}
 		
 		if(	scrolling )
 		{
@@ -527,13 +587,14 @@ public class SlideButton extends View {
 				if(SlideButton_value == true)
 				{
 					SlideButton_value = false;
-				}
-				
-				// notify 
-				for(int i = 0 ; i < mOnSwitchChangedListener.size();i++ )
-				{
-					mOnSwitchChangedListener.get(i).onSwitchChanged(this, SlideButton_value);
-				}
+					
+					// notify 
+					for(int i = 0 ; i < mOnSwitchChangedListener.size();i++ )
+					{
+						mOnSwitchChangedListener.get(i).onSwitchChanged(this, SlideButton_value);
+					}
+
+				}				
 			}
 			
 			if((slide_block_x+slide_block_w) > width_size - 20)
@@ -545,13 +606,13 @@ public class SlideButton extends View {
 				if(SlideButton_value == false)
 				{
 					SlideButton_value = true;
-				}
-				
-				// notify 
-				for(int i = 0 ; i < mOnSwitchChangedListener.size();i++ )
-				{
-					mOnSwitchChangedListener.get(i).onSwitchChanged(this, SlideButton_value);
-				}
+					
+					// notify 
+					for(int i = 0 ; i < mOnSwitchChangedListener.size();i++ )
+					{
+						mOnSwitchChangedListener.get(i).onSwitchChanged(this, SlideButton_value);
+					}
+				}				
 			}
 		}
 		else if(SlideButton_value == false)
@@ -592,12 +653,15 @@ public class SlideButton extends View {
 		
 		// 计算文字高度
 		Paint.FontMetrics fm = mPaint.getFontMetrics();
-		
-		Log.d(TAG,"top="+fm.top);
-		Log.d(TAG,"ascent="+fm.ascent);
-		Log.d(TAG,"descent="+fm.descent);
-		Log.d(TAG,"bottom="+fm.bottom);
-		Log.d(TAG,"leading="+fm.leading);
+
+		if(DBG)
+		{
+			Log.d(TAG,"top="+fm.top);
+			Log.d(TAG,"ascent="+fm.ascent);
+			Log.d(TAG,"descent="+fm.descent);
+			Log.d(TAG,"bottom="+fm.bottom);
+			Log.d(TAG,"leading="+fm.leading);
+		}
 		
 		float text_h = fm.bottom - fm.top;
 		
@@ -704,25 +768,37 @@ public class SlideButton extends View {
 		int specWidthSize = MeasureSpec.getSize(widthMeasureSpec);
 		int specHeightSize = MeasureSpec.getSize(heightMeasureSpec);
 		
-		Log.d(TAG,"onMeasure() : width="+specWidthSize+",height="+specHeightSize);
+		if(DBG)
+		{
+			Log.d(TAG,"onMeasure() : width="+specWidthSize+",height="+specHeightSize);
+		}
 		
 		// width 
 		if( specWidthMode == MeasureSpec.AT_MOST) 
 		{ 
 			//你理想的大小的计算，在这个最大值控制.   // fill
-			Log.d(TAG,"specWidthMode=MeasureSpec.AT_MOST");
+			if(DBG)
+			{
+				Log.d(TAG,"specWidthMode=MeasureSpec.AT_MOST");
+			}
 			width_size = specWidthSize; 
 		} 
 		else if(specWidthMode == MeasureSpec.EXACTLY) 
 		{ 
 			//	如果你的控制能符合这些界限返回那个价值. // wrap
-			Log.d(TAG,"specWidthMode=MeasureSpec.EXACTLY");
+			if(DBG)
+			{
+				Log.d(TAG,"specWidthMode=MeasureSpec.EXACTLY");
+			}
 			width_size = specWidthSize; 
 		}
 		else if(specWidthMode == MeasureSpec.UNSPECIFIED)
 		{
 			// 未指定，你需要自己定义这大小
-			Log.d(TAG,"specWidthMode=MeasureSpec.UNSPECIFIED");
+			if(DBG)
+			{
+				Log.d(TAG,"specWidthMode=MeasureSpec.UNSPECIFIED");
+			}
 			width_size = (int)(slide_block_w * 3 ); 
 		}
 		
@@ -730,19 +806,28 @@ public class SlideButton extends View {
 		if( specHeightMode == MeasureSpec.AT_MOST) 
 		{ 
 			//你理想的大小的计算，在这个最大值控制.
-			Log.d(TAG,"specHeightMode=MeasureSpec.AT_MOST");
+			if(DBG)
+			{
+				Log.d(TAG,"specHeightMode=MeasureSpec.AT_MOST");
+			}
 			height_size = specHeightSize; 
 		} 
 		else if(specHeightMode == MeasureSpec.EXACTLY) 
 		{ 
 			//	如果你的控制能符合这些界限返回那个价值. 
-			Log.d(TAG,"specHeightMode=MeasureSpec.EXACTLY");			
+			if(DBG)
+			{
+				Log.d(TAG,"specHeightMode=MeasureSpec.EXACTLY");			
+			}
 			height_size = specHeightSize; 
 		}
 		else if(specHeightMode == MeasureSpec.UNSPECIFIED)
 		{
 			// 未指定，你需要自己定义这大小
-			Log.d(TAG,"specHeightMode=MeasureSpec.UNSPECIFIED");
+			if(DBG)
+			{
+				Log.d(TAG,"specHeightMode=MeasureSpec.UNSPECIFIED");
+			}
 			height_size   = img_bg_h ;     // 和背景一样大小。
 			slide_block_h = height_size ;  // block 高度也一样。
 		}

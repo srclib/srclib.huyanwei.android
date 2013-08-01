@@ -12,9 +12,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,8 +39,7 @@ public class SlideButton extends View {
 	
 	// 确定 控件的空间大小
 	private int width_mode 	= 0 ;
-	private int height_mode = 0 ;		
-	
+	private int height_mode = 0 ;			
 	private int width_size  = 0 ;  // 控件的宽度
 	private int height_size = 0 ;  // 控件的高度
 
@@ -55,9 +57,53 @@ public class SlideButton extends View {
 	private int            SlideButton_text_size  		= 15;
 	private int            SlideButton_block_size  		= 60;
 	private boolean        SlideButton_value  			= false;
-	
+
 	//开关状态图
-	Bitmap img_bg,img_off, img_on;
+	Bitmap img_bg;
+	Bitmap img_off;
+	Bitmap img_on;
+	
+	// slide 块的信息
+	private int slide_block_x = 0;
+	private int slide_block_y = 0;
+	private int slide_block_w = 0;
+	private int slide_block_h = 0;
+
+	// 保存当前的信息.
+	private String         current_text			= null;
+	private ColorStateList current_text_color 	= null;
+	private Bitmap         current_block_img    = null ;
+
+	private boolean mShowFontMetricsLine = false ; 
+	
+	private float first_down_x;
+	private float first_down_y;
+	
+	private float last_down_x;
+	private float last_down_y;	
+	
+	private boolean mHasSelected = false ;
+	private boolean mHasScrolled = false ;	
+	private boolean scrolling 	 = false ;
+	
+	public static final int MSG_UPDATE_STATE = 100;
+	
+	Handler mHandler = new Handler()
+	{
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			switch(msg.what)
+			{
+				case  MSG_UPDATE_STATE:
+					scrolling = ((msg.arg1 > 1)?true:false);
+					break;
+				default:
+					break;
+			}
+			super.handleMessage(msg);
+		}
+	};
 	
 	public boolean getValue()
 	{
@@ -98,12 +144,17 @@ public class SlideButton extends View {
 		img_on = BitmapFactory.decodeResource(res, R.drawable.slide_on);
 
 		img_bg_w  = img_bg.getWidth();
-		img_bg_h = img_bg.getHeight();		
+		img_bg_h = 	img_bg.getHeight();		
 		img_block_w = img_off.getWidth();
 		img_block_h = img_off.getHeight();
 		
 		Log.d(TAG,"["+img_bg_w+","+img_bg_h+","+img_block_w+","+img_block_h+"]");
 		
+		// init block position
+		slide_block_x = 0 ;
+		slide_block_y = 0 ;
+		slide_block_w = (SlideButton_block_size==0)?(img_block_w):(SlideButton_block_size); // 属性指定了block 的宽度。
+		slide_block_h = img_block_h ;
 	}
 	
 	public SlideButton(Context context, AttributeSet attrs, int defStyle) {
@@ -173,7 +224,7 @@ public class SlideButton extends View {
 		
 		a.recycle();
 				
-		init(context);
+		init(context); // init control .
 	}
 
 	public SlideButton(Context context, AttributeSet attrs) {
@@ -198,11 +249,184 @@ public class SlideButton extends View {
 		// TODO Auto-generated constructor stub
 	}
 
-	public void drawBitmap(Canvas canvas, Rect src, Rect dst, Bitmap bitmap)
+	/**
+	 * AnimationTransRunnable 做滑动动画所使用的线程
+	 */
+	private class AnimationTransRunnable implements Runnable
 	{
-		dst = (dst == null ? new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()) : dst);
-		Paint paint = new Paint();
-		canvas.drawBitmap(bitmap, src, dst, paint);
+		private int step_len = 5;
+		
+		private int srcX, dstX;
+		
+		private Handler handler;
+
+		/**
+		 * 滑动动画
+		 * @param srcX 滑动起始点
+		 * @param dstX 滑动终止点
+		 * @param duration 是否采用动画，1采用，0不采用
+		 */
+		public AnimationTransRunnable(float srcX, float dstX, final Handler h)
+		{
+			this.srcX = 	(int)srcX;
+			this.dstX = 	(int)dstX;
+			this.handler = h;
+		}
+
+		@Override
+		public void run() 
+		{
+			int dir = 1;
+			int count = 0;
+			
+			if(dstX < srcX)
+				dir = -1;
+			else
+				dir = 1;
+
+			while( Math.abs((dstX- srcX )) > step_len)
+			{
+				//Log.d(TAG,"AnimationTransRunnable() dstX="+dstX+",srcX="+srcX);
+				
+				srcX += dir * step_len;
+				slide_block_x += dir * step_len; 
+				
+				Log.d(TAG,"run() slide_block_x="+slide_block_x);
+				
+				SlideButton.this.postInvalidate();
+				
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			Log.d(TAG,"AnimationTransRunnable() rest dstX="+dstX+",srcX="+srcX);
+			
+			// res
+			{
+				slide_block_x += (dstX - srcX);	
+				SlideButton.this.postInvalidate();
+			}
+		}
+		
+		{
+			/*
+			Message msg = handler.obtainMessage();
+			msg.what = SlideButton.MSG_UPDATE_STATE ;
+			msg.arg1 = 0 ;
+			msg.setTarget(handler);
+			*/
+			
+			Message msg = new Message();
+			msg.what = SlideButton.MSG_UPDATE_STATE ;
+			msg.arg1 = 0 ;
+			msg.setTarget(handler);
+		}
+	}
+	
+	public void sendMessage(int state)
+	{
+		Message msg = mHandler.obtainMessage();
+		msg.what = SlideButton.MSG_UPDATE_STATE; 
+		msg.arg1 = state;
+		msg.sendToTarget();
+	}
+	
+	public void doAnimation()
+	{
+		int src_x =  slide_block_x;
+		int src_y =  slide_block_y;
+		
+		int dst_x =  slide_block_x;
+		int dst_y =  slide_block_y;
+		
+		Log.d(TAG,"slide_block_x="+slide_block_x+",slide_block_w="+slide_block_w);
+		
+		if( (slide_block_x+(slide_block_w/2)) < (width_size/2)) // 分界点 为 控件的 中点
+		{
+			// to off
+			dst_x = 0;
+		}
+		else
+		{
+			// to right
+			dst_x = (width_size-slide_block_w);
+		}
+		
+		Log.d(TAG,"dst_x="+dst_x);
+
+		AnimationTransRunnable runnable = new AnimationTransRunnable(src_x, dst_x, mHandler);
+		Thread mThread = new Thread(runnable);
+		mThread.start();
+	}
+	
+	public void handle_up_event(int x , int y)
+	{
+		int src_x =  slide_block_x;
+		int src_y =  slide_block_y;
+		
+		int dst_x =  slide_block_x;
+		int dst_y =  slide_block_y;
+
+		Log.d(TAG,"handle_up_event() mHasScrolled="+mHasScrolled+",SlideButton_value="+SlideButton_value);
+		
+		if(!mHasScrolled)
+		{
+			// single click event .
+			if(SlideButton_value)
+			{
+				Rect rect = new Rect(0,slide_block_y,slide_block_w,slide_block_y+slide_block_h);
+				if(rect.contains(x, y))
+				{
+					//go to left
+					dst_x = 0;
+					
+					scrolling = true ; // 开始 滚动
+					
+				}
+			}
+			else
+			{
+				Rect rect = new Rect((width_size - slide_block_w),slide_block_y,width_size,slide_block_y+slide_block_h);
+				if(rect.contains(x, y))
+				{
+					//go to right
+					dst_x = (width_size-slide_block_w);
+					
+					scrolling = true ; // 开始 滚动
+				}				
+			}			
+			AnimationTransRunnable runnable = new AnimationTransRunnable(src_x, dst_x, mHandler);
+			Thread mThread = new Thread(runnable);
+			mThread.start();
+		}
+		else
+		{
+			doAnimation();
+		}
+	}
+
+	public void update_slide_block_position(int x , int y)
+	{
+		slide_block_x += x;
+		slide_block_y += y ;
+		
+		if(slide_block_x<0)
+		{
+			slide_block_x = 0 ;
+		}
+		
+		if((slide_block_x + slide_block_w) > width_size)
+		{
+			slide_block_x = (width_size -  slide_block_w);
+		}
+		
+		Log.d(TAG,"update_slide_block_position() slide_block_x="+slide_block_x);
+		
+		this.invalidate();
 	}
 	
 	@Override
@@ -213,102 +437,66 @@ public class SlideButton extends View {
 		
 		float delta_x = 0.0f;
 		float delta_y = 0.0f;
-		/*
+
 		switch(event.getAction())
 		{
 			case  MotionEvent.ACTION_DOWN:
-				down_x = (float) event.getX();
-				down_y = (float) event.getY();
-				if(DBG)
-				Log.d(TAG,"down x="+down_x+",y="+down_y);
-				
-				init_left 	=  mLinearLayout.getLeft();
-				init_top 	=  mLinearLayout.getTop();
-				init_right 	=  init_left + mLinearLayout.getWidth();
-				init_bottom =  init_top + mLinearLayout.getHeight();
-				
-				if(DBG)
-					Log.d(TAG,"down init_left="+init_left+",init_top="+init_top+",init_right="+init_right+",init_bottom="+init_bottom);
-				
+				first_down_x = (float) event.getX();
+				first_down_y = (float) event.getY();
 
+				last_down_x =  first_down_x;
+				last_down_y =  first_down_y;
+
+				Log.d(TAG,"ACTION_DOWN first_down_x="+first_down_x+",first_down_y="+first_down_y);
+
+				mHasSelected = false ; 
+				scrolling 	 = false ; // init state
+				mHasScrolled = false ; // init state
 				
+				Rect block_rect = new Rect(slide_block_x,slide_block_y,slide_block_x+slide_block_w , slide_block_y+slide_block_h);
+				if(block_rect.contains((int)first_down_x, (int)first_down_y))
+				{
+					mHasSelected = true;
+				}
 				break;
 			case  MotionEvent.ACTION_MOVE:
 				x = (float) event.getX();
 				y = (float) event.getY();
-				
-				delta_x = x - down_x ; //
-				delta_y = 0 ;          // hor
-				
-				if(DBG)
-					Log.d(TAG,"move x="+x+",y="+y+",delta_x="+delta_x);
-				
-				if(((init_left+delta_x) >= 0) && (((init_left+delta_x) < (mDrawable_off.getMinimumWidth()/8))))
-				{
-					if(pre_state == 1)
+				Log.d(TAG,"ACTION_MOVE x="+x+",y="+y);
+				if(mHasSelected)
+				{	
+					Log.d(TAG,"ACTION_MOVE scrolling="+scrolling);
+					//if( Math.abs((x-first_down_x )) > 10)
 					{
-						mLinearLayout.setBackgroundDrawable(mDrawable_off);					
-						mTextView.setText(R.string.value_off);
-						
-						pre_state = 1-pre_state ;
-						
-						state = false;
-						int i = 0 ;
-						for(i=0;i<mOnSwitchChangedListener.size();i++)
-						{
-							((OnSwitchChangedListener)mOnSwitchChangedListener.get(i)).onSwitchChanged(this, state);
-						}
-					}
-					else
-					{
-						//mLayoutParams.width =
-						
-						mLinearLayout.layout((int)(init_left+delta_x), (int)init_top, (int)(init_right+delta_x), (int)init_bottom);
-						mLinearLayout.invalidate();
+						scrolling    = true ;
+						mHasScrolled = true;
 					}
 					
-				}
-				else if(((init_left+delta_x) >= (mDrawable_off.getMinimumWidth()/8) ) && (init_right+delta_x <= (width -1- (mDrawable_off.getMinimumWidth()/8))))
-				{
-					mLinearLayout.layout((int)(init_left+delta_x), (int)init_top, (int)(init_right+delta_x), (int)init_bottom);
-					mLinearLayout.invalidate();
-					//mLinearLayout.requestLayout();
-				}
-				else if( ((init_right+delta_x) > (width -1- (mDrawable_off.getMinimumWidth()/8))) 
-						&& ((init_right+delta_x) <= (width -1)))
-				{
-					if(pre_state == 0)
-					{
-						mLinearLayout.setBackgroundDrawable(mDrawable_on);
-						mTextView.setText(R.string.value_on);
-						pre_state = 1-pre_state ;
-						state = true;
-						int i = 0 ;
-						for(i=0;i<mOnSwitchChangedListener.size();i++)
-						{
-							((OnSwitchChangedListener)mOnSwitchChangedListener.get(i)).onSwitchChanged(this, state);
-						}
-					}
-					else
-					{
-						mLinearLayout.layout((int)(init_left+delta_x), (int)init_top, (int)(init_right+delta_x), (int)init_bottom);
-						mLinearLayout.invalidate();
-					}					
-				}
-				
+					delta_x = x - last_down_x ; //
+					delta_y = 0 ;          		// hor
+					
+					last_down_x =  x;
+					last_down_y =  y;
+					
+					update_slide_block_position((int)delta_x,(int)delta_y);
+				}				
 				break;
 			case  MotionEvent.ACTION_UP:
 				x = (float) event.getX();
 				y = (float) event.getY();
-				if(DBG)
-					Log.d(TAG,"up x="+x+",y="+y);
+				Log.d(TAG,"ACTION_UP x="+x+",y="+y);
+				handle_up_event((int)x,(int)y); 
+				mHasScrolled = false ;
+				break;
+			case  MotionEvent.ACTION_CANCEL:
+				scrolling = false ;
 				break;
 			default:
 				break;
 		}
-		*/
-		//return true ;
-		return super.onTouchEvent(event);
+
+		return true ;
+		//return super.onTouchEvent(event);
 	}
 
 	@Override
@@ -323,43 +511,151 @@ public class SlideButton extends View {
 		
 		mPaint.setTypeface(Typeface.DEFAULT_BOLD);
 		
-		Log.d(TAG,"width_size="+width_size+",height_size="+height_size);		
+		Log.d(TAG,"onDraw() :width_size="+width_size+",height_size="+height_size);		
 		
 		Log.d(TAG,"SlideButton_block_size="+SlideButton_block_size);		
 		
-		if(SlideButton_value == false)
+		if(	scrolling )
 		{
-			drawBitmap(canvas, null, new Rect(0, 0, width_size, height_size), img_bg);
-			drawBitmap(canvas, null, new Rect(0, 0, SlideButton_block_size, height_size), img_off);
-			mPaint.setColor(SlideButton_text_off_color.getDefaultColor());
+			
+			if(slide_block_x < 20)
+			{
+				current_text 		= SlideButton_text_off;
+				current_text_color	= SlideButton_text_off_color;
+				current_block_img   = img_off;
+				
+				if(SlideButton_value == true)
+				{
+					SlideButton_value = false;
+				}
+				
+				// notify 
+				for(int i = 0 ; i < mOnSwitchChangedListener.size();i++ )
+				{
+					mOnSwitchChangedListener.get(i).onSwitchChanged(this, SlideButton_value);
+				}
+			}
+			
+			if((slide_block_x+slide_block_w) > width_size - 20)
+			{
+				current_text 		= SlideButton_text_on;
+				current_text_color	= SlideButton_text_on_color;
+				current_block_img   = img_on;
+				
+				if(SlideButton_value == false)
+				{
+					SlideButton_value = true;
+				}
+				
+				// notify 
+				for(int i = 0 ; i < mOnSwitchChangedListener.size();i++ )
+				{
+					mOnSwitchChangedListener.get(i).onSwitchChanged(this, SlideButton_value);
+				}
+			}
+		}
+		else if(SlideButton_value == false)
+		{
+			slide_block_w = SlideButton_block_size;
+			slide_block_h = height_size ;
 
-			float text_w = mPaint.measureText(SlideButton_text_off);
-			Paint.FontMetrics fm = mPaint.getFontMetrics();			
-			float text_h = Math.abs(fm.ascent) + (Math.abs(fm.leading)*2) ;
+			slide_block_x = 0;
+			slide_block_y = 0 ;
 			
-			Log.d(TAG,"text_w="+text_w+",text_h="+text_h);
-			
-			//canvas.translate((SlideButton_block_size-text_w)/2, 0);
-			// 首先要清楚drawText不是以文字的左上角开始绘制，而是以baseLine为基线绘制
-			canvas.drawText(SlideButton_text_off, (SlideButton_block_size-text_w)/2, (height_size - text_h)/2 , mPaint);
-			
+			current_text 		= SlideButton_text_off;
+			current_text_color	= SlideButton_text_off_color;
+			current_block_img   = img_off;
 		}
 		else
 		{
-			Rect rt = new Rect();
-			rt.left  	= 0 ;
-			rt.right 	= 200;
-			rt.top 		= 0 ;
-			rt.bottom   = 32;
-			drawBitmap(canvas, null, rt, img_bg);
-			canvas.translate(img_bg.getWidth()-img_on.getWidth(), 0);
-			drawBitmap(canvas, null, null, img_on);
-			mPaint.setColor(Color.rgb(0, 105, 0));
-			canvas.translate(img_off.getWidth()/2, 0);
-			canvas.drawText(this.getResources().getString(R.string.value_on), 0, 20, mPaint);
+			slide_block_w = SlideButton_block_size;
+			slide_block_h = height_size ;
+			
+			slide_block_x = width_size-slide_block_w;
+			slide_block_y = 0 ;
+			
+			current_text 		= SlideButton_text_on;
+			current_text_color	= SlideButton_text_on_color;
+			current_block_img   = img_on;
 		}
 		
-		Log.d(TAG,"draw() }");
+		// draw bg
+		canvas.drawBitmap(img_bg, null, new Rect(0, 0, width_size, height_size),  mPaint);
+		
+		// draw block
+		canvas.drawBitmap(current_block_img, null, new Rect(slide_block_x, slide_block_y, slide_block_x+slide_block_w, slide_block_y+slide_block_h),mPaint);
+		
+		mPaint.setColor(current_text_color.getDefaultColor());
+
+		// 计算文字宽度
+		float text_w = mPaint.measureText(current_text);
+		
+		// 计算文字高度
+		Paint.FontMetrics fm = mPaint.getFontMetrics();
+		
+		Log.d(TAG,"top="+fm.top);
+		Log.d(TAG,"ascent="+fm.ascent);
+		Log.d(TAG,"descent="+fm.descent);
+		Log.d(TAG,"bottom="+fm.bottom);
+		Log.d(TAG,"leading="+fm.leading);
+		
+		float text_h = fm.bottom - fm.top;
+		
+		//mPaint.setTextAlign(Align.CENTER); // 水平居中。
+		
+		// calc baseline
+		float textBaseY = height_size - ((height_size - text_h) / 2) - fm.bottom;
+		
+		//canvas.translate((SlideButton_block_size-text_w)/2, 0);
+		
+		// 首先要清楚drawText不是以文字的左上角开始绘制，而是以baseLine为基线绘制
+		canvas.drawText(current_text, slide_block_x+(slide_block_w-text_w)/2, textBaseY, mPaint);
+		
+		if(mShowFontMetricsLine)
+		{
+			// Draw Font Metrics {
+			//基线（baeseline），坡顶（ascenter）,坡底（descenter）
+			//上坡度（ascent），下坡度（descent）
+			//行间距（leading）：坡底到下一行坡顶的距离, 两连续行 基线间垂直距离.
+			//字体的高度＝上坡度＋下坡度＋行间距
+			//ascent是指从一个字的基线(baseline)到最顶部的距离，descent是指一个字的基线到最底部的距离
+			//注意, ascent和top都是负数
+			
+			float baseX     = slide_block_x;
+			float baseY     = textBaseY;
+			float topY 		= baseY + fm.top; 
+		    float ascentY 	= baseY + fm.ascent; 
+			float descentY 	= baseY + fm.descent; 
+			float bottomY 	= baseY + fm.bottom;
+
+			// Base Line描画 
+			Paint baseLinePaint = new Paint( Paint.ANTI_ALIAS_FLAG); 
+			baseLinePaint.setColor( Color.RED);
+			canvas.drawLine(0, baseY, getWidth(), baseY, baseLinePaint);
+			canvas.drawCircle( baseX, baseY, 5, baseLinePaint); // Base Point 基线左边 
+
+			
+			// Top Line描画 
+			Paint topLinePaint = new Paint( Paint.ANTI_ALIAS_FLAG); 
+			topLinePaint.setColor( Color.LTGRAY); 
+			canvas.drawLine(0, topY, getWidth(), topY, topLinePaint); 
+
+			// Ascent Line描画 
+			Paint ascentLinePaint = new Paint( Paint.ANTI_ALIAS_FLAG); 
+			ascentLinePaint.setColor( Color.GREEN); 
+			canvas.drawLine(0, ascentY,getWidth(), ascentY, ascentLinePaint); 
+
+			// 	Descent Line描画 
+			Paint descentLinePaint = new Paint( Paint.ANTI_ALIAS_FLAG); 
+			descentLinePaint.setColor( Color.YELLOW); 
+			canvas.drawLine(0, descentY, getWidth(), descentY, descentLinePaint); 
+
+			// Buttom Line描画 
+			Paint bottomLinePaint = new Paint( Paint.ANTI_ALIAS_FLAG); 
+			bottomLinePaint.setColor( Color.MAGENTA); 
+			canvas.drawLine(0, bottomY, getWidth(), bottomY, bottomLinePaint); 		   
+			// 	Draw Font Metrics } 
+		}
 		
 		super.onDraw(canvas);
 	}
@@ -408,40 +704,47 @@ public class SlideButton extends View {
 		int specWidthSize = MeasureSpec.getSize(widthMeasureSpec);
 		int specHeightSize = MeasureSpec.getSize(heightMeasureSpec);
 		
-		Log.d(TAG,"width="+specWidthSize+",height="+specHeightSize);
+		Log.d(TAG,"onMeasure() : width="+specWidthSize+",height="+specHeightSize);
 		
 		// width 
 		if( specWidthMode == MeasureSpec.AT_MOST) 
 		{ 
 			//你理想的大小的计算，在这个最大值控制.   // fill
+			Log.d(TAG,"specWidthMode=MeasureSpec.AT_MOST");
 			width_size = specWidthSize; 
 		} 
 		else if(specWidthMode == MeasureSpec.EXACTLY) 
 		{ 
 			//	如果你的控制能符合这些界限返回那个价值. // wrap
+			Log.d(TAG,"specWidthMode=MeasureSpec.EXACTLY");
 			width_size = specWidthSize; 
 		}
 		else if(specWidthMode == MeasureSpec.UNSPECIFIED)
 		{
 			// 未指定，你需要自己定义这大小
-			width_size = img_block_w * 3 ; 
+			Log.d(TAG,"specWidthMode=MeasureSpec.UNSPECIFIED");
+			width_size = (int)(slide_block_w * 3 ); 
 		}
 		
 		// height
 		if( specHeightMode == MeasureSpec.AT_MOST) 
 		{ 
-			//你理想的大小的计算，在这个最大值控制. 
+			//你理想的大小的计算，在这个最大值控制.
+			Log.d(TAG,"specHeightMode=MeasureSpec.AT_MOST");
 			height_size = specHeightSize; 
 		} 
 		else if(specHeightMode == MeasureSpec.EXACTLY) 
 		{ 
 			//	如果你的控制能符合这些界限返回那个价值. 
+			Log.d(TAG,"specHeightMode=MeasureSpec.EXACTLY");			
 			height_size = specHeightSize; 
 		}
 		else if(specHeightMode == MeasureSpec.UNSPECIFIED)
 		{
 			// 未指定，你需要自己定义这大小
-			height_size = img_bg_h ;  // 和背景一样大小。
+			Log.d(TAG,"specHeightMode=MeasureSpec.UNSPECIFIED");
+			height_size   = img_bg_h ;     // 和背景一样大小。
+			slide_block_h = height_size ;  // block 高度也一样。
 		}
 		
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);

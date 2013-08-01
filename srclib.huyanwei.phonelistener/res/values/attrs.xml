@@ -34,14 +34,14 @@
     
     <declare-styleable name="SlideButtomStyle">
         <attr name="text_off" 		format="reference|string" />
-	<attr name="text_off_color" format="reference|color" />
+		<attr name="text_off_color" format="reference|color" />
     	<attr name="text_on" 		format="reference|string" />
     	<attr name="text_on_color" format="reference|color" />
     	<attr name="text_size"    format="reference|dimension" />
     	<attr name="block_size"  format="reference|dimension" />
     	<attr name="value"     format="reference|boolean" >
     	    <enum name="off" value="0" />
-    	    <enum name="on"  value="1" />
+    		<enum name="on"  value="1" />
     	</attr>
     	
     </declare-styleable>

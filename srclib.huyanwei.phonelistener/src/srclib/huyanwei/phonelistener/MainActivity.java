@@ -111,7 +111,7 @@ public class MainActivity extends Activity {
 					{
 						Log.d(TAG,"SlideButton.onSwitchChanged() true");
 						
-						mImageButton.setVisibility(View.VISIBLE);
+						//mImageButton.setVisibility(View.VISIBLE);
 						
 						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE,1);
 					}
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
 					{
 						Log.d(TAG,"SlideButton.onSwitchChanged() false");
 						
-						mImageButton.setVisibility(View.INVISIBLE);
+						//mImageButton.setVisibility(View.INVISIBLE);
 						
 						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE,0);
 						
@@ -193,8 +193,8 @@ public class MainActivity extends Activity {
 
 	public void update_controls_state()
 	{
-			//mSlideButton.setValue((config_proximity_sensor_enable >=1)?true:false);
-		mSlideButton.setValue(false);
+		mSlideButton.setValue((config_proximity_sensor_enable >=1)?true:false);
+		//mSlideButton.setValue(false);
 	}
 	
 	@Override

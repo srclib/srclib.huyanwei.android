@@ -2,4 +2,6 @@
 	<color name="red">#ffff0000</color>
 	<color name="green">#ff00ff00</color>
 	<color name="blue">#ff0000ff</color>
+	
+	<color name="background_color">#cc222222</color>
 </resources>

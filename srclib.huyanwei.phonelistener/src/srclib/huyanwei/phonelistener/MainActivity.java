@@ -41,7 +41,10 @@ public class MainActivity extends Activity {
 	private boolean DBG = false;
 	
 	private Context 	mContext;
-	
+
+	private LayoutInflater mLayoutInflater;
+	private LinearLayout   mFooterView;
+			
 	private SlideButton  mSlideButton;
 	private ImageButton  mImageButton;	
 	private LinearLayout mlinearLayout;
@@ -190,13 +193,14 @@ public class MainActivity extends Activity {
 			// TODO Auto-generated method stub
 			switch(v.getId())
 			{
-			/*
-				case R.id.imageButton1:
-					 Log.d(TAG,"huyanwei start service by manual.");
+				case R.id.btn_start_service:
+					 if(DBG)
+					 {
+						Log.d(TAG,"huyanwei start service by manual.");
+					 }
 					 Intent svc = new Intent(mContext, PhoneListenerService.class);
 					 mContext.startService(svc);
 					break;
-		    */
 			}
 		}
 	};
@@ -381,13 +385,21 @@ public class MainActivity extends Activity {
 
         mContext= this;
         
-        mlinearLayout = (LinearLayout)findViewById(R.id.LinearLayout);
+        mLayoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mFooterView = 	(LinearLayout)mLayoutInflater.inflate(R.layout.footer, null);
         
+        mImageButton = (ImageButton) mFooterView.findViewById(R.id.btn_start_service);
+        mImageButton.setOnClickListener(mOnClickListener);
+        
+        mlinearLayout = (LinearLayout)findViewById(R.id.LinearLayout);        
         mListView = (ListView) mlinearLayout.findViewById(R.id.listView);        
         mListView.setOnItemClickListener(mOnItemClickListener);
-        mListItemAdapter = new ListItemAdapter(this);        
+        mListItemAdapter = new ListItemAdapter(this);
+        
+        mListView.addFooterView(mFooterView);
+        
         mListView.setAdapter(mListItemAdapter);
-
+        
         // view database
 		config_proximity_sensor_enable 	= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE);
 		config_action 					= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION);

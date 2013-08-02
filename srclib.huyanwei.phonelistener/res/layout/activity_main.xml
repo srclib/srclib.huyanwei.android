@@ -20,7 +20,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|right"
             android:gravity="right"
-            android:paddingRight="3dp"
+            android:paddingRight="8dp"
+            android:paddingTop="5dp"
             android:text="@string/copyright"
             android:textSize="9sp" />
 

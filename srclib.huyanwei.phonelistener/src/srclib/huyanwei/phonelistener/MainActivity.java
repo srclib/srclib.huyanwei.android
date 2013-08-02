@@ -1,6 +1,7 @@
 package srclib.huyanwei.phonelistener;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import srclib.huyanwei.phonelistener.SlideButton.OnSwitchChangedListener;
@@ -9,7 +10,9 @@ import srclib.huyanwei.phonelistener.SlideButton;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -18,6 +21,10 @@ import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,6 +50,9 @@ public class MainActivity extends Activity {
 	
 	private Context 	mContext;
 
+	private ActivityManager mActivityManager;
+	private boolean  		mserver_is_running = false ;
+	
 	private LayoutInflater mLayoutInflater;
 	private LinearLayout   mFooterView;
 			
@@ -55,6 +65,52 @@ public class MainActivity extends Activity {
 	private ListItemAdapter mListItemAdapter ;
 	
 	private	SQLiteDatabase mDatabase;
+	
+	private final int MSG_UPDATE_ANGLE  = 100;
+	
+	private Handler  mHandler  = new  Handler()
+	{
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			
+			switch (msg.what)
+			{
+				case MSG_UPDATE_ANGLE:
+					//Log.d(TAG,"msg.arg1="+msg.arg1);
+					rotate_view(msg.arg1);
+					break;
+				default:
+					break;
+			}
+			super.handleMessage(msg);
+		}		
+	};
+	
+	public void rotate_view(int angle)
+	{
+		final Bitmap msrc=BitmapFactory.decodeResource(mContext.getResources(),(R.drawable.setting));
+		final int wp=msrc.getWidth();
+		final int hp=msrc.getHeight();		
+	
+		//Log.d(TAG,"wp = "+wp + "hp="+hp);
+		
+		//创建操作图片是用的matrix对象
+		Matrix matrix=new Matrix();
+		//缩放图片动作
+		matrix.postScale(1.0f, 1.0f);
+				
+		//旋转图片动作
+		matrix.postRotate(angle);
+		//创建新图片
+		Bitmap resizedBitmap=Bitmap.createBitmap(msrc,0,0,wp,hp,matrix,true);
+		//将上面创建的bitmap转换成drawable对象，使其可以使用在ImageView,ImageButton中
+		BitmapDrawable bmd=new BitmapDrawable(resizedBitmap);
+		//mImageButton.setAdjustViewBounds(true);
+		mImageButton.setImageDrawable(bmd);
+		
+	}
+	
 	
 	private int config_proximity_sensor_enable 	= 0;
 	private int config_action 					= 0;
@@ -195,12 +251,21 @@ public class MainActivity extends Activity {
 			switch(v.getId())
 			{
 				case R.id.btn_start_service:
-					 if(DBG)
+					 if(mserver_is_running == false)
 					 {
-						Log.d(TAG,"huyanwei start service by manual.");
+						 // 服务还没有运行起来，则启动服务。
+						 if(DBG)
+						 {
+							 Log.d(TAG,"huyanwei start service by manual.");
+						 }
+						 Intent svc = new Intent(mContext, PhoneListenerService.class);
+						 mContext.startService(svc);
+						 
+						 mserver_is_running = true;
+						 
+						 update_running_view();
+						 
 					 }
-					 Intent svc = new Intent(mContext, PhoneListenerService.class);
-					 mContext.startService(svc);
 					break;
 			}
 		}
@@ -472,17 +537,64 @@ public class MainActivity extends Activity {
 		super.onPause();
 	}
 
-	public void update_controls_state()
+	public void update_running_view()
 	{
-		//mSlideButton.setValue((config_proximity_sensor_enable >=1)?true:false);
-		//mSlideButton.setValue(false);
+		
+		Thread mThread  = new Thread(new Runnable()
+		{
+			@Override
+			public void run() {
+				
+				int angle = 0 ;
+				
+				while(true)
+				{
+					angle = (angle+10) % 360 ; //再次旋转5°
+					
+					Message msg = new Message();
+					msg.what = MSG_UPDATE_ANGLE;
+					msg.arg1 = angle;
+					msg.setTarget(mHandler);
+					msg.sendToTarget();
+					
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}			
+		});
+		
+		// 在运行就 转动.
+		if(mserver_is_running)
+		{
+			mThread.start();	
+		}
 	}
 	
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		
-		update_controls_state();
+		String className = "srclib.huyanwei.phonelistener.PhoneListenerService";
+		
+		mActivityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+		List<ActivityManager.RunningServiceInfo> mServiceList = mActivityManager.getRunningServices(50);
+		//if(DBG) Log.d(TAG,"mServiceList.size()="+mServiceList.size());
+		for(int i = 0; i < mServiceList.size(); i++)
+		{
+			 	String local_service_name = mServiceList.get(i).service.getClassName();
+			 	// if(DBG) Log.d(TAG, local_service_name);			 	
+	            if(className.equals(local_service_name))
+	            {
+	        	   mserver_is_running = true;
+	        	   break;
+	            }
+	    }
+		
+		update_running_view();
 				
 		super.onResume();
 	}

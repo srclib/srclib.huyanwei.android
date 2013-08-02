@@ -514,7 +514,7 @@ public class MainActivity extends Activity {
 	
 	private OnSeekBarChangeListener mOnSeekBarChangeListener = new OnSeekBarChangeListener()
 	{
-		@Override
+		//@Override
 		public void onProgressChanged(SeekBar seekBar, int progress,
 				boolean fromUser) {
 			// TODO Auto-generated method stub
@@ -526,13 +526,13 @@ public class MainActivity extends Activity {
 			
 		}
 
-		@Override
+		//@Override
 		public void onStartTrackingTouch(SeekBar seekBar) {
 			// TODO Auto-generated method stub
 			
 		}
 
-		@Override
+		//@Override
 		public void onStopTrackingTouch(SeekBar seekBar) {
 			// TODO Auto-generated method stub
 
@@ -656,7 +656,7 @@ public class MainActivity extends Activity {
 		
 		Thread mThread  = new Thread(new Runnable()
 		{
-			@Override
+			//@Override
 			public void run() {
 				
 				int angle = 0 ;

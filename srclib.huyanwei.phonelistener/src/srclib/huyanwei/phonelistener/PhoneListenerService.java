@@ -57,6 +57,7 @@ public class PhoneListenerService extends Service  {
 	
 	private float 				mLightSensorValue   		=  0.0f ;  // left state.
 	private float 				mLastLightSensorValue   	=  0.0f ;  // left state.
+	private float 				mMaxLightSensorValue   		=  0.0f ;  // left state.
 	
 	private boolean 			mEventhappen = false;
 	
@@ -286,7 +287,8 @@ public class PhoneListenerService extends Service  {
 				{
 					// 防止口袋模式，所以，需要光感来帮忙确定是不是在口袋中，或黑暗中，一般，来电时，屏都会被打亮.
 					//Log.d(TAG,"mLightSensorValue="+mLightSensorValue);
-					if(mLightSensorValue >= mConfigLightSensorThreshold )
+					//if(mLightSensorValue >= mConfigLightSensorThreshold ) 
+					if(mMaxLightSensorValue > mConfigLightSensorThreshold) // 防止手接近时，als的值也很小了，达不到上面的条件。同时，也能处理口袋模式
 					{
 						handleProximitySensorEvent(SensorEventUpTimes, positive);
 					}
@@ -315,6 +317,11 @@ public class PhoneListenerService extends Service  {
 			// we record the light sensor value to judge the  [pocket mode]			
 			mLastLightSensorValue = mLightSensorValue;
 			mLightSensorValue = event.values[0];
+			
+			if(mMaxLightSensorValue < mLightSensorValue )
+			{
+				mMaxLightSensorValue = mLightSensorValue;
+			}
 		}
 	};
 	
@@ -440,13 +447,16 @@ public class PhoneListenerService extends Service  {
 			Log.d(TAG,"registerSensorListener()");
 		}
 
+		mProximityState = PROXIMITY_UNKNOWN ;   // 距离感应器处于无效状态.        
+		mProximitySensorValue   = 0.0f;         // 来电时 设置 接近态，只有下降沿（由高到低）才有效。  默认是被挡住  
+		mLightSensorValue 		= 0.0f;         // 来电时 als 初始化 .来电时，默认是被挡住.
+		mMaxLightSensorValue    = 0.0f;         // 之前没有值
+		
 		// start lister sensor
         mSensorManager.registerListener(mProximitySensorEventListener, mProximitySensor,SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(mLightSensorEventListener,     mLightSensor,    SensorManager.SENSOR_DELAY_NORMAL);
-        
-		mProximityState = PROXIMITY_UNKNOWN ;   // 距离感应器处于无效状态.
-        
         mProximitySensorListening = true;  		// 只在来电时候生效。
+        
 	}
 	
 	public void unregisterSensorListener()

@@ -29,13 +29,12 @@
     <string name="light_sensor_off_str">off</string>
     <string name="light_sensor_on_str">on</string>
     
-    <string name="light_sensor_threshold_str">light threahold</string>    
+    <string name="light_sensor_threshold_str">light threshold</string>    
     
     <string name="service_start_notification">service have been started by manual</string>
     
     <string name="service_stop_notification">service have been stoped by manual</string>
     
-    
-    <string name="copyright">Copyright ©2013. srclib@hotmail.com</string>
+    <string name="copyright">Copyright ©2013 srclib@hotmail.com All Rights Reserved.</string>
     
 </resources>

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import srclib.huyanwei.phonelistener.SlideButton.OnSwitchChangedListener;
+import srclib.huyanwei.phonelistener.SlideButton;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -239,10 +240,10 @@ public class MainActivity extends Activity {
 		//@Override
 		public int getCount() {
 			// TODO Auto-generated method stub
-			if(DBG)
-			{
-				Log.d(TAG,"getCount()");
-			}
+			//if(DBG)
+			//{
+			//	Log.d(TAG,"getCount()");
+			//}
 			return mCount;
 		}
 
@@ -289,7 +290,13 @@ public class MainActivity extends Activity {
             int header_count = ((ListView) mListView).getHeaderViewsCount();
             int footer_count = ((ListView) mListView).getFooterViewsCount();
 
-            if(count ==1)
+            if(DBG)
+            {
+            	Log.d(TAG,"["+first+"-"+last+"]/["+child_count+"-"+count+"]["+header_count+"/"+footer_count+"]");
+            }
+            
+            // header ,footer 不用背景
+            if((count - header_count - footer_count) ==1)
             {
             	// Only One Item
             	ll.setBackgroundResource(R.drawable.v5_preference_item_single_bg);
@@ -299,7 +306,7 @@ public class MainActivity extends Activity {
             	// first
             	ll.setBackgroundResource(R.drawable.v5_preference_item_first_bg);
             }
-            else if(position == count -1)
+            else if(position == (count-1-header_count-footer_count))
             {
             	// last
             	ll.setBackgroundResource(R.drawable.v5_preference_item_last_bg);
@@ -322,7 +329,7 @@ public class MainActivity extends Activity {
            	mSlideButton.setSwitchOnText(local_item.switch_on_str);
            	mSlideButton.setValue(local_item.switch_value);           	
            	mSlideButton.setOnSwitchChangedListener(local_item.OnSwitchChangedListener);
-           	mSlideButton.setId(mSlideButtonIdBase+position);
+           	mSlideButton.setId(mSlideButtonIdBase+position); // 注意这里已经改变了他的ID
            	
             return ll;
 		}
@@ -346,6 +353,7 @@ public class MainActivity extends Activity {
 				// TODO Auto-generated method stub
 				if(DBG)
 				{
+					// arg0 -> AdapterView , arg1 -> item view , arg2 -> count index , arg3 -> origin index
 					Log.d(TAG,"onItemClick("+arg0+","+arg1+","+arg2+","+arg3+")");
 				}
                 int first = arg0.getFirstVisiblePosition();
@@ -361,12 +369,22 @@ public class MainActivity extends Activity {
                 }
                 if((arg2 > (header_count-1)) && (arg2 < (count-footer_count))) // index calc
 				{
-                	/*
-                	TextView mTextView = (TextView) arg1.findViewById(R.id.textView1);                	 
-                	mTextView.setTextColor(0xff000000);
-                	mTextView.setText("clicked Item"+(arg2));
-                	Toast.makeText(mContext, "Item"+(arg2)+" is clicked!", Toast.LENGTH_SHORT).show();
-                	*/
+                	
+                	//TextView    local_nm = (TextView) ((LinearLayout)arg1).findViewById(R.id.switch_name);
+                	//local_nm.setText(local_nm.getText()+" is clicked.");
+                	
+                	// id alread have been modified.
+                	//SlideButton local_sb = (SlideButton)((LinearLayout)arg1).findViewById(R.id.SlideButton);
+                	SlideButton local_sb = (SlideButton)((LinearLayout)arg1).findViewById(mSlideButtonIdBase+(int)arg3);
+                	
+                	if(local_sb != null)
+                	{
+                		local_sb.switchValue();
+                	}
+                	else
+                	{
+                		Log.d(TAG,"SlideButton is null ");
+                	}
 				}
                 else
 				{
@@ -396,7 +414,8 @@ public class MainActivity extends Activity {
         mListView.setOnItemClickListener(mOnItemClickListener);
         mListItemAdapter = new ListItemAdapter(this);
         
-        mListView.addFooterView(mFooterView);
+        mListView.addHeaderView(mFooterView);
+        //mListView.addFooterView(mFooterView);
         
         mListView.setAdapter(mListItemAdapter);
         

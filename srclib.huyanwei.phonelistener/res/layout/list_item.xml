@@ -4,7 +4,7 @@
     	xmlns:local="http://schemas.android.com/apk/res/srclib.huyanwei.phonelistener"    
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/list_view_item_height"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:gravity="center"
@@ -12,8 +12,7 @@
         android:paddingBottom="5dp"
         android:paddingLeft="5dp"
         android:paddingTop="5dp"
-        android:paddingRight="5dp" 
-        >
+        android:paddingRight="5dp" >
 
     	<TextView
     	    android:id="@+id/switch_name"

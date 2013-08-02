@@ -88,6 +88,8 @@ public class SlideButton extends View {
 	
 	public static final int MSG_UPDATE_STATE = 100;
 	
+	private Object mLock = new Object();
+	
 	Handler mHandler = new Handler()
 	{
 		@Override
@@ -105,6 +107,16 @@ public class SlideButton extends View {
 		}
 	};
 	
+	public void switchValue()
+	{
+		synchronized(mLock)
+		{
+			doAnimation(SlideButton_value);
+			// slideButton_value = !SlideButton_value;
+			// trigger notify when redraw.
+		}
+	}
+	
 	public boolean getValue()
 	{
 		return SlideButton_value;
@@ -112,9 +124,13 @@ public class SlideButton extends View {
 	
 	public void setValue(boolean arg)
 	{
-		SlideButton_value = arg;
+		synchronized(mLock)
+		{
+			SlideButton_value = arg;
 		
-		this.invalidate();
+			this.invalidate();
+		}		
+		// trigger notify when redraw.
 	}
 	
 	public void setSwitchOffText(String off_str)
@@ -359,34 +375,46 @@ public class SlideButton extends View {
 	
 	public void sendMessage(int state)
 	{
+		/*
 		Message msg = mHandler.obtainMessage();
 		msg.what = SlideButton.MSG_UPDATE_STATE; 
 		msg.arg1 = state;
 		msg.sendToTarget();
+		*/
+		
+		Message msg = new Message();
+		msg.what = SlideButton.MSG_UPDATE_STATE ;
+		msg.arg1 = state ;
+		msg.setTarget(mHandler);
 	}
 	
-	public void doAnimation()
+	@SuppressWarnings("unused")
+	public void doAnimation(boolean cur_value )
 	{
 		int src_x =  slide_block_x;
 		int src_y =  slide_block_y;
 		
 		int dst_x =  slide_block_x;
 		int dst_y =  slide_block_y;
-		
+
 		if(DBG)
 		{
-			Log.d(TAG,"slide_block_x="+slide_block_x+",slide_block_w="+slide_block_w);
+			Log.d(TAG,"doAnimation() slide_block_x="+slide_block_x+",slide_block_w="+slide_block_w);
 		}
 		
-		if( (slide_block_x+(slide_block_w/2)) < (width_size/2)) // 分界点 为 控件的 中点
+		if(cur_value)
 		{
-			// to off
+			// to left
 			dst_x = 0;
+			
+			scrolling = true ; // 开始 滚动
 		}
 		else
 		{
 			// to right
 			dst_x = (width_size-slide_block_w);
+			
+			scrolling = true ; // 开始 滚动
 		}
 		
 		if(DBG)
@@ -415,6 +443,7 @@ public class SlideButton extends View {
 		if(!mHasScrolled)
 		{
 			// single click event .
+			
 			if(SlideButton_value)
 			{
 				Rect rect = new Rect(0,slide_block_y,slide_block_w,slide_block_y+slide_block_h);
@@ -444,7 +473,32 @@ public class SlideButton extends View {
 		}
 		else
 		{
-			doAnimation();
+			// srolled , do animation, .
+			if( (slide_block_x+(slide_block_w/2)) < (width_size/2)) // 控件当前的位置中心,分界点 为 控件的 中点
+			{
+				// to left
+				dst_x = 0;
+				
+				scrolling = true ; // 开始 滚动
+			}
+			else
+			{
+				// to right
+				dst_x = (width_size-slide_block_w);
+				
+				scrolling = true ; // 开始 滚动
+			}
+			
+			if(DBG)
+			{
+				Log.d(TAG,"dst_x="+dst_x);
+			}
+
+			AnimationTransRunnable runnable = new AnimationTransRunnable(src_x, dst_x, mHandler);
+			Thread mThread = new Thread(runnable);
+			mThread.start();
+			
+			//doAnimation();
 		}
 	}
 
@@ -593,7 +647,6 @@ public class SlideButton extends View {
 					{
 						mOnSwitchChangedListener.get(i).onSwitchChanged(this, SlideButton_value);
 					}
-
 				}				
 			}
 			
@@ -799,7 +852,7 @@ public class SlideButton extends View {
 			{
 				Log.d(TAG,"specWidthMode=MeasureSpec.UNSPECIFIED");
 			}
-			width_size = (int)(slide_block_w * 3 ); 
+			width_size = (int)(slide_block_w * 2 );  // 控件大小是控件滑块的2倍左右
 		}
 		
 		// height

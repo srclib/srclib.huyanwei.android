@@ -13,11 +13,21 @@
         android:layout_alignParentTop="true"
         android:orientation="vertical" >
 
+        <TextView
+            android:id="@+id/copyright"
+            style="@style/Widget.srclib.TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"
+            android:gravity="right"
+            android:paddingRight="3dp"
+            android:text="@string/copyright"
+            android:textSize="9sp" />
+
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="5"
             android:scaleType="fitCenter"
             android:src="@drawable/bg" />
 

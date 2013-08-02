@@ -12,16 +12,25 @@
     <string name="perm_lab_read_settings">此应用数据库读</string>
     <string name="perm_desc_read_settings">对此应用的数据库需要读的权限</string>
     
-    <string name="proximity_sensor_enable_str">距离感应器控制</string>
-    <string name="proximity_sensor_off_str">禁用</string>
-    <string name="proximity_sensor_on_str">启用</string>
+    <string name="proximity_sensor_enable_str">距离感应器开关</string>
+    <string name="proximity_sensor_off_str">关闭</string>
+    <string name="proximity_sensor_on_str">开启</string>
     
-    <string name="default_action_str">默认操作</string>
-    <string name="default_action_off_str">拒绝</string>
+    <string name="default_action_str">来电默认操作</string>
+    <string name="default_action_off_str">挂断</string>
     <string name="default_action_on_str">接听</string>
     
     <string name="speaker_state_str">扬声器模式</string>
     <string name="speaker_state_off_str">关闭</string>
     <string name="speaker_state_on_str">开启</string>
     
+    <string name="light_sensor_enable_str">光线感应器辅助</string>
+    <string name="light_sensor_off_str">关闭</string>
+    <string name="light_sensor_on_str">开启</string>
+    
+    <string name="light_sensor_threshold_str">光线感应器阀值</string>
+    
+    <string name="service_start_notification">服务已经手动启动</string>
+    <string name="service_stop_notification">服务已经手动停止</string>
+        
 </resources>

@@ -5,6 +5,11 @@
     <!-- 1 for auto_answer,0 for reject when proximity sensor enable -->
     <integer name="config_action">1</integer>
     
+    <!-- light sensor ass -->
+    <integer name="config_light_sensor_enable">1</integer>
+    
+    <integer name="config_light_sensor_threshold">30</integer>
+    
     <!-- open speaker when connecting -->
     <integer name="config_speaker">0</integer>
 </resources>

@@ -3,6 +3,7 @@ package srclib.huyanwei.phonelistener;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 
+import android.app.KeyguardManager;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -43,6 +44,7 @@ public class PhoneListenerService extends Service  {
 	private TelephonyManager 	mTelephonyManager;
 	private AudioManager 		mAudioManager ;
 	private SensorManager 		mSensorManager;
+	private KeyguardManager     mKeyguardManager;
 	
 	private Sensor 				mProximitySensor;
 	private Sensor 				mLightSensor;	
@@ -52,6 +54,9 @@ public class PhoneListenerService extends Service  {
 	private boolean 			mProximitySensorListening   =  false ;
 	private float 				mProximitySensorValue   	=  1.0f ;  // left state.
 	private float 				mLastProximitySensorValue   =  1.0f ;  // left state.
+	
+	private float 				mLightSensorValue   		=  0.0f ;  // left state.
+	private float 				mLastLightSensorValue   	=  0.0f ;  // left state.
 	
 	private boolean 			mEventhappen = false;
 	
@@ -81,6 +86,8 @@ public class PhoneListenerService extends Service  {
 	private boolean             mConfigProximitySensorEnable 	= true;  // 缺省是启动功能
 	private boolean             mConfigProcessMothedAnswer 		= true;  // 缺省是 接电话.
 	private boolean             mConfigOpenSpeaker 		   		= true;  // 缺省是 开外放.
+	private boolean             mConfigLightSensorEnable 		= true;  // 缺省是 Light Sensor 辅助.
+	private int             	mConfigLightSensorThreshold  	= 30;    // 缺省是 开外放.
 	
 	private ContentResolver mContentResolver;
 	
@@ -129,13 +136,17 @@ public class PhoneListenerService extends Service  {
 		}
 		
 		// update Data.
-		mConfigProximitySensorEnable 	= (query_config_value("config_proximity_sensor_enable")==1) ? true:false;
-		mConfigProcessMothedAnswer 		= (query_config_value("config_action") >=1) ? true : false;
-		mConfigOpenSpeaker		 		= (query_config_value("config_speaker")==1) ? true : false;
+		mConfigProximitySensorEnable 	= (query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE) >=1) ? true : false;
+		mConfigProcessMothedAnswer 		= (query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION) >=1) ? true : false;
+		mConfigOpenSpeaker		 		= (query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER)>=1) ? true : false;
+		
+		mConfigLightSensorEnable 		= (query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE) >=1) ? true : false;
+		mConfigLightSensorThreshold  	= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD);
 		
 		if(DBG)
 		{
 			Log.d(TAG,"mConfigProximitySensorEnable="+mConfigProximitySensorEnable+",mConfigProcessMothedAnswer="+mConfigProcessMothedAnswer+",mConfigOpenSpeaker="+mConfigOpenSpeaker);
+			Log.d(TAG,"mConfigLightSensorEnable="+mConfigLightSensorEnable+",mConfigLightSensorThreshold="+mConfigLightSensorThreshold);
 		}
 				
 		if(DBG)
@@ -264,10 +275,27 @@ public class PhoneListenerService extends Service  {
 			// 只要有变化，就发送消息。[上升沿 和 下降沿]
 			//boolean positive = (((int)mLastProximitySensorValue) != ((int)mProximitySensorValue));
 			
+			//Log.d(TAG,"inKeyguardRestrictedInputMode()"+ mKeyguardManager.inKeyguardRestrictedInputMode());
+			
+			//Log.d(TAG,"isKeyguardLocked()"+ mKeyguardManager.isKeyguardLocked()); // Level-16 api
+			
 			// 只有允许这个功能才能使用.
 			if(mConfigProximitySensorEnable)
             {
-				handleProximitySensorEvent(SensorEventUpTimes, positive);
+				if(mConfigLightSensorEnable)
+				{
+					// 防止口袋模式，所以，需要光感来帮忙确定是不是在口袋中，或黑暗中，一般，来电时，屏都会被打亮.
+					//Log.d(TAG,"mLightSensorValue="+mLightSensorValue);
+					if(mLightSensorValue >= mConfigLightSensorThreshold )
+					{
+						handleProximitySensorEvent(SensorEventUpTimes, positive);
+					}
+				}
+				else
+				{
+					// 不依靠 光感
+					handleProximitySensorEvent(SensorEventUpTimes, positive);
+				}
             }
 		}
 	};
@@ -282,7 +310,11 @@ public class PhoneListenerService extends Service  {
 
 		public void onSensorChanged(SensorEvent event) {
 			// TODO Auto-generated method stub
-			//Log.d(TAG, "onSensorChanged: Light Sensor value: " + event.values[0]);
+			//if(DBG) 
+			Log.d(TAG, "onSensorChanged: Light Sensor value: " + event.values[0]);			
+			// we record the light sensor value to judge the  [pocket mode]			
+			mLastLightSensorValue = mLightSensorValue;
+			mLightSensorValue = event.values[0];
 		}
 	};
 	
@@ -592,7 +624,11 @@ public class PhoneListenerService extends Service  {
         }
         
         // AudioManager
-		mAudioManager = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);       
+		mAudioManager = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
+		
+		// KeyguardManager
+		mKeyguardManager = (KeyguardManager)mContext.getSystemService(Context.KEYGUARD_SERVICE);
+		
 		
 		// 动态注册  广播接收器
 		mIntentFilter = new IntentFilter();

@@ -72,6 +72,26 @@ public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 		+"\",1);";
 		mSQLiteDatabase.execSQL(defaultconfig);
 		
+		// light sensor enable
+		defaultconfig ="insert into "
+		+ConfigContentProvider.TABLE_NAME+"("
+		+ConfigContentProvider.TABLE_FIELD_NAME+","
+		+ConfigContentProvider.TABLE_FIELD_VALUE
+		+") values(\""
+		+ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE
+		+"\",1);";
+		mSQLiteDatabase.execSQL(defaultconfig);
+
+		// light sensor threshold
+		defaultconfig ="insert into "
+		+ConfigContentProvider.TABLE_NAME+"("
+		+ConfigContentProvider.TABLE_FIELD_NAME+","
+		+ConfigContentProvider.TABLE_FIELD_VALUE
+		+") values(\""
+		+ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD
+		+"\",30);";
+		mSQLiteDatabase.execSQL(defaultconfig);
+		
 		// database inited.
 		defaultconfig ="insert into "
 		+ConfigContentProvider.TABLE_NAME+"("
@@ -124,6 +144,27 @@ public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 	    		+"\"",config_value);
 	    mSQLiteDatabase.execSQL(sql);
 
+
+	    config_value = context.getResources().getInteger(R.integer.config_light_sensor_enable);
+	    //Log.d(TAG,"ConfigSQLiteOpenHelper.Init() config_value="+config_value);
+	    sql = String.format(Locale.ENGLISH, 
+	    		"update "+ConfigContentProvider.TABLE_NAME
+	    		+" set "+ConfigContentProvider.TABLE_FIELD_VALUE+"=%d "
+	    		+"where "+ConfigContentProvider.TABLE_FIELD_NAME+"=\""
+	    		+ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE
+	    		+"\"",config_value);
+	    mSQLiteDatabase.execSQL(sql);
+
+	    config_value = context.getResources().getInteger(R.integer.config_light_sensor_threshold);
+	    //Log.d(TAG,"ConfigSQLiteOpenHelper.Init() config_value="+config_value);
+	    sql = String.format(Locale.ENGLISH, 
+	    		"update "+ConfigContentProvider.TABLE_NAME
+	    		+" set "+ConfigContentProvider.TABLE_FIELD_VALUE+"=%d "
+	    		+"where "+ConfigContentProvider.TABLE_FIELD_NAME+"=\""
+	    		+ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD
+	    		+"\"",config_value);
+	    mSQLiteDatabase.execSQL(sql);
+	    
 	    // inited 
 	    sql = String.format(Locale.ENGLISH, 
 	    		"update "+ConfigContentProvider.TABLE_NAME

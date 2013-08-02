@@ -5,16 +5,22 @@
     android:layout_height="@dimen/list_view_item_height"
     android:background="#00ffffff"
     android:gravity="center"
-    android:orientation="horizontal"
-    android:padding="15dp" >
+    android:orientation="vertical"
+    android:padding="10dp" >
 
-    	<ImageButton
-        android:id="@+id/btn_start_service"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center"
-        android:src="@drawable/setting_button"
-        android:background="#00000000"
-        />
+    <TextView
+        android:id="@+id/textView"
+        style="@style/Widget.srclib.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="TextView"
+        android:textSize="15sp" />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
     	    
 </LinearLayout>

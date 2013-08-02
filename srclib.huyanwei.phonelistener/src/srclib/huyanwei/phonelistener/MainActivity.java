@@ -26,6 +26,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,8 +39,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.support.v4.app.NavUtils;
 
 public class MainActivity extends Activity {
@@ -49,17 +52,23 @@ public class MainActivity extends Activity {
 	private boolean DBG = false;
 	
 	private Context 	mContext;
-
+	private Resources 	mResources;
+	
 	private ActivityManager mActivityManager;
 	private boolean  		mserver_is_running = false ;
 	
-	private LayoutInflater mLayoutInflater;
+	private LayoutInflater mLayoutInflater;	
+	private LinearLayout   mHeaderView;
 	private LinearLayout   mFooterView;
 			
 	private SlideButton  mSlideButton;
 	private ImageButton  mImageButton;	
 	private LinearLayout mlinearLayout;
 	private ListView     mListView;
+	private SeekBar      mSeekBar;	
+	private TextView 	 mTextView;
+	
+	private int          mSeekBarValue ;
 
 	private final int    mSlideButtonIdBase    = 1000;
 	private ListItemAdapter mListItemAdapter ;
@@ -78,7 +87,7 @@ public class MainActivity extends Activity {
 			{
 				case MSG_UPDATE_ANGLE:
 					//Log.d(TAG,"msg.arg1="+msg.arg1);
-					rotate_view(msg.arg1);
+					rotate_image_button_view(msg.arg1);
 					break;
 				default:
 					break;
@@ -87,7 +96,7 @@ public class MainActivity extends Activity {
 		}		
 	};
 	
-	public void rotate_view(int angle)
+	public void rotate_image_button_view(int angle)
 	{
 		final Bitmap msrc=BitmapFactory.decodeResource(mContext.getResources(),(R.drawable.setting));
 		final int wp=msrc.getWidth();
@@ -111,10 +120,11 @@ public class MainActivity extends Activity {
 		
 	}
 	
-	
 	private int config_proximity_sensor_enable 	= 0;
 	private int config_action 					= 0;
 	private int config_speaker 					= 0;
+	private int config_light_sensor_enable		= 0;
+	private int config_light_sensor_threshold	= 0;
 
 	private int query_config_value(String name)
 	{
@@ -236,6 +246,24 @@ public class MainActivity extends Activity {
 						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER,0);			
 					}	
 					break;
+				case (mSlideButtonIdBase+3):
+					if(status)
+					{
+						//if(DBG)
+						{
+							Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_LIGHT_SENSOR_ENABLE) true");
+						}
+						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE,1);
+					}
+					else
+					{
+						//if(DBG)
+						{
+							Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_LIGHT_SENSOR_ENABLE) false");
+						}
+						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE,0);			
+					}	
+					break;
 				default:
 					break;
 			}
@@ -261,7 +289,32 @@ public class MainActivity extends Activity {
 						 Intent svc = new Intent(mContext, PhoneListenerService.class);
 						 mContext.startService(svc);
 						 
+						 
+						 Toast local_toast = Toast.makeText(mContext, R.string.service_start_notification, Toast.LENGTH_SHORT);
+						 //local_toast.setGravity(local_toast.getGravity(), 0, 100);
+						 local_toast.setGravity(Gravity.TOP, 0, 400);
+						 local_toast.show();
+						 
 						 mserver_is_running = true;
+						 
+						 update_running_view();
+						 
+					 }
+					 else
+					 {
+						 // 服务还没有运行起来，则启动服务。
+						 if(DBG)
+						 {
+							 Log.d(TAG,"huyanwei start service by manual.");
+						 }
+						 Intent svc = new Intent(mContext, PhoneListenerService.class);
+						 mContext.stopService(svc);
+						 
+						 Toast local_toast = Toast.makeText(mContext, R.string.service_stop_notification, Toast.LENGTH_SHORT);
+						 local_toast.setGravity(Gravity.TOP, 0, 400);
+						 local_toast.show();
+						 
+						 mserver_is_running = false;
 						 
 						 update_running_view();
 						 
@@ -457,6 +510,39 @@ public class MainActivity extends Activity {
 				}
 		}
 	};
+	
+	private OnSeekBarChangeListener mOnSeekBarChangeListener = new OnSeekBarChangeListener()
+	{
+		@Override
+		public void onProgressChanged(SeekBar seekBar, int progress,
+				boolean fromUser) {
+			// TODO Auto-generated method stub
+			
+			mSeekBarValue = progress ;
+			
+			// 更新 TextView
+			mTextView.setText(mResources.getString(R.string.light_sensor_threshold_str)+":"+ mSeekBarValue);
+			
+		}
+
+		@Override
+		public void onStartTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onStopTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+
+			// 更新 TextView
+			mTextView.setText(mResources.getString(R.string.light_sensor_threshold_str)+":"+ mSeekBarValue);
+			
+			//更新数据库
+			update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD,mSeekBarValue);
+			
+		}		
+	};
 		
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -468,19 +554,31 @@ public class MainActivity extends Activity {
 
         mContext= this;
         
-        mLayoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mFooterView = 	(LinearLayout)mLayoutInflater.inflate(R.layout.footer, null);
+		mResources = mContext.getResources();
         
-        mImageButton = (ImageButton) mFooterView.findViewById(R.id.btn_start_service);
+        mLayoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mHeaderView = 	(LinearLayout)mLayoutInflater.inflate(R.layout.header, null);
+        
+        mImageButton = (ImageButton) mHeaderView.findViewById(R.id.btn_start_service);
         mImageButton.setOnClickListener(mOnClickListener);
+        
+        rotate_image_button_view(0); // default 0 degree.        
+        
+        mFooterView = (LinearLayout)mLayoutInflater.inflate(R.layout.footer, null);
+        mSeekBar 	= (SeekBar) mFooterView.findViewById(R.id.seekBar);
+		mSeekBar.setMax(255);
+		mSeekBar.setProgress(120);
+        mSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
+        
+        mTextView 	= (TextView) mFooterView.findViewById(R.id.textView);                
         
         mlinearLayout = (LinearLayout)findViewById(R.id.LinearLayout);        
         mListView = (ListView) mlinearLayout.findViewById(R.id.listView);        
         mListView.setOnItemClickListener(mOnItemClickListener);
         mListItemAdapter = new ListItemAdapter(this);
         
-        mListView.addHeaderView(mFooterView);
-        //mListView.addFooterView(mFooterView);
+        mListView.addHeaderView(mHeaderView);
+        mListView.addFooterView(mFooterView);
         
         mListView.setAdapter(mListItemAdapter);
         
@@ -488,8 +586,8 @@ public class MainActivity extends Activity {
 		config_proximity_sensor_enable 	= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE);
 		config_action 					= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION);
 		config_speaker 					= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER);
-        
-		Resources mResources = mContext.getResources();
+		config_light_sensor_enable      = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE);
+		config_light_sensor_threshold   = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD);
 		
         // add 1st Item
 		ListItemFuction mListItemFuction = new ListItemFuction();
@@ -517,6 +615,20 @@ public class MainActivity extends Activity {
 		mListItemFuction.switch_value  	 = (config_speaker>=1)?true:false ;
 		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
 		mListItemAdapter.addOneItem(mListItemFuction);
+		
+        // add 4th Item
+		mListItemFuction = new ListItemFuction();
+		mListItemFuction.switch_name 	 = mResources.getString(R.string.light_sensor_enable_str);
+		mListItemFuction.switch_off_str  = mResources.getString(R.string.light_sensor_off_str);
+		mListItemFuction.switch_on_str   = mResources.getString(R.string.light_sensor_on_str);
+		mListItemFuction.switch_value  	 = (config_light_sensor_enable>=1)?true:false ;
+		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+		mListItemAdapter.addOneItem(mListItemFuction);
+		
+		// update light sensor threshold value:
+		mSeekBar.setProgress(Math.max(0,Math.min(255,config_light_sensor_threshold)));
+		mTextView.setText(mResources.getString(R.string.light_sensor_threshold_str)+":"+ config_light_sensor_threshold);
+		
     }
  
     @Override
@@ -547,7 +659,7 @@ public class MainActivity extends Activity {
 				
 				int angle = 0 ;
 				
-				while(true)
+				while(mserver_is_running)
 				{
 					angle = (angle+10) % 360 ; //再次旋转5°
 					

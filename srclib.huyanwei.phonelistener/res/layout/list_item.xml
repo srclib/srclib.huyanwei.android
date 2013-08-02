@@ -13,7 +13,7 @@
         android:paddingLeft="5dp"
         android:paddingTop="5dp"
         android:paddingRight="5dp" >
-
+
     	<TextView
     	    android:id="@+id/switch_name"
     	    style="@style/Widget.srclib.TextView"
@@ -34,7 +34,7 @@
             android:layout_gravity="center_vertical|right"
             local:block_size="60dp"
             local:text_off="@string/value_off"
-            local:text_off_color="#CCFF0000"
+            local:text_off_color="#CCFFFFFF"
             local:text_on="@string/value_on"
             local:text_on_color="#CC00FF00"
             local:text_size="16sp"

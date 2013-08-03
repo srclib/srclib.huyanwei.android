@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
 
 	private String TAG = "srclib.huyanwei.phonelistener.MainActivity";
 	
-	private boolean DBG = false;
+	private boolean DBG = true;
 	
 	private Context 	mContext;
 	private Resources 	mResources;
@@ -71,7 +71,15 @@ public class MainActivity extends Activity {
 	
 	private int          mSeekBarValue ;
 
-	private final int    mSlideButtonIdBase    = 1000;
+	private final int    mSlideButtonIdBase    					= 1000;
+	private final int    mSlideButtonIdOffsetProximityEnable    = 0;
+	private final int    mSlideButtonIdOffsetAction  	  		= 1;
+	private final int    mSlideButtonIdOffsetSpeaker	  		= 2;
+	private final int    mSlideButtonIdOffsetLightEnable  		= 3;
+	private final int    mSlideButtonIdOffsetLightThreshold		= 4;
+	
+	private final boolean mSlideButtonRecognitionByTag  		= true;  // 否则的话，就用Id 来识别.
+	
 	private ListItemAdapter mListItemAdapter ;
 	
 	private	SQLiteDatabase mDatabase;
@@ -94,7 +102,7 @@ public class MainActivity extends Activity {
 					break;
 			}
 			super.handleMessage(msg);
-		}		
+		}
 	};
 	
 	public void rotate_image_button_view(int angle)
@@ -120,7 +128,7 @@ public class MainActivity extends Activity {
 		mImageButton.setImageDrawable(bmd);
 		
 	}
-	
+
 	private int config_proximity_sensor_enable 	= 0;
 	private int config_action 					= 0;
 	private int config_speaker 					= 0;
@@ -190,86 +198,104 @@ public class MainActivity extends Activity {
 		public void onSwitchChanged(SlideButton obj, boolean status) 
 		{		
 			// TODO Auto-generated method stub
-
-			switch(obj.getId())
+			
+			int mRecognition = 0;
+			
+			if(mSlideButtonRecognitionByTag)
 			{
-				case (mSlideButtonIdBase+0):
-					if(status)
+				mRecognition = (Integer) obj.getTag();
+			}
+			else
+			{	
+				mRecognition = (Integer) obj.getId();
+			}			
+
+			switch(mRecognition)
+			{
+				case (mSlideButtonIdBase+mSlideButtonIdOffsetProximityEnable): //proximity sensor
+					if(DBG)
 					{
-						if(DBG)
-						{
-							Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_ENABLE) true");
-						}
-						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE,1);
+						Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_ENABLE) "+ status);
 					}
-					else
-					{
-						if(DBG)
-						{
-							Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_ENABLE) false");
-						}
-						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE,0);			
-					}				
+					config_proximity_sensor_enable = (status?1:0);
+					update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE,config_proximity_sensor_enable);
+					update_list_view_ui();
 					break;
-				case (mSlideButtonIdBase+1):
-					if(status)
+				case (mSlideButtonIdBase+mSlideButtonIdOffsetAction): // Action
+					if(DBG)
 					{
-						if(DBG)
-						{
-							Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_ACTION) true");
-						}
-						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION,1);
+						Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_ACTION) "+status);
 					}
-					else
-					{
-						if(DBG)
-						{
-							Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_ACTION) false");
-						}
-						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION,0);			
-					}
+					config_action = (status?1:0);
+					update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION,config_action);
+					update_list_view_ui();
 					break;
-				case (mSlideButtonIdBase+2):
-					if(status)
+				case (mSlideButtonIdBase+mSlideButtonIdOffsetSpeaker): // speaker
+					if(DBG)
 					{
-						if(DBG)
-						{
-							Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_SPEAKER) true");
-						}
-						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER,1);
+						Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_SPEAKER) "+status);
 					}
-					else
-					{
-						if(DBG)
-						{
-							Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_SPEAKER) false");
-						}
-						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER,0);			
-					}	
+					config_speaker = (status?1:0);
+					update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER,config_speaker);
+					update_list_view_ui();
 					break;
-				case (mSlideButtonIdBase+3):
-					if(status)
+				case (mSlideButtonIdBase+mSlideButtonIdOffsetLightEnable):   // light sensor 
+					if(DBG)
 					{
-						//if(DBG)
-						{
-							Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_LIGHT_SENSOR_ENABLE) true");
-						}
-						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE,1);
+						Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_LIGHT_SENSOR_ENABLE) "+status);
 					}
-					else
-					{
-						//if(DBG)
-						{
-							Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_LIGHT_SENSOR_ENABLE) false");
-						}
-						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE,0);			
-					}	
+					config_light_sensor_enable = (status?1:0);
+					update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE,config_light_sensor_enable);
+					update_list_view_ui();
 					break;
 				default:
 					break;
 			}
 		}
 	};
+	
+	private void update_list_view_ui()
+	{
+		
+		Log.d(TAG,"update_list_view_ui()");
+		
+		Log.d(TAG,"config_proximity_sensor_enable =" + config_proximity_sensor_enable);
+		Log.d(TAG,"config_action =" + config_action);
+		Log.d(TAG,"config_speaker =" + config_speaker);
+		Log.d(TAG,"config_light_sensor_enable =" + config_light_sensor_enable);		
+		
+		if(config_proximity_sensor_enable == 0)
+		{
+			mListItemAdapter.setItemVisual((mSlideButtonIdBase+mSlideButtonIdOffsetAction),  false);
+			mListItemAdapter.setItemVisual((mSlideButtonIdBase+mSlideButtonIdOffsetSpeaker), false);
+			mListItemAdapter.setItemVisual((mSlideButtonIdBase+mSlideButtonIdOffsetLightEnable), false);
+			mFooterView.setVisibility(View.INVISIBLE);
+		}
+		else
+		{
+			mListItemAdapter.setItemVisual((mSlideButtonIdBase+mSlideButtonIdOffsetAction), true);
+			
+			if(config_action == 0)
+			{
+				mListItemAdapter.setItemVisual((mSlideButtonIdBase+mSlideButtonIdOffsetSpeaker), false);
+			}
+			else
+			{
+				mListItemAdapter.setItemVisual((mSlideButtonIdBase+mSlideButtonIdOffsetSpeaker),  true);
+			}
+			
+			mListItemAdapter.setItemVisual((mSlideButtonIdBase+mSlideButtonIdOffsetLightEnable),  true);
+			
+			if(config_light_sensor_enable == 0)
+			{
+				mFooterView.setVisibility(View.INVISIBLE);
+			}
+			else
+			{
+				mFooterView.setVisibility(View.VISIBLE);
+			}
+		}		
+	}
 	
 	@SuppressWarnings("unused")
 	private OnClickListener mOnClickListener =  new OnClickListener()
@@ -332,6 +358,8 @@ public class MainActivity extends Activity {
 		public String   switch_on_str   ;
 		public boolean  switch_value   	;
 		public SlideButton.OnSwitchChangedListener OnSwitchChangedListener;		
+		public Object   switch_tag      ;
+		public boolean  visual     		;
 	}
 	
 	private class ListItemAdapter extends BaseAdapter
@@ -341,18 +369,67 @@ public class MainActivity extends Activity {
 		
 		private Context mContext; 
 		
+		private int mVisualCount ;
 		private int mCount ;
 		
 		public ListItemAdapter(Context c)
 		{
 			mContext = c;
 			mCount = 0 ;
+			mVisualCount = 0 ;
+		}
+		
+		public void updateItemList()
+		{
+			mVisualCount = 0 ;
+			for(int i = 0 ; i < mCount ; i++ )
+			{
+				ListItemFuction local_item = mListItemFuction.get(i);
+				if(local_item.visual)
+				{
+					mVisualCount ++;
+				}
+			}
+		}
+		
+		public void setItemVisual(int tag , boolean visual)
+		{
+			int index = 0 ;
+			
+			ListItemFuction local_item = mListItemFuction.get(index);  // init 1st item.
+			
+			for( index = 0 ; index < mListItemFuction.size(); index++)
+			{
+				local_item = mListItemFuction.get(index);
+				if(local_item.switch_tag.equals(tag))
+				{
+					break;
+				}
+			}
+			
+			if((index >= mListItemFuction.size()))
+			{
+				// not found.
+				return ;
+			}
+			
+			if(local_item.visual != visual)
+			{
+				local_item.visual = visual;
+				
+				updateItemList();
+				
+				this.notifyDataSetChanged();
+			}
 		}
 		
 		public void addOneItem(ListItemFuction obj)
 		{
-			mListItemFuction.add(mCount++,obj);
-			//mCount++;			
+			mListItemFuction.add(mCount,obj);
+			mCount++;
+			
+			updateItemList();
+			
 			this.notifyDataSetChanged();
 		}
 		
@@ -363,7 +440,8 @@ public class MainActivity extends Activity {
 			//{
 			//	Log.d(TAG,"getCount()");
 			//}
-			return mCount;
+			//return mCount;
+			return mVisualCount;
 		}
 
 		//@Override
@@ -402,10 +480,10 @@ public class MainActivity extends Activity {
             //	ll = (LinearLayout) convertView;
             //}
             
-            int first = mListView.getFirstVisiblePosition(); // 在总View的index
-            int last  = mListView.getLastVisiblePosition(); // 在总View的index
-            int child_count = mListView.getChildCount(); // 可见的view数目
-            int count = mListView.getCount();     		 // 总view数目
+            int first = mListView.getFirstVisiblePosition(); 	// 在总View的index
+            int last  = mListView.getLastVisiblePosition(); 	// 在总View的index
+            int child_count = mListView.getChildCount(); 		// 可见的view数目
+            int count = mListView.getCount();     		 		// 总view数目
             int header_count = ((ListView) mListView).getHeaderViewsCount();
             int footer_count = ((ListView) mListView).getFooterViewsCount();
 
@@ -437,7 +515,23 @@ public class MainActivity extends Activity {
             }
             
             ListItemFuction local_item = mListItemFuction.get(position);            
-
+            // Map start
+            int visual_index = -1 ;
+            for(int i = 0 ; i < mListItemFuction.size();i++)
+            {
+            	local_item = mListItemFuction.get(i);
+            	if(local_item.visual)
+            	{
+            		visual_index ++;
+            	}
+            	
+            	if(visual_index == position)
+            	{	
+            		break;  // local_item is need one.
+            	}
+            }
+            // Map end
+            
             // switch name
             TextView mTextView = (TextView) ll.findViewById(R.id.switch_name);  
            	mTextView.setText(local_item.switch_name);
@@ -447,8 +541,17 @@ public class MainActivity extends Activity {
            	mSlideButton.setSwitchOffText(local_item.switch_off_str);
            	mSlideButton.setSwitchOnText(local_item.switch_on_str);
            	mSlideButton.setValue(local_item.switch_value);           	
+           	
+           	if(mSlideButtonRecognitionByTag)
+           	{
+           		mSlideButton.setTag(local_item.switch_tag);          // 用 Tag 标记区分 SlideButton
+           	}
+           	else
+           	{
+           		mSlideButton.setId(mSlideButtonIdBase+position);     // 注意这里已经改变了他的ID
+           	}
+
            	mSlideButton.setOnSwitchChangedListener(local_item.OnSwitchChangedListener);
-           	mSlideButton.setId(mSlideButtonIdBase+position); // 注意这里已经改变了他的ID
            	
             return ll;
 		}
@@ -492,9 +595,17 @@ public class MainActivity extends Activity {
                 	//TextView    local_nm = (TextView) ((LinearLayout)arg1).findViewById(R.id.switch_name);
                 	//local_nm.setText(local_nm.getText()+" is clicked.");
                 	
-                	// id alread have been modified.
-                	//SlideButton local_sb = (SlideButton)((LinearLayout)arg1).findViewById(R.id.SlideButton);
-                	SlideButton local_sb = (SlideButton)((LinearLayout)arg1).findViewById(mSlideButtonIdBase+(int)arg3);
+                	SlideButton local_sb = null ;
+                	
+                	if(mSlideButtonRecognitionByTag)
+                	{
+                		local_sb = (SlideButton)((LinearLayout)arg1).findViewById(R.id.SlideButton);
+                	}
+                	else
+                	{
+                		// id alread have been modified to (mSlideButtonIdBase+position).
+                		local_sb = (SlideButton)((LinearLayout)arg1).findViewById(mSlideButtonIdBase+(int)arg3);
+                	}
                 	
                 	if(local_sb != null)
                 	{
@@ -591,31 +702,37 @@ public class MainActivity extends Activity {
 		config_light_sensor_enable      = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE);
 		config_light_sensor_threshold   = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD);
 		
-        // add 1st Item
+        // add 1st Item : Proximity
 		ListItemFuction mListItemFuction = new ListItemFuction();
 		mListItemFuction.switch_name 	 = mResources.getString(R.string.proximity_sensor_enable_str);
 		mListItemFuction.switch_off_str  = mResources.getString(R.string.proximity_sensor_off_str);
 		mListItemFuction.switch_on_str   = mResources.getString(R.string.proximity_sensor_on_str);
 		mListItemFuction.switch_value  	 = (config_proximity_sensor_enable>=1)?true:false;
+		mListItemFuction.switch_tag 	 = mSlideButtonIdBase+mSlideButtonIdOffsetProximityEnable;
 		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+		mListItemFuction.visual          = true ; // always visual .
 		mListItemAdapter.addOneItem(mListItemFuction);
         
-        // add 2nd Item
+        // add 2nd Item : Action
 		mListItemFuction = new ListItemFuction();
 		mListItemFuction.switch_name 	 = mResources.getString(R.string.default_action_str);
 		mListItemFuction.switch_off_str  = mResources.getString(R.string.default_action_off_str);
 		mListItemFuction.switch_on_str   = mResources.getString(R.string.default_action_on_str);
 		mListItemFuction.switch_value  	 = (config_action>=1)?true:false ;
+		mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetAction;
 		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+		mListItemFuction.visual          = (config_proximity_sensor_enable>=1)?true:false;
 		mListItemAdapter.addOneItem(mListItemFuction);
         
-        // add 3rd Item
+        // add 3rd Item : Speaker
 		mListItemFuction = new ListItemFuction();
 		mListItemFuction.switch_name 	 = mResources.getString(R.string.speaker_state_str);
 		mListItemFuction.switch_off_str  = mResources.getString(R.string.speaker_state_off_str);
 		mListItemFuction.switch_on_str   = mResources.getString(R.string.speaker_state_on_str);
 		mListItemFuction.switch_value  	 = (config_speaker>=1)?true:false ;
+		mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetSpeaker;
 		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+		mListItemFuction.visual          = ((config_proximity_sensor_enable>=1)?true:false) && ((config_action>=1)?true:false) ;
 		mListItemAdapter.addOneItem(mListItemFuction);
 		
         // add 4th Item
@@ -624,13 +741,23 @@ public class MainActivity extends Activity {
 		mListItemFuction.switch_off_str  = mResources.getString(R.string.light_sensor_off_str);
 		mListItemFuction.switch_on_str   = mResources.getString(R.string.light_sensor_on_str);
 		mListItemFuction.switch_value  	 = (config_light_sensor_enable>=1)?true:false ;
+		mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetLightEnable;
 		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+		mListItemFuction.visual          = (config_proximity_sensor_enable>=1)?true:false;
 		mListItemAdapter.addOneItem(mListItemFuction);
 		
 		// update light sensor threshold value:
 		mSeekBar.setProgress(Math.max(0,Math.min(255,config_light_sensor_threshold)));
 		mTextView.setText(mResources.getString(R.string.light_sensor_threshold_str)+":"+ config_light_sensor_threshold);
 		
+		if((config_light_sensor_enable >= 1) && ((config_proximity_sensor_enable>=1)?true:false))
+		{
+			mFooterView.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			mFooterView.setVisibility(View.INVISIBLE);
+		}
     }
  
     @Override

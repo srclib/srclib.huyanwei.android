@@ -262,9 +262,9 @@ public class PhoneListenerService extends Service  {
             mLastProximitySensorValue = mProximitySensorValue;
             mProximitySensorValue = arg0.values[0];
 			
-            if(DBG)
+            //if(DBG)
             {
-            	Log.d(TAG, "mProximitySensorEventListener.onSensorChanged: proximity Sensor mLastProximitySensorValue=" + mLastProximitySensorValue + ",mProximitySensorValue=" + mProximitySensorValue);
+            	Log.d(TAG, "mProximitySensorEventListener.onSensorChanged() proximity Sensor : mLastProximitySensorValue=" + mLastProximitySensorValue + ",mProximitySensorValue=" + mProximitySensorValue);
             }
             
             // 从 非0值 到 0值 认为是接近。 从0值到非0值认为是远离. 主要是有些系统的远离值 由驱动ic决定，有些是 1.0f ，有些是5.0f.   
@@ -279,6 +279,8 @@ public class PhoneListenerService extends Service  {
 			//Log.d(TAG,"inKeyguardRestrictedInputMode()"+ mKeyguardManager.inKeyguardRestrictedInputMode());
 			
 			//Log.d(TAG,"isKeyguardLocked()"+ mKeyguardManager.isKeyguardLocked()); // Level-16 api
+			//Log.d(TAG,"mMaxLightSensorValue="+ mMaxLightSensorValue);
+			//Log.d(TAG,"mConfigLightSensorThreshold="+ mConfigLightSensorThreshold);
 			
 			// 只有允许这个功能才能使用.
 			if(mConfigProximitySensorEnable)
@@ -312,8 +314,6 @@ public class PhoneListenerService extends Service  {
 
 		public void onSensorChanged(SensorEvent event) {
 			// TODO Auto-generated method stub
-			//if(DBG) 
-			Log.d(TAG, "onSensorChanged: Light Sensor value: " + event.values[0]);			
 			// we record the light sensor value to judge the  [pocket mode]			
 			mLastLightSensorValue = mLightSensorValue;
 			mLightSensorValue = event.values[0];
@@ -321,6 +321,11 @@ public class PhoneListenerService extends Service  {
 			if(mMaxLightSensorValue < mLightSensorValue )
 			{
 				mMaxLightSensorValue = mLightSensorValue;
+			}
+			
+			//if(DBG) 
+			{
+				Log.d(TAG, "mLightSensorEventListener.onSensorChanged() Light Sensor : mMaxLightSensorValue=" + mMaxLightSensorValue + ",mLightSensorValue="+mLightSensorValue);			
 			}
 		}
 	};

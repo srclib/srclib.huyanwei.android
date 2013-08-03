@@ -97,8 +97,9 @@ public class SlideButton extends View {
 			// TODO Auto-generated method stub
 			switch(msg.what)
 			{
-				case  MSG_UPDATE_STATE:
+				case  MSG_UPDATE_STATE:					
 					scrolling = ((msg.arg1 > 1)?true:false);
+					if(DBG) Log.d(TAG,"handleMessage() scrolling="+scrolling);
 					break;
 				default:
 					break;
@@ -111,7 +112,9 @@ public class SlideButton extends View {
 	{
 		synchronized(mLock)
 		{
-			doAnimation(SlideButton_value);
+			{
+				doAnimation(SlideButton_value);
+			}
 			// slideButton_value = !SlideButton_value;
 			// trigger notify when redraw.
 		}
@@ -285,7 +288,7 @@ public class SlideButton extends View {
 		}
 		// TODO Auto-generated constructor stub
 	}
-
+	
 	/**
 	 * AnimationTransRunnable 做滑动动画所使用的线程
 	 */
@@ -305,9 +308,9 @@ public class SlideButton extends View {
 		 */
 		public AnimationTransRunnable(float srcX, float dstX, final Handler h)
 		{
-			this.srcX = 	(int)srcX;
-			this.dstX = 	(int)dstX;
-			this.handler = h;
+			this.srcX 		= 	(int)srcX;
+			this.dstX 		= 	(int)dstX;
+			this.handler 	=	(Handler)h;
 		}
 
 		//@Override
@@ -330,6 +333,16 @@ public class SlideButton extends View {
 				
 				srcX += dir * step_len;
 				slide_block_x += dir * step_len; 
+				
+				// check overlay
+				if(slide_block_x<0)
+				{
+					slide_block_x = 0 ;
+				}				
+				else if((slide_block_x + slide_block_w) > width_size)
+				{
+					slide_block_x = (width_size -  slide_block_w);
+				}			
 				
 				if(DBG)
 				{
@@ -354,22 +367,35 @@ public class SlideButton extends View {
 			// res
 			{
 				slide_block_x += (dstX - srcX);	
+				
+				// check overlay
+				if(slide_block_x<0)
+				{
+					slide_block_x = 0 ;
+				}				
+				else if((slide_block_x + slide_block_w) > width_size)
+				{
+					slide_block_x = (width_size -  slide_block_w);
+				}
+				
 				SlideButton.this.postInvalidate();
 			}
-		}
-		
-		{
-			/*
-			Message msg = handler.obtainMessage();
-			msg.what = SlideButton.MSG_UPDATE_STATE ;
-			msg.arg1 = 0 ;
-			msg.setTarget(handler);
-			*/
 			
-			Message msg = new Message();
-			msg.what = SlideButton.MSG_UPDATE_STATE ;
-			msg.arg1 = 0 ;
-			msg.setTarget(handler);
+			// notify ui thread .
+			{
+				/*
+				Message msg = handler.obtainMessage();
+				msg.what = SlideButton.MSG_UPDATE_STATE ;
+				msg.arg1 = 0 ;
+				handler.sendMessage(msg);
+				*/
+
+				Message msg = new Message();
+				msg.what = SlideButton.MSG_UPDATE_STATE ;
+				msg.arg1 = 0 ;
+				msg.setTarget(handler);
+				msg.sendToTarget();
+			}
 		}
 	}
 	
@@ -379,13 +405,14 @@ public class SlideButton extends View {
 		Message msg = mHandler.obtainMessage();
 		msg.what = SlideButton.MSG_UPDATE_STATE; 
 		msg.arg1 = state;
-		msg.sendToTarget();
+		mHandler.sendMessage(msg);
 		*/
 		
 		Message msg = new Message();
 		msg.what = SlideButton.MSG_UPDATE_STATE ;
 		msg.arg1 = state ;
 		msg.setTarget(mHandler);
+		msg.sendToTarget();
 	}
 	
 	@SuppressWarnings("unused")
@@ -611,18 +638,21 @@ public class SlideButton extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		// TODO Auto-generated method stub
-		
+
 		if(DBG)
 		{
 			Log.d(TAG,"draw() {");
 		}
-		
-		Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		
-		mPaint.setTextSize(SlideButton_text_size);
-		
-		mPaint.setTypeface(Typeface.DEFAULT_BOLD);
-		
+
+		// print call stack {   
+        //java.util.Map<Thread, StackTraceElement[]> ts = Thread.getAllStackTraces();   
+        //StackTraceElement[] ste = ts.get(Thread.currentThread());   
+        //for (StackTraceElement s : ste)
+        //{   
+        //    Log.e("SS     ", s.toString());   
+        //}    
+        // print call stack }
+				
 		if(DBG)
 		{
 			Log.d(TAG,"onDraw() :width_size="+width_size+",height_size="+height_size);		
@@ -631,6 +661,15 @@ public class SlideButton extends View {
 		
 		if(	scrolling )
 		{
+			// check overlay
+			if(slide_block_x < 0)
+			{
+				slide_block_x = 0 ;
+			}
+			else if((slide_block_x+slide_block_w)>width_size)
+			{
+				slide_block_x = width_size - slide_block_w;
+			}
 			
 			if(slide_block_x < 20)
 			{
@@ -641,6 +680,11 @@ public class SlideButton extends View {
 				if(SlideButton_value == true)
 				{
 					SlideButton_value = false;
+					
+					if(DBG)
+					{
+						Log.d(TAG,"draw() SlideButton_value change.");
+					}
 					
 					// notify 
 					for(int i = 0 ; i < mOnSwitchChangedListener.size();i++ )
@@ -660,6 +704,11 @@ public class SlideButton extends View {
 				{
 					SlideButton_value = true;
 					
+					if(DBG)
+					{
+						Log.d(TAG,"draw() SlideButton_value change.");
+					}
+
 					// notify 
 					for(int i = 0 ; i < mOnSwitchChangedListener.size();i++ )
 					{
@@ -670,6 +719,11 @@ public class SlideButton extends View {
 		}
 		else if(SlideButton_value == false)
 		{
+			if(DBG)
+			{
+				Log.d(TAG,"draw() SlideButton_value false state.");
+			}
+
 			slide_block_w = SlideButton_block_size;
 			slide_block_h = height_size ;
 
@@ -682,6 +736,11 @@ public class SlideButton extends View {
 		}
 		else
 		{
+			if(DBG)
+			{
+				Log.d(TAG,"draw() SlideButton_value true state.");
+			}
+
 			slide_block_w = SlideButton_block_size;
 			slide_block_h = height_size ;
 			
@@ -692,6 +751,14 @@ public class SlideButton extends View {
 			current_text_color	= SlideButton_text_on_color;
 			current_block_img   = img_on;
 		}
+		
+		Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		
+		mPaint.setTextSize(SlideButton_text_size);
+		
+		mPaint.setTypeface(Typeface.DEFAULT_BOLD);
+		
+		int saveCount = canvas.save();
 		
 		// draw bg
 		canvas.drawBitmap(img_bg, null, new Rect(0, 0, width_size, height_size),  mPaint);
@@ -706,15 +773,6 @@ public class SlideButton extends View {
 		
 		// 计算文字高度
 		Paint.FontMetrics fm = mPaint.getFontMetrics();
-
-		if(DBG)
-		{
-			Log.d(TAG,"top="+fm.top);
-			Log.d(TAG,"ascent="+fm.ascent);
-			Log.d(TAG,"descent="+fm.descent);
-			Log.d(TAG,"bottom="+fm.bottom);
-			Log.d(TAG,"leading="+fm.leading);
-		}
 		
 		float text_h = fm.bottom - fm.top;
 		
@@ -728,6 +786,8 @@ public class SlideButton extends View {
 		// 首先要清楚drawText不是以文字的左上角开始绘制，而是以baseLine为基线绘制
 		canvas.drawText(current_text, slide_block_x+(slide_block_w-text_w)/2, textBaseY, mPaint);
 		
+		canvas.restoreToCount(saveCount);
+		
 		if(mShowFontMetricsLine)
 		{
 			// Draw Font Metrics {
@@ -738,6 +798,15 @@ public class SlideButton extends View {
 			//ascent是指从一个字的基线(baseline)到最顶部的距离，descent是指一个字的基线到最底部的距离
 			//注意, ascent和top都是负数
 			
+			if(DBG)
+			{
+				Log.d(TAG,"top="+fm.top);
+				Log.d(TAG,"ascent="+fm.ascent);
+				Log.d(TAG,"descent="+fm.descent);
+				Log.d(TAG,"bottom="+fm.bottom);
+				Log.d(TAG,"leading="+fm.leading);
+			}
+			
 			float baseX     = slide_block_x;
 			float baseY     = textBaseY;
 			float topY 		= baseY + fm.top; 
@@ -745,6 +814,8 @@ public class SlideButton extends View {
 			float descentY 	= baseY + fm.descent; 
 			float bottomY 	= baseY + fm.bottom;
 
+			saveCount = canvas.save();
+			
 			// Base Line描画 
 			Paint baseLinePaint = new Paint( Paint.ANTI_ALIAS_FLAG); 
 			baseLinePaint.setColor( Color.RED);
@@ -772,6 +843,13 @@ public class SlideButton extends View {
 			bottomLinePaint.setColor( Color.MAGENTA); 
 			canvas.drawLine(0, bottomY, getWidth(), bottomY, bottomLinePaint); 		   
 			// 	Draw Font Metrics } 
+			
+			canvas.restoreToCount(saveCount);
+		}
+		
+		if(DBG)
+		{
+			Log.d(TAG,"draw() }");
 		}
 		
 		super.onDraw(canvas);

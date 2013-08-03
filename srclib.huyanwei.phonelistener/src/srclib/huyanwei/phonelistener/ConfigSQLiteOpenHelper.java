@@ -14,7 +14,7 @@ public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 	
 	static final String DATABASE_NAME 			= "config.db";
 
-	static final int    DATABASE_VERSION_NUMBER = 3;
+	static final int    DATABASE_VERSION_NUMBER = 4;
 	
 	private SQLiteDatabase mSQLiteDatabase;
 	
@@ -180,5 +180,12 @@ public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO Auto-generated method stub
+		
+		Log.d(TAG,"onUpgrade("+oldVersion+","+newVersion+")");
+		// drop first
+		String createtable = "drop table if exists "+ConfigContentProvider.TABLE_NAME+";";
+		db.execSQL(createtable);
+		
+		onCreate(db);
 	}
 }

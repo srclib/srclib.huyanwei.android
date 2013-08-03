@@ -3,6 +3,7 @@
     android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_view_item_height"
+    android:layout_marginBottom="5dp"
     android:background="#00ffffff"
     android:gravity="center"
     android:orientation="horizontal"

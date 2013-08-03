@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
 
 	private String TAG = "srclib.huyanwei.phonelistener.MainActivity";
 	
-	private boolean DBG = true;
+	private boolean DBG = false;
 	
 	private Context 	mContext;
 	private Resources 	mResources;
@@ -237,7 +237,7 @@ public class MainActivity extends Activity {
 					}
 					config_speaker = (status?1:0);
 					update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER,config_speaker);
-					update_list_view_ui();
+					//update_list_view_ui();
 					break;
 				case (mSlideButtonIdBase+mSlideButtonIdOffsetLightEnable):   // light sensor 
 					if(DBG)
@@ -256,23 +256,24 @@ public class MainActivity extends Activity {
 	
 	private void update_list_view_ui()
 	{
+		updateListItemAdapterData();
 		
-		Log.d(TAG,"update_list_view_ui()");
-		
-		Log.d(TAG,"config_proximity_sensor_enable =" + config_proximity_sensor_enable);
-		Log.d(TAG,"config_action =" + config_action);
-		Log.d(TAG,"config_speaker =" + config_speaker);
-		Log.d(TAG,"config_light_sensor_enable =" + config_light_sensor_enable);		
-		
+		// 下面的可以更新 Visual,但是不能更新 Value. 所以采用重新添加的这种方式 -> updateListItemAdapterData()	
+		/*
 		if(config_proximity_sensor_enable == 0)
 		{
+			
 			mListItemAdapter.setItemVisual((mSlideButtonIdBase+mSlideButtonIdOffsetAction),  false);
 			mListItemAdapter.setItemVisual((mSlideButtonIdBase+mSlideButtonIdOffsetSpeaker), false);
 			mListItemAdapter.setItemVisual((mSlideButtonIdBase+mSlideButtonIdOffsetLightEnable), false);
+			
+			
 			mFooterView.setVisibility(View.INVISIBLE);
+			
 		}
 		else
 		{
+			
 			mListItemAdapter.setItemVisual((mSlideButtonIdBase+mSlideButtonIdOffsetAction), true);
 			
 			if(config_action == 0)
@@ -294,7 +295,10 @@ public class MainActivity extends Activity {
 			{
 				mFooterView.setVisibility(View.VISIBLE);
 			}
-		}		
+		}
+		*/
+		
+		mListItemAdapter.notifyDataSetChanged();
 	}
 	
 	@SuppressWarnings("unused")
@@ -379,6 +383,13 @@ public class MainActivity extends Activity {
 			mVisualCount = 0 ;
 		}
 		
+		public void resetItemList()
+		{
+			mCount = 0 ;
+			mVisualCount = 0 ;			
+			mListItemFuction.clear();
+		}
+		
 		public void updateItemList()
 		{
 			mVisualCount = 0 ;
@@ -396,13 +407,14 @@ public class MainActivity extends Activity {
 		{
 			int index = 0 ;
 			
-			ListItemFuction local_item = mListItemFuction.get(index);  // init 1st item.
+			ListItemFuction local_item = null ;  // init 1st item.
 			
 			for( index = 0 ; index < mListItemFuction.size(); index++)
 			{
 				local_item = mListItemFuction.get(index);
 				if(local_item.switch_tag.equals(tag))
 				{
+					Log.d(TAG,"setItemVisual found it at "+ index);
 					break;
 				}
 			}
@@ -410,6 +422,7 @@ public class MainActivity extends Activity {
 			if((index >= mListItemFuction.size()))
 			{
 				// not found.
+				Log.d(TAG,"setItemVisual not found.");
 				return ;
 			}
 			
@@ -419,7 +432,7 @@ public class MainActivity extends Activity {
 				
 				updateItemList();
 				
-				this.notifyDataSetChanged();
+				//this.notifyDataSetChanged();
 			}
 		}
 		
@@ -430,7 +443,7 @@ public class MainActivity extends Activity {
 			
 			updateItemList();
 			
-			this.notifyDataSetChanged();
+			//this.notifyDataSetChanged();
 		}
 		
 		//@Override
@@ -514,7 +527,7 @@ public class MainActivity extends Activity {
             	ll.setBackgroundResource(R.drawable.v5_preference_item_middle_bg);
             }
             
-            ListItemFuction local_item = mListItemFuction.get(position);            
+            ListItemFuction local_item = null;            
             // Map start
             int visual_index = -1 ;
             for(int i = 0 ; i < mListItemFuction.size();i++)
@@ -655,7 +668,77 @@ public class MainActivity extends Activity {
 			
 		}		
 	};
+	
+	public void updateListItemAdapterData()
+	{
+		mListItemAdapter.resetItemList();
 		
+        // add 1st Item : Proximity
+		ListItemFuction mListItemFuction = new ListItemFuction();
+		mListItemFuction.switch_name 	 = mResources.getString(R.string.proximity_sensor_enable_str);
+		mListItemFuction.switch_off_str  = mResources.getString(R.string.proximity_sensor_off_str);
+		mListItemFuction.switch_on_str   = mResources.getString(R.string.proximity_sensor_on_str);
+		mListItemFuction.switch_value  	 = (config_proximity_sensor_enable>=1)?true:false;
+		mListItemFuction.switch_tag 	 = mSlideButtonIdBase+mSlideButtonIdOffsetProximityEnable;
+		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+		mListItemFuction.visual          = true ; // always visual .
+		mListItemAdapter.addOneItem(mListItemFuction);
+        
+        // add 2nd Item : Action
+		mListItemFuction = new ListItemFuction();
+		mListItemFuction.switch_name 	 = mResources.getString(R.string.default_action_str);
+		mListItemFuction.switch_off_str  = mResources.getString(R.string.default_action_off_str);
+		mListItemFuction.switch_on_str   = mResources.getString(R.string.default_action_on_str);
+		mListItemFuction.switch_value  	 = (config_action>=1)?true:false ;
+		mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetAction;
+		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+		mListItemFuction.visual          = (config_proximity_sensor_enable>=1)?true:false;
+		mListItemAdapter.addOneItem(mListItemFuction);
+        
+        // add 3rd Item : Speaker
+		mListItemFuction = new ListItemFuction();
+		mListItemFuction.switch_name 	 = mResources.getString(R.string.speaker_state_str);
+		mListItemFuction.switch_off_str  = mResources.getString(R.string.speaker_state_off_str);
+		mListItemFuction.switch_on_str   = mResources.getString(R.string.speaker_state_on_str);
+		mListItemFuction.switch_value  	 = (config_speaker>=1)?true:false ;
+		mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetSpeaker;
+		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+		mListItemFuction.visual          = ((config_proximity_sensor_enable>=1)?true:false) && ((config_action>=1)?true:false) ;
+		mListItemAdapter.addOneItem(mListItemFuction);
+		
+        // add 4th Item
+		mListItemFuction = new ListItemFuction();
+		mListItemFuction.switch_name 	 = mResources.getString(R.string.light_sensor_enable_str);
+		mListItemFuction.switch_off_str  = mResources.getString(R.string.light_sensor_off_str);
+		mListItemFuction.switch_on_str   = mResources.getString(R.string.light_sensor_on_str);
+		mListItemFuction.switch_value  	 = (config_light_sensor_enable>=1)?true:false ;
+		mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetLightEnable;
+		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+		mListItemFuction.visual          = (config_proximity_sensor_enable>=1)?true:false;
+		mListItemAdapter.addOneItem(mListItemFuction);
+
+		mListItemAdapter.notifyDataSetChanged(); // notify data changed.
+		
+		// update light sensor threshold value:
+		mSeekBar.setProgress(Math.max(0,Math.min(255,config_light_sensor_threshold)));
+		mTextView.setText(mResources.getString(R.string.light_sensor_threshold_str)+":"+ config_light_sensor_threshold);
+		
+		if((config_light_sensor_enable >= 1) && ((config_proximity_sensor_enable>=1)?true:false))
+		{
+			mFooterView.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			mFooterView.setVisibility(View.INVISIBLE);
+		}
+		
+		mHeaderView.setBackgroundResource(R.drawable.v5_preference_item_single_bg);
+		mHeaderView.setPadding(0, 5, 0, 5);
+		
+		mFooterView.setBackgroundResource(R.drawable.v5_preference_item_single_bg);
+		mHeaderView.setPadding(0, 5, 0, 5);
+	}
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -702,62 +785,8 @@ public class MainActivity extends Activity {
 		config_light_sensor_enable      = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE);
 		config_light_sensor_threshold   = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD);
 		
-        // add 1st Item : Proximity
-		ListItemFuction mListItemFuction = new ListItemFuction();
-		mListItemFuction.switch_name 	 = mResources.getString(R.string.proximity_sensor_enable_str);
-		mListItemFuction.switch_off_str  = mResources.getString(R.string.proximity_sensor_off_str);
-		mListItemFuction.switch_on_str   = mResources.getString(R.string.proximity_sensor_on_str);
-		mListItemFuction.switch_value  	 = (config_proximity_sensor_enable>=1)?true:false;
-		mListItemFuction.switch_tag 	 = mSlideButtonIdBase+mSlideButtonIdOffsetProximityEnable;
-		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
-		mListItemFuction.visual          = true ; // always visual .
-		mListItemAdapter.addOneItem(mListItemFuction);
-        
-        // add 2nd Item : Action
-		mListItemFuction = new ListItemFuction();
-		mListItemFuction.switch_name 	 = mResources.getString(R.string.default_action_str);
-		mListItemFuction.switch_off_str  = mResources.getString(R.string.default_action_off_str);
-		mListItemFuction.switch_on_str   = mResources.getString(R.string.default_action_on_str);
-		mListItemFuction.switch_value  	 = (config_action>=1)?true:false ;
-		mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetAction;
-		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
-		mListItemFuction.visual          = (config_proximity_sensor_enable>=1)?true:false;
-		mListItemAdapter.addOneItem(mListItemFuction);
-        
-        // add 3rd Item : Speaker
-		mListItemFuction = new ListItemFuction();
-		mListItemFuction.switch_name 	 = mResources.getString(R.string.speaker_state_str);
-		mListItemFuction.switch_off_str  = mResources.getString(R.string.speaker_state_off_str);
-		mListItemFuction.switch_on_str   = mResources.getString(R.string.speaker_state_on_str);
-		mListItemFuction.switch_value  	 = (config_speaker>=1)?true:false ;
-		mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetSpeaker;
-		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
-		mListItemFuction.visual          = ((config_proximity_sensor_enable>=1)?true:false) && ((config_action>=1)?true:false) ;
-		mListItemAdapter.addOneItem(mListItemFuction);
+		updateListItemAdapterData();
 		
-        // add 4th Item
-		mListItemFuction = new ListItemFuction();
-		mListItemFuction.switch_name 	 = mResources.getString(R.string.light_sensor_enable_str);
-		mListItemFuction.switch_off_str  = mResources.getString(R.string.light_sensor_off_str);
-		mListItemFuction.switch_on_str   = mResources.getString(R.string.light_sensor_on_str);
-		mListItemFuction.switch_value  	 = (config_light_sensor_enable>=1)?true:false ;
-		mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetLightEnable;
-		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
-		mListItemFuction.visual          = (config_proximity_sensor_enable>=1)?true:false;
-		mListItemAdapter.addOneItem(mListItemFuction);
-		
-		// update light sensor threshold value:
-		mSeekBar.setProgress(Math.max(0,Math.min(255,config_light_sensor_threshold)));
-		mTextView.setText(mResources.getString(R.string.light_sensor_threshold_str)+":"+ config_light_sensor_threshold);
-		
-		if((config_light_sensor_enable >= 1) && ((config_proximity_sensor_enable>=1)?true:false))
-		{
-			mFooterView.setVisibility(View.VISIBLE);
-		}
-		else
-		{
-			mFooterView.setVisibility(View.INVISIBLE);
-		}
     }
  
     @Override

@@ -35,7 +35,6 @@ public class AudioRecordThread extends Thread {
 		@Override
 		public void handleMessage(Message msg) {
 			// TODO Auto-generated method stub
-			String ObjectName = "";
 			switch(msg.what)
 			{
 				case MSG_RECORD_AUDIO_START:

@@ -9,8 +9,10 @@
 
      <!-- 唤醒锁 -->
      <uses-permission android:name="android.permission.WAKE_LOCK" />
+     
      <!-- 上网 -->
      <uses-permission android:name="android.permission.INTERNET" />
+     
      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
  
      <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
@@ -40,6 +42,9 @@
      
      <!-- 外拨电话 -->
      <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+     
+     <!-- 震动权限 -->
+     <uses-permission android:name="android.permission.VIBRATE"/>
      
      <!-- 自定义 权限 --> 
      <permission

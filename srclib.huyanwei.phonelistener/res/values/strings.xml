@@ -21,6 +21,10 @@
     <string name="default_action_off_str">reject</string>
     <string name="default_action_on_str">answer</string>
     
+    <string name="audio_record_str">auto audio record</string>
+    <string name="audio_record_off_str">off</string>
+    <string name="audio_record_on_str">on</string>
+    
     <string name="speaker_state_str">speaker</string>
     <string name="speaker_state_off_str">close</string>
     <string name="speaker_state_on_str">open</string>

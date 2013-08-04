@@ -32,6 +32,7 @@ public class ConfigContentProvider extends ContentProvider {
     public final static String TABLE_CONTENT_CONFIG_ACTION 	= "config_action";
     public final static String TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE 	= "config_light_sensor_enable";
     public final static String TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD	= "config_light_sensor_threshold";
+    public final static String TABLE_CONTENT_CONFIG_AUDIO_RECORD			= "config_audio_record";
     public final static String TABLE_CONTENT_CONFIG_INITED  = "config_inited";
     
     // Table Field name

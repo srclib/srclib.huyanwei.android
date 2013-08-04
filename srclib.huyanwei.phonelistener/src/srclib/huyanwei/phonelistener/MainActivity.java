@@ -25,6 +25,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -74,9 +75,10 @@ public class MainActivity extends Activity {
 	private final int    mSlideButtonIdBase    					= 1000;
 	private final int    mSlideButtonIdOffsetProximityEnable    = 0;
 	private final int    mSlideButtonIdOffsetAction  	  		= 1;
-	private final int    mSlideButtonIdOffsetSpeaker	  		= 2;
-	private final int    mSlideButtonIdOffsetLightEnable  		= 3;
-	private final int    mSlideButtonIdOffsetLightThreshold		= 4;
+	private final int    mSlideButtonIdOffsetAudioRecord		= 2;
+	private final int    mSlideButtonIdOffsetSpeaker	  		= 3;
+	private final int    mSlideButtonIdOffsetLightEnable  		= 4;
+	private final int    mSlideButtonIdOffsetLightThreshold		= 5;
 	
 	private final boolean mSlideButtonRecognitionByTag  		= true;  // 否则的话，就用Id 来识别.
 	
@@ -134,6 +136,7 @@ public class MainActivity extends Activity {
 	private int config_speaker 					= 0;
 	private int config_light_sensor_enable		= 0;
 	private int config_light_sensor_threshold	= 0;
+	private int config_audio_record				= 0;
 
 	private int query_config_value(String name)
 	{
@@ -229,6 +232,15 @@ public class MainActivity extends Activity {
 					config_action = (status?1:0);
 					update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION,config_action);
 					update_list_view_ui();
+					break;
+				case (mSlideButtonIdBase+mSlideButtonIdOffsetAudioRecord): // Action
+					if(DBG)
+					{
+						Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_AUDIO_RECORD) "+status);
+					}
+					config_audio_record = (status?1:0);
+					update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_AUDIO_RECORD,config_audio_record);
+					//update_list_view_ui();
 					break;
 				case (mSlideButtonIdBase+mSlideButtonIdOffsetSpeaker): // speaker
 					if(DBG)
@@ -666,7 +678,7 @@ public class MainActivity extends Activity {
 			//更新数据库
 			update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD,mSeekBarValue);
 			
-		}		
+		}
 	};
 	
 	public void updateListItemAdapterData()
@@ -694,8 +706,19 @@ public class MainActivity extends Activity {
 		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
 		mListItemFuction.visual          = (config_proximity_sensor_enable>=1)?true:false;
 		mListItemAdapter.addOneItem(mListItemFuction);
-        
-        // add 3rd Item : Speaker
+
+        // add 3rd Item : audio record
+		mListItemFuction = new ListItemFuction();
+		mListItemFuction.switch_name 	 = mResources.getString(R.string.audio_record_str);
+		mListItemFuction.switch_off_str  = mResources.getString(R.string.audio_record_off_str);
+		mListItemFuction.switch_on_str   = mResources.getString(R.string.audio_record_on_str);
+		mListItemFuction.switch_value  	 = (config_audio_record>=1)?true:false ;
+		mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetAudioRecord;
+		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+		mListItemFuction.visual          = ((config_proximity_sensor_enable>=1)?true:false) && ((config_action>=1)?true:false) ;
+		mListItemAdapter.addOneItem(mListItemFuction);
+		
+        // add 4th Item : Speaker
 		mListItemFuction = new ListItemFuction();
 		mListItemFuction.switch_name 	 = mResources.getString(R.string.speaker_state_str);
 		mListItemFuction.switch_off_str  = mResources.getString(R.string.speaker_state_off_str);
@@ -706,7 +729,7 @@ public class MainActivity extends Activity {
 		mListItemFuction.visual          = ((config_proximity_sensor_enable>=1)?true:false) && ((config_action>=1)?true:false) ;
 		mListItemAdapter.addOneItem(mListItemFuction);
 		
-        // add 4th Item
+        // add 5th Item : light sensor 
 		mListItemFuction = new ListItemFuction();
 		mListItemFuction.switch_name 	 = mResources.getString(R.string.light_sensor_enable_str);
 		mListItemFuction.switch_off_str  = mResources.getString(R.string.light_sensor_off_str);
@@ -778,15 +801,6 @@ public class MainActivity extends Activity {
         
         mListView.setAdapter(mListItemAdapter);
         
-        // view database
-		config_proximity_sensor_enable 	= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE);
-		config_action 					= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION);
-		config_speaker 					= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER);
-		config_light_sensor_enable      = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE);
-		config_light_sensor_threshold   = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD);
-		
-		updateListItemAdapterData();
-		
     }
  
     @Override
@@ -848,8 +862,19 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		
-		String className = "srclib.huyanwei.phonelistener.PhoneListenerService";
+        // view database
+		config_proximity_sensor_enable 	= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE);
+		config_action 					= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION);
+		config_speaker 					= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER);
+		config_light_sensor_enable      = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE);
+		config_light_sensor_threshold   = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD);
+		config_audio_record             = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_AUDIO_RECORD);
 		
+		// update List data
+		updateListItemAdapterData();
+		
+		// update service state
+		String className = "srclib.huyanwei.phonelistener.PhoneListenerService";		
 		mActivityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
 		List<ActivityManager.RunningServiceInfo> mServiceList = mActivityManager.getRunningServices(50);
 		//if(DBG) Log.d(TAG,"mServiceList.size()="+mServiceList.size());
@@ -863,9 +888,8 @@ public class MainActivity extends Activity {
 	        	   break;
 	            }
 	    }
-		
 		update_running_view();
-				
+		 
 		super.onResume();
 	}
 

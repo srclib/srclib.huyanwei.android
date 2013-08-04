@@ -92,6 +92,16 @@ public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 		+"\",30);";
 		mSQLiteDatabase.execSQL(defaultconfig);
 		
+		// auto-audio-record
+		defaultconfig ="insert into "
+		+ConfigContentProvider.TABLE_NAME+"("
+		+ConfigContentProvider.TABLE_FIELD_NAME+","
+		+ConfigContentProvider.TABLE_FIELD_VALUE
+		+") values(\""
+		+ConfigContentProvider.TABLE_CONTENT_CONFIG_AUDIO_RECORD
+		+"\",0);";
+		mSQLiteDatabase.execSQL(defaultconfig);
+		
 		// database inited.
 		defaultconfig ="insert into "
 		+ConfigContentProvider.TABLE_NAME+"("
@@ -113,7 +123,7 @@ public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 		//Log.d(TAG,"ConfigSQLiteOpenHelper.Init() {");
 		
 		mSQLiteDatabase = db;
-		
+		// proximity sensor enable.
 		config_value = context.getResources().getInteger(R.integer.config_proximity_sensor_enable);
 		//Log.d(TAG,"ConfigSQLiteOpenHelper.Init() config_value="+config_value);
 	    sql = String.format(Locale.ENGLISH, 
@@ -124,6 +134,7 @@ public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 	    		+"\"",config_value);
 	    mSQLiteDatabase.execSQL(sql);
 	    
+	    // incoming call answer or reject
 		config_value = context.getResources().getInteger(R.integer.config_action);
 		//Log.d(TAG,"ConfigSQLiteOpenHelper.Init() config_value="+config_value);
 	    sql = String.format(Locale.ENGLISH, 
@@ -134,6 +145,7 @@ public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 	    		+"\"",config_value);
 	    mSQLiteDatabase.execSQL(sql);
 	    
+	    // speaker
 	    config_value = context.getResources().getInteger(R.integer.config_speaker);
 	    //Log.d(TAG,"ConfigSQLiteOpenHelper.Init() config_value="+config_value);
 	    sql = String.format(Locale.ENGLISH, 
@@ -144,7 +156,7 @@ public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 	    		+"\"",config_value);
 	    mSQLiteDatabase.execSQL(sql);
 
-
+	    //light sensor enable
 	    config_value = context.getResources().getInteger(R.integer.config_light_sensor_enable);
 	    //Log.d(TAG,"ConfigSQLiteOpenHelper.Init() config_value="+config_value);
 	    sql = String.format(Locale.ENGLISH, 
@@ -155,6 +167,7 @@ public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 	    		+"\"",config_value);
 	    mSQLiteDatabase.execSQL(sql);
 
+	    // light sensor threshold
 	    config_value = context.getResources().getInteger(R.integer.config_light_sensor_threshold);
 	    //Log.d(TAG,"ConfigSQLiteOpenHelper.Init() config_value="+config_value);
 	    sql = String.format(Locale.ENGLISH, 
@@ -162,6 +175,17 @@ public class ConfigSQLiteOpenHelper extends SQLiteOpenHelper {
 	    		+" set "+ConfigContentProvider.TABLE_FIELD_VALUE+"=%d "
 	    		+"where "+ConfigContentProvider.TABLE_FIELD_NAME+"=\""
 	    		+ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD
+	    		+"\"",config_value);
+	    mSQLiteDatabase.execSQL(sql);
+	    
+	    // audio record
+	    config_value = context.getResources().getInteger(R.integer.config_audio_record);
+	    //Log.d(TAG,"ConfigSQLiteOpenHelper.Init() config_value="+config_value);
+	    sql = String.format(Locale.ENGLISH, 
+	    		"update "+ConfigContentProvider.TABLE_NAME
+	    		+" set "+ConfigContentProvider.TABLE_FIELD_VALUE+"=%d "
+	    		+"where "+ConfigContentProvider.TABLE_FIELD_NAME+"=\""
+	    		+ConfigContentProvider.TABLE_CONTENT_CONFIG_AUDIO_RECORD
 	    		+"\"",config_value);
 	    mSQLiteDatabase.execSQL(sql);
 	    

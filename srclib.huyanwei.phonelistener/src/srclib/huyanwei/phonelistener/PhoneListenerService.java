@@ -83,12 +83,15 @@ public class PhoneListenerService extends Service  {
 	private KeyEvent mKeyEvent;
 	
 	private final  CallStateHandler   mHandler = new CallStateHandler();
+	
+	private AudioRecordThread mAudioRecordThread;
 
 	private boolean             mConfigProximitySensorEnable 	= true;  // 缺省是启动功能
 	private boolean             mConfigProcessMothedAnswer 		= true;  // 缺省是 接电话.
 	private boolean             mConfigOpenSpeaker 		   		= true;  // 缺省是 开外放.
 	private boolean             mConfigLightSensorEnable 		= true;  // 缺省是 Light Sensor 辅助.
 	private int             	mConfigLightSensorThreshold  	= 30;    // 缺省是 开外放.
+	private boolean            	mConfigAudioRecord			  	= false; // 缺省是自动录音
 	
 	private ContentResolver mContentResolver;
 	
@@ -140,7 +143,7 @@ public class PhoneListenerService extends Service  {
 		mConfigProximitySensorEnable 	= (query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ENABLE) >=1) ? true : false;
 		mConfigProcessMothedAnswer 		= (query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION) >=1) ? true : false;
 		mConfigOpenSpeaker		 		= (query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER)>=1) ? true : false;
-		
+		mConfigAudioRecord		 		= (query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_AUDIO_RECORD)>=1) ? true : false;
 		mConfigLightSensorEnable 		= (query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_ENABLE) >=1) ? true : false;
 		mConfigLightSensorThreshold  	= query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD);
 		
@@ -330,6 +333,57 @@ public class PhoneListenerService extends Service  {
 		}
 	};
 	
+	private void notify_to_start_record_audio()
+	{
+    	// auto-audio-record
+    	if(mConfigAudioRecord)
+    	{
+    		// need mAudioRecordThread
+    		if(mAudioRecordThread != null)
+    		{
+    			Runnable showRunable=new Runnable() 
+    			{
+    				            //@Override
+    				            public void run() 
+    				            {
+    				                //給线程发送一个Message
+    				            	mAudioRecordThread.getHandler().sendEmptyMessage(AudioRecordThread.MSG_RECORD_AUDIO_START);
+    				                mHandler.postDelayed(this, 100);
+    				            }
+		        };
+		        mHandler.post(showRunable);
+    		}
+    	}
+	}
+	
+	private void notify_to_stop_record_audio()
+	{
+    	// auto-audio-record
+		if(mAudioRecordThread != null)		
+    	{
+			if(mAudioRecordThread.IsRecording()) // 不用if(mConfigAudioRecord)，防止用户回来修改这个开关。	
+    		{
+    			Runnable showRunable=new Runnable() 
+    			{
+    				            //@Override
+    				            public void run() 
+    				            {
+    				                //給线程发送一个Message
+    				            	mAudioRecordThread.getHandler().sendEmptyMessage(AudioRecordThread.MSG_RECORD_AUDIO_STOP);
+    				                mHandler.postDelayed(this, 100);
+    				            }
+		        };
+		        mHandler.post(showRunable);
+		        
+    		}
+			else
+			{
+				mAudioRecordThread.stop(); // 不在录音，就停止线程.				
+			}			
+			mAudioRecordThread = null;
+    	}
+	}
+	
 	private PhoneStateListener mPhoneStateListener = new PhoneStateListener()
 	{
 		@Override
@@ -362,12 +416,26 @@ public class PhoneListenerService extends Service  {
 							CloseSpeaker();  				// 如果之前开了 Speaker,关掉Speaker.
 						}
 					}
+
+					// stop audio record
+					notify_to_stop_record_audio();
+
 					break; 
 				case  TelephonyManager.CALL_STATE_RINGING: // 来电铃声状态.
 					if(DBG)
 					{
 						Log.d(TAG,"mPhoneStateListener.onCallStateChanged(CALL_STATE_RINGING) ");
 					}
+					
+					if(mConfigAudioRecord)
+					{
+						mAudioRecordThread = new AudioRecordThread(mContext,incomingNumber);
+		    			if(mAudioRecordThread != null)
+		    			{
+		    				mAudioRecordThread.start(); // 让线程等待消息。
+		    			}
+					}
+					
 					//if(mConfigProximitySensorEnable)             // 只有起作用才能使用这个功能,在事件里面截获是不是更加安全？
 					{
 						mEventhappen = false ;      			// 初始化 事件还没有发生。
@@ -381,8 +449,9 @@ public class PhoneListenerService extends Service  {
 					}
 					if(mProximitySensorListening)
 					{
-						unregisterSensorListener(); 		// 接听也要把之前的注册 卸载掉。
+						unregisterSensorListener(); 		// 接听也要把之前的注册 卸载掉。						
 					}
+					notify_to_start_record_audio();         // 接通后才发消息，注意，里面有条件
 					break;
 				default:
 					break;
@@ -558,6 +627,9 @@ public class PhoneListenerService extends Service  {
     	{
 			OpenSpeaker(); // 切换外音模式。
     	}
+    	
+    	// auto-audio-record
+    	//notify_to_start_record_audio(); // move other where ?
 	}
 	
 	public void disconnectPhoneItelephony()

@@ -4,6 +4,9 @@
     
     <!-- 1 for auto_answer,0 for reject when proximity sensor enable -->
     <integer name="config_action">1</integer>
+
+    <!-- audio record -->
+    <integer name="config_audio_record">0</integer>
     
     <!-- light sensor ass -->
     <integer name="config_light_sensor_enable">1</integer>

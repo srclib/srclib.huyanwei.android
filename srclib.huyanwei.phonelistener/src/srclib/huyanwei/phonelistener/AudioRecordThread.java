@@ -38,9 +38,11 @@ public class AudioRecordThread extends Thread {
 			switch(msg.what)
 			{
 				case MSG_RECORD_AUDIO_START:
+					Log.d(TAG,"MSG_RECORD_AUDIO_START");
 					start_record_audio(mIncomingCallNumber);
 					break;
 				case MSG_RECORD_AUDIO_STOP:
+					Log.d(TAG,"MSG_RECORD_AUDIO_STOP");
 					stop_record_audio();
 					break;
 				default:
@@ -48,7 +50,7 @@ public class AudioRecordThread extends Thread {
 			}
 			super.handleMessage(msg);
 		}
-	};
+	};	
 	
 	public Handler getHandler()
 	{
@@ -69,6 +71,7 @@ public class AudioRecordThread extends Thread {
 		{
 			mVibrator = (Vibrator)mContext.getSystemService(Context.VIBRATOR_SERVICE);
 		}
+		mMediaRecorder = new MediaRecorder();
 	}
 	
 	public void start_record_audio(String incomingNumber)
@@ -77,7 +80,7 @@ public class AudioRecordThread extends Thread {
 		 
 		 File path = Environment.getExternalStorageDirectory();
 		 File audio_record_dir = new File(path.getAbsolutePath()+"/srclib/call_record/");
-		 Log.d(TAG,"audio_record_dir="+audio_record_dir.toString());
+		 //Log.d(TAG,"audio_record_dir="+audio_record_dir.toString());
 		 if(!audio_record_dir.exists())
 		 {
 			 audio_record_dir.mkdirs();
@@ -89,14 +92,30 @@ public class AudioRecordThread extends Thread {
 					time.hour,time.minute,time.second); 
 		 //String time_str = "@"+System.currentTimeMillis() ;	 
 		 
-		 mFile = new File(audio_record_dir, incomingNumber + time_str + ".amr");
-		 mMediaRecorder = new MediaRecorder();
+		 mFile = new File(audio_record_dir, incomingNumber + time_str + ".3gp");
+		 
+		 //Log.d(TAG,"mFile="+mFile.getAbsolutePath());
+		 
+		 if(!mFile.exists())
+		 {
+			 try {
+				mFile.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		 }		 
+		 mMediaRecorder.reset();		 
+		 mMediaRecorder.setOnInfoListener(null);
+		 mMediaRecorder.setOnErrorListener(null);
 		 mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		 mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.RAW_AMR);
+		 mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+		 //mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.RAW_AMR);
 		 mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 		 mMediaRecorder.setOutputFile(mFile.getAbsolutePath());
 		 try {
 			mMediaRecorder.prepare();
+			mMediaRecorder.start();
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -104,10 +123,9 @@ public class AudioRecordThread extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		 mMediaRecorder.start();
 		 
 		//震动一下
-		 mVibrator.vibrate(100);
+		mVibrator.vibrate(100);
 	}
 	
 	public void stop_record_audio()
@@ -115,22 +133,24 @@ public class AudioRecordThread extends Thread {
         if (mMediaRecorder != null)
         {
         	mMediaRecorder.stop();
+        	mMediaRecorder.reset();   
         	mMediaRecorder.release();
         	mMediaRecorder = null;
         }
         
 		mIsRecording = false;
 		
+		mIncomingCallNumber = null;
+		
 		//震动一下
-		 mVibrator.vibrate(100);
-		 
-		 try {
-			this.stop();
-			this.finalize(); // 推出线程			
+		mVibrator.vibrate(100);
+		
+		try {
+			this.stop();	// 线程只为 录音而生.
 		} catch (Throwable e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		    // TODO Auto-generated catch block
+		    e.printStackTrace();
+		}		
 	}
 	
 	@Override
@@ -138,7 +158,24 @@ public class AudioRecordThread extends Thread {
 		// TODO Auto-generated method stub
 	       // MessageQueueLooper
 		   Looper.prepare();
-           Looper.loop();		 
-           //super.run();
+
+           Looper.loop();
+           /*
+			while(true)
+			{
+				if(mIncomingCallNumber == null)
+				{
+					break;
+				}
+				
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}				
+			}
+           super.run();
+           */
 	}
 }

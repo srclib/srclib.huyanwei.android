@@ -335,6 +335,11 @@ public class PhoneListenerService extends Service  {
 	
 	private void notify_to_start_record_audio()
 	{
+		if(DBG)
+		{
+			Log.d(TAG,"notify_to_start_record_audio() {");
+		}
+		
     	// auto-audio-record
     	if(mConfigAudioRecord)
     	{
@@ -348,16 +353,26 @@ public class PhoneListenerService extends Service  {
     				            {
     				                //給线程发送一个Message
     				            	mAudioRecordThread.getHandler().sendEmptyMessage(AudioRecordThread.MSG_RECORD_AUDIO_START);
-    				                mHandler.postDelayed(this, 100);
+    				                //mHandler.postDelayed(this, 2*1000); // 每隔 2s 后继续调用这个
     				            }
 		        };
 		        mHandler.post(showRunable);
     		}
     	}
+    	
+    	if(DBG)
+    	{
+    		Log.d(TAG,"notify_to_start_record_audio() }");
+    	}
 	}
 	
 	private void notify_to_stop_record_audio()
 	{
+		if(DBG)
+		{
+			Log.d(TAG,"notify_to_stop_record_audio() {");
+		}
+		
     	// auto-audio-record
 		if(mAudioRecordThread != null)		
     	{
@@ -370,18 +385,23 @@ public class PhoneListenerService extends Service  {
     				            {
     				                //給线程发送一个Message
     				            	mAudioRecordThread.getHandler().sendEmptyMessage(AudioRecordThread.MSG_RECORD_AUDIO_STOP);
-    				                mHandler.postDelayed(this, 100);
+    				                //mHandler.postDelayed(this, 1000); // 2s 后继续调用这个
+    				            	mAudioRecordThread = null;
     				            }
 		        };
 		        mHandler.post(showRunable);
-		        
     		}
 			else
 			{
-				mAudioRecordThread.stop(); // 不在录音，就停止线程.				
-			}			
-			mAudioRecordThread = null;
+				mAudioRecordThread.stop(); // 不在录音，就停止线程.
+				mAudioRecordThread = null;
+			}						
     	}
+		
+		if(DBG)
+		{
+			Log.d(TAG,"notify_to_stop_record_audio() }");
+		}
 	}
 	
 	private PhoneStateListener mPhoneStateListener = new PhoneStateListener()

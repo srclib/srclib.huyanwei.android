@@ -82,6 +82,8 @@ public class MainActivity extends Activity {
 	
 	private final boolean mSlideButtonRecognitionByTag  		= true;  // 否则的话，就用Id 来识别.
 	
+	private final boolean mSericeStateByAnimation               = false;
+	
 	private ListItemAdapter mListItemAdapter ;
 	
 	private	SQLiteDatabase mDatabase;
@@ -359,13 +361,13 @@ public class MainActivity extends Activity {
 						 local_toast.setGravity(Gravity.TOP, 0, 300);
 						 local_toast.show();
 						 
-						 //update_running_view();
-						 //if(mThread!= null)
-						 //{
-						 //	 mThread.stop();
-						 //	 mThread = null;		 
-						 //}
-						 mserver_is_running = false;						 
+						// stop animation
+						 mserver_is_running = false;
+						 
+						 if(!mSericeStateByAnimation)
+						 {
+							 update_running_view();
+						 }						 						 
 					 }
 					break;
 			}
@@ -825,11 +827,6 @@ public class MainActivity extends Activity {
 		// TODO Auto-generated method stub
 		
 		//停止 service state animation
-		//if(mThread != null)
-		//{
-		//	mThread.stop();
-		//	mThread = null ;
-		//}
 		mserver_is_running = false ; // thread 用了这个状态条件
 		
 		super.onPause();
@@ -837,42 +834,91 @@ public class MainActivity extends Activity {
 
 	public void update_running_view()
 	{
-
-		// 在运行就 转动.  service state animation
-		if(mserver_is_running)
-		{
-			mThread  = new Thread(new Runnable()
-			{
-				//@Override
-				public void run() {
-					
-					int angle = 0 ;
-					
-					while(mserver_is_running)
-					{
-						angle = (angle+10) % 360 ; //再次旋转5°
-						
-						Message msg = new Message();
-						msg.what = MSG_UPDATE_ANGLE;
-						msg.arg1 = angle;
-						msg.setTarget(mHandler);
-						msg.sendToTarget();
-						
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+		 if(mSericeStateByAnimation)
+		 {
+				// 在运行就 转动.  service state animation
+				if(mserver_is_running)
+				{
+					mThread  = new Thread(new Runnable()
+					{				
+						//@Override
+						public void run() {
+							
+							int angle = 0 ;
+							
+							while(mserver_is_running)
+							{
+								angle = (angle+30) % 360 ; //再次旋转30°
+								
+								Message msg = new Message();
+								msg.what = MSG_UPDATE_ANGLE;
+								msg.arg1 = angle;
+								msg.setTarget(mHandler);
+								msg.sendToTarget();
+								
+								try {
+									Thread.sleep(2000); // 时间太小的话，UI就会一直接受消息，没有时间片来处理其他的view的更新.
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
 						}
+					});
+					
+					if(mThread != null)
+					{
+						mThread.start();	
 					}
 				}
-			});
-			
-			if(mThread != null)
+		 }
+		 else
+		 {
+			if(mserver_is_running)
 			{
-				mThread.start();	
+				final Bitmap msrc=BitmapFactory.decodeResource(mContext.getResources(),(R.drawable.setting_pressed));
+				final int wp=msrc.getWidth();
+				final int hp=msrc.getHeight();		
+			
+				//Log.d(TAG,"wp = "+wp + "hp="+hp);
+				
+				//创建操作图片是用的matrix对象
+				Matrix matrix=new Matrix();
+				//缩放图片动作
+				matrix.postScale(1.0f, 1.0f);
+						
+				//旋转图片动作
+				matrix.postRotate(0.0f);
+				//创建新图片
+				Bitmap resizedBitmap=Bitmap.createBitmap(msrc,0,0,wp,hp,matrix,true);
+				//将上面创建的bitmap转换成drawable对象，使其可以使用在ImageView,ImageButton中
+				BitmapDrawable bmd=new BitmapDrawable(resizedBitmap);
+				//mImageButton.setAdjustViewBounds(true);
+				mImageButton.setImageDrawable(bmd);
 			}
-		}
+			else
+			{
+				final Bitmap msrc=BitmapFactory.decodeResource(mContext.getResources(),(R.drawable.setting));
+				final int wp=msrc.getWidth();
+				final int hp=msrc.getHeight();		
+			
+				//Log.d(TAG,"wp = "+wp + "hp="+hp);
+				
+				//创建操作图片是用的matrix对象
+				Matrix matrix=new Matrix();
+				//缩放图片动作
+				matrix.postScale(1.0f, 1.0f);
+						
+				//旋转图片动作
+				matrix.postRotate(0.0f);
+				//创建新图片
+				Bitmap resizedBitmap=Bitmap.createBitmap(msrc,0,0,wp,hp,matrix,true);
+				//将上面创建的bitmap转换成drawable对象，使其可以使用在ImageView,ImageButton中
+				BitmapDrawable bmd=new BitmapDrawable(resizedBitmap);
+				//mImageButton.setAdjustViewBounds(true);
+				mImageButton.setImageDrawable(bmd);
+			}
+		 }		
 	}
 	
 	@Override

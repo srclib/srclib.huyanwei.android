@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="320dp"
+    android:layout_height="240dp"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/ProcessLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="140dp"
+            android:layout_marginRight="15dp"
+            android:layout_weight="0.10"
+            android:padding="6dip"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:scrollbars="vertical" >
+
+            <TextView
+                android:id="@+id/ProcessName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#ff000000"                
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textSize="13sp" />
+
+        </ScrollView>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/CheckBoxLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+	    <CheckBox
+		android:id="@+id/RememberCheckBox"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+                android:textSize="13sp" 
+                android:textColor="#ff000000"                
+		android:text="@string/Remember" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ButtonLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/YesButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="@string/Yes" />
+
+        <Button
+            android:id="@+id/NoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="@string/No" />
+
+    </LinearLayout>
+        
+</LinearLayout>

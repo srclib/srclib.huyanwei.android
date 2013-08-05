@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>    
+    <string name="app_name">授权管理</string>
+    <string name="Remember">记住此次选择.</string>	
+    <string name="Yes">允许</string>
+    <string name="No">拒绝</string>
+    <string name="Question">下列程序请求root权限,此操作可能十分危险，请确认是否允许此次的操作？</string>
+    <string name="RESULT_SUCCESS"> 获取最高权限成功.</string>
+    <string name="RESULT_FAIL"> 获取最高权限失败.</string>	
+    <string name="RESULT_TIMEOUT"> 获取最高权限超时.</string>	
+    <string name="VIEW_LOG">查看授权日志</string>	
+    <string name="VIEW_LIST">查看授权配置</string>	
+    <string name="CLS_LIST">清空授权配置</string>	
+    <string name="CLS_LOG">清空授权日志</string>
+    <string name="VIEW_GRANT_LOG">查看授权日志</string>
+    <string name="ACTION_ALLOW">允许</string>
+    <string name="ACTION_DENY">拒绝</string>
+    <string name="ACTION_TIMEOUT">超时</string>    
+    <string name="ACTION_UNKNOWN">未知</string>
+</resources>

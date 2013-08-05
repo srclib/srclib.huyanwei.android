@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>   
+    <string name="app_name">PermissionGrant</string>
+    <string name="Remember">Remember it.</string>
+    <string name="Yes">allow</string>
+    <string name="No">deny</string>
+    <string name="Question">some pragrom request root permission,please confirm.</string>
+    <string name="RESULT_SUCCESS"> request root permission success.</string>
+    <string name="RESULT_FAIL"> request root permission failed.</string>
+    <string name="RESULT_TIMEOUT"> request root permission timeout.</string>
+    <string name="VIEW_LOG">view log</string>
+    <string name="VIEW_LIST">view grant list</string>
+    <string name="CLS_LIST">reset grant list</string>
+    <string name="CLS_LOG">reset log</string>
+    <string name="VIEW_GRANT_LOG">PermissionGrant</string>
+    <string name="ACTION_ALLOW">allow</string>
+    <string name="ACTION_DENY">deny</string>
+    <string name="ACTION_TIMEOUT">timeout</string>    
+    <string name="ACTION_UNKNOWN">unknown</string>
+</resources>

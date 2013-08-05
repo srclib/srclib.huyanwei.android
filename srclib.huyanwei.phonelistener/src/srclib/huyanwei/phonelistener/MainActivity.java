@@ -86,6 +86,8 @@ public class MainActivity extends Activity {
 	
 	private	SQLiteDatabase mDatabase;
 	
+	private Thread mThread;
+	
 	private final int MSG_UPDATE_ANGLE  = 100;
 	
 	private Handler  mHandler  = new  Handler()
@@ -335,7 +337,7 @@ public class MainActivity extends Activity {
 						 
 						 Toast local_toast = Toast.makeText(mContext, R.string.service_start_notification, Toast.LENGTH_SHORT);
 						 //local_toast.setGravity(local_toast.getGravity(), 0, 100);
-						 local_toast.setGravity(Gravity.TOP, 0, 400);
+						 local_toast.setGravity(Gravity.TOP, 0, 300);
 						 local_toast.show();
 						 
 						 mserver_is_running = true;
@@ -354,13 +356,16 @@ public class MainActivity extends Activity {
 						 mContext.stopService(svc);
 						 
 						 Toast local_toast = Toast.makeText(mContext, R.string.service_stop_notification, Toast.LENGTH_SHORT);
-						 local_toast.setGravity(Gravity.TOP, 0, 400);
+						 local_toast.setGravity(Gravity.TOP, 0, 300);
 						 local_toast.show();
 						 
-						 mserver_is_running = false;
-						 
-						 update_running_view();
-						 
+						 //update_running_view();
+						 //if(mThread!= null)
+						 //{
+						 //	 mThread.stop();
+						 //	 mThread = null;		 
+						 //}
+						 mserver_is_running = false;						 
 					 }
 					break;
 			}
@@ -818,43 +823,55 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
+		
+		//停止 service state animation
+		//if(mThread != null)
+		//{
+		//	mThread.stop();
+		//	mThread = null ;
+		//}
+		mserver_is_running = false ; // thread 用了这个状态条件
+		
 		super.onPause();
 	}
 
 	public void update_running_view()
 	{
-		
-		Thread mThread  = new Thread(new Runnable()
-		{
-			//@Override
-			public void run() {
-				
-				int angle = 0 ;
-				
-				while(mserver_is_running)
-				{
-					angle = (angle+10) % 360 ; //再次旋转5°
-					
-					Message msg = new Message();
-					msg.what = MSG_UPDATE_ANGLE;
-					msg.arg1 = angle;
-					msg.setTarget(mHandler);
-					msg.sendToTarget();
-					
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}			
-		});
-		
-		// 在运行就 转动.
+
+		// 在运行就 转动.  service state animation
 		if(mserver_is_running)
 		{
-			mThread.start();	
+			mThread  = new Thread(new Runnable()
+			{
+				//@Override
+				public void run() {
+					
+					int angle = 0 ;
+					
+					while(mserver_is_running)
+					{
+						angle = (angle+10) % 360 ; //再次旋转5°
+						
+						Message msg = new Message();
+						msg.what = MSG_UPDATE_ANGLE;
+						msg.arg1 = angle;
+						msg.setTarget(mHandler);
+						msg.sendToTarget();
+						
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			});
+			
+			if(mThread != null)
+			{
+				mThread.start();	
+			}
 		}
 	}
 	

@@ -757,8 +757,8 @@ public class PhoneListenerService extends Service  {
 		// TODO Auto-generated method stub
 		if(mTelephonyManager!= null)
 		{
-			mTelephonyManager.listen(mPhoneStateListener, 
-				PhoneStateListener.LISTEN_CALL_STATE | PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+			//mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE | PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+			mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE); // only call state
 		}		
 		super.onStart(intent, startId);
 	}

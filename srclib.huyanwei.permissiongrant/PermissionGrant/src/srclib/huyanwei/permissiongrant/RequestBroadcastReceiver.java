@@ -102,12 +102,14 @@ public class RequestBroadcastReceiver extends BroadcastReceiver {
 			Cursor mCursor = mDatabase.rawQuery("select package_name,result from grant_white_list where package_name=?;" ,new String[]{local_package_name});
 			if(mCursor.getCount() != 0)
 			{
-				while (mCursor.moveToNext())
+				mCursor.moveToFirst();				
+				do
 				{
 					//Log.d(TAG,"package_name="+mCursor.getString(0)+" ,result="+mCursor.getInt(1)+"\n");
 					record_result = mCursor.getInt(1); 
 					//break;
-				}
+				}while (mCursor.moveToNext());
+				
 				if(record_result == 1)
 				{
 					mUtils.notify_server_result(server_addr,1); // notify su
@@ -137,12 +139,14 @@ public class RequestBroadcastReceiver extends BroadcastReceiver {
 			mCursor = mDatabase.rawQuery("select package_name,result from grant_list where package_name=?;" ,new String[]{local_package_name});
 			if(mCursor.getCount() != 0)
 			{
-				while (mCursor.moveToNext())
+				mCursor.moveToFirst();
+				do
 				{
 					//Log.d(TAG,"package_name="+mCursor.getString(0)+" ,result="+mCursor.getInt(1)+"\n");
 					record_result = mCursor.getInt(1); 
 					//break;
-				}
+				}while (mCursor.moveToNext());
+				
 				if(record_result == 1)
 				{
 					mUtils.notify_server_result(server_addr,1); // notify su

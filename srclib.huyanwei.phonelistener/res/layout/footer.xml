@@ -15,7 +15,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:paddingTop="5dp"
-        android:text="TextView"
         android:textSize="15sp" />
 
     <SeekBar

@@ -37,4 +37,6 @@
     <string name="service_start_notification">服务已经手动启动</string>
     <string name="service_stop_notification">服务已经手动停止</string>
         
+    <string name="copyright">Copyright ©2013 srclib@hotmail.com All Rights Reserved.</string>
+    
 </resources>

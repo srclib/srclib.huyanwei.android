@@ -6,15 +6,19 @@ import android.os.Bundle;
 
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,14 +80,28 @@ public class Utils {
 	{
 		try
 		{
+			String  Command = String.format(Locale.ENGLISH, "ps %d",pid); // 只取指定的pid的信息
 			String package_name = null ;
-			Process p = Runtime.getRuntime().exec("ps");
+			Process p = Runtime.getRuntime().exec(Command);
 			InputStream reader = p.getInputStream();
 			Thread.sleep(200);
+/*			
 			byte[] buff = new byte[10000];
 			int read = reader.read(buff, 0, buff.length);
 			String str = new String(buff);
+*/
+			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String str = "" , line = "" ;
+			try {
+				while ((line = in.readLine()) != null) {   
+					 str += line + "\n";                  
+				   }
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
+			//Log.d(TAG,"string="+str);
 			//String pattern = String.format("^\\w+\\s+%d\\s+(.*?)\n", pid);
 			//huyanwei modify it for ar language.
 			String pid_str = Integer.toString(pid) ;
@@ -97,10 +115,16 @@ public class Utils {
 				String[] strings = match.group(1).split(" ");
 
 				package_name = strings[strings.length -1];	// first one
+
+				//Log.d(TAG,"before package_name ="+package_name);
+
 				break ;
 			}
 			package_name = package_name.replace("'","");
 			package_name = package_name.replace("\"","");
+
+			//Log.d(TAG,"after package_name="+package_name);
+
 			return package_name;
 		}
 		catch (Exception e)

@@ -234,7 +234,15 @@ public class MainActivity extends Activity {
 						Log.d(TAG,"SlideButton.onSwitchChanged(CONFIG_ACTION) "+status);
 					}
 					config_action = (status?1:0);
-					update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION,config_action);
+					update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_ACTION,config_action);			
+					if(!status)
+					{
+						config_audio_record = 0;
+						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_AUDIO_RECORD,config_audio_record);
+						
+						config_speaker = 0 ;
+						update_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_SPEAKER,config_speaker);
+					}					
 					update_list_view_ui();
 					break;
 				case (mSlideButtonIdBase+mSlideButtonIdOffsetAudioRecord): // Action

@@ -29,6 +29,7 @@ public class AudioRecordThread extends Thread {
 	
 	public final static int  MSG_RECORD_AUDIO_START = 100 ;
 	public final static int  MSG_RECORD_AUDIO_STOP  = 101 ;
+	public final static int  MSG_THREAD_EXIT		= 102 ;
 	
 	private  Handler       mHandler = new Handler()
 	{
@@ -44,6 +45,10 @@ public class AudioRecordThread extends Thread {
 				case MSG_RECORD_AUDIO_STOP:
 					Log.d(TAG,"MSG_RECORD_AUDIO_STOP");
 					stop_record_audio();
+					break;
+				case MSG_THREAD_EXIT:
+					Log.d(TAG,"MSG_THREAD_EXIT");
+					thread_exit();
 					break;
 				default:
 					break;
@@ -76,8 +81,6 @@ public class AudioRecordThread extends Thread {
 	
 	public void start_record_audio(String incomingNumber)
 	{
-		 mIsRecording = true;
-		 
 		 File path = Environment.getExternalStorageDirectory();
 		 File audio_record_dir = new File(path.getAbsolutePath()+"/srclib/call_record/");
 		 //Log.d(TAG,"audio_record_dir="+audio_record_dir.toString());
@@ -124,18 +127,28 @@ public class AudioRecordThread extends Thread {
 			e.printStackTrace();
 		}
 		 
+		mIsRecording = true;
+		
 		//震动一下
-		mVibrator.vibrate(100);
+		mVibrator.vibrate(20);
 	}
 	
 	public void stop_record_audio()
 	{
         if (mMediaRecorder != null)
         {
-        	mMediaRecorder.stop();
-        	mMediaRecorder.reset();   
-        	mMediaRecorder.release();
-        	mMediaRecorder = null;
+        	//if(mIsRecording)
+        	{
+        		try {
+        			mMediaRecorder.stop();        	
+        			mMediaRecorder.reset();   
+        			mMediaRecorder.release();
+        	 	} catch (IllegalStateException e) {
+        	 		// TODO Auto-generated catch block
+        	 		e.printStackTrace();
+        	 	}
+	        	mMediaRecorder = null;
+        	}
         }
         
 		mIsRecording = false;
@@ -143,14 +156,21 @@ public class AudioRecordThread extends Thread {
 		mIncomingCallNumber = null;
 		
 		//震动一下
-		mVibrator.vibrate(100);
+		mVibrator.vibrate(20);
 		
+		thread_exit();
+		
+	}
+	
+	public void thread_exit()
+	{
 		try {
 			this.stop();	// 线程只为 录音而生.
+			this.destroy();
 		} catch (Throwable e) {
 		    // TODO Auto-generated catch block
 		    e.printStackTrace();
-		}		
+		}
 	}
 	
 	@Override

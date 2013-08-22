@@ -393,8 +393,21 @@ public class PhoneListenerService extends Service  {
     		}
 			else
 			{
-				mAudioRecordThread.stop(); // 不在录音，就停止线程.
-				mAudioRecordThread = null;
+				//mAudioRecordThread.stop(); // 不在录音，就停止线程.
+				//mAudioRecordThread = null;
+				
+    			Runnable ThreadExitRunable=new Runnable() 
+    			{
+    				            //@Override
+    				            public void run() 
+    				            {
+    				                //給线程发送一个Message
+    				            	mAudioRecordThread.getHandler().sendEmptyMessage(AudioRecordThread.MSG_THREAD_EXIT);
+    				                //mHandler.postDelayed(this, 1000); // 2s 后继续调用这个
+    				            	mAudioRecordThread = null;
+    				            }
+		        };
+		        mHandler.post(ThreadExitRunable);
 			}						
     	}
 		

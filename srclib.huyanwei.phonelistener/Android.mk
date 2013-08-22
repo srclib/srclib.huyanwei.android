@@ -46,7 +46,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
 
 LOCAL_PACKAGE_NAME := PhoneListener
 
-LOCAL_CERTIFICATE := platform
+#LOCAL_CERTIFICATE := platform
 #LOCAL_SDK_VERSION := current
 
 include $(BUILD_PACKAGE)

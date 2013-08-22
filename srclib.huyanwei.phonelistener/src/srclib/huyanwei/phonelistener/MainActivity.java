@@ -84,6 +84,8 @@ public class MainActivity extends Activity {
 	
 	private final boolean mSericeStateByAnimation               = false;
 	
+	private final boolean mBaseService                          = true;
+	
 	private ListItemAdapter mListItemAdapter ;
 	
 	private	SQLiteDatabase mDatabase;
@@ -722,27 +724,30 @@ public class MainActivity extends Activity {
 		mListItemFuction.visual          = (config_proximity_sensor_enable>=1)?true:false;
 		mListItemAdapter.addOneItem(mListItemFuction);
 
-        // add 3rd Item : audio record
-		mListItemFuction = new ListItemFuction();
-		mListItemFuction.switch_name 	 = mResources.getString(R.string.audio_record_str);
-		mListItemFuction.switch_off_str  = mResources.getString(R.string.audio_record_off_str);
-		mListItemFuction.switch_on_str   = mResources.getString(R.string.audio_record_on_str);
-		mListItemFuction.switch_value  	 = (config_audio_record>=1)?true:false ;
-		mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetAudioRecord;
-		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
-		mListItemFuction.visual          = ((config_proximity_sensor_enable>=1)?true:false) && ((config_action>=1)?true:false) ;
-		mListItemAdapter.addOneItem(mListItemFuction);
-		
-        // add 4th Item : Speaker
-		mListItemFuction = new ListItemFuction();
-		mListItemFuction.switch_name 	 = mResources.getString(R.string.speaker_state_str);
-		mListItemFuction.switch_off_str  = mResources.getString(R.string.speaker_state_off_str);
-		mListItemFuction.switch_on_str   = mResources.getString(R.string.speaker_state_on_str);
-		mListItemFuction.switch_value  	 = (config_speaker>=1)?true:false ;
-		mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetSpeaker;
-		mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
-		mListItemFuction.visual          = ((config_proximity_sensor_enable>=1)?true:false) && ((config_action>=1)?true:false) ;
-		mListItemAdapter.addOneItem(mListItemFuction);
+		if(!mBaseService)
+		{	
+	        // add 3rd Item : audio record
+			mListItemFuction = new ListItemFuction();
+			mListItemFuction.switch_name 	 = mResources.getString(R.string.audio_record_str);
+			mListItemFuction.switch_off_str  = mResources.getString(R.string.audio_record_off_str);
+			mListItemFuction.switch_on_str   = mResources.getString(R.string.audio_record_on_str);
+			mListItemFuction.switch_value  	 = (config_audio_record>=1)?true:false ;
+			mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetAudioRecord;
+			mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+			mListItemFuction.visual          = ((config_proximity_sensor_enable>=1)?true:false) && ((config_action>=1)?true:false) ;
+			mListItemAdapter.addOneItem(mListItemFuction);
+			
+	        // add 4th Item : Speaker
+			mListItemFuction = new ListItemFuction();
+			mListItemFuction.switch_name 	 = mResources.getString(R.string.speaker_state_str);
+			mListItemFuction.switch_off_str  = mResources.getString(R.string.speaker_state_off_str);
+			mListItemFuction.switch_on_str   = mResources.getString(R.string.speaker_state_on_str);
+			mListItemFuction.switch_value  	 = (config_speaker>=1)?true:false ;
+			mListItemFuction.switch_tag 	= mSlideButtonIdBase+mSlideButtonIdOffsetSpeaker;
+			mListItemFuction.OnSwitchChangedListener = mOnSwitchChangedListener;
+			mListItemFuction.visual          = ((config_proximity_sensor_enable>=1)?true:false) && ((config_action>=1)?true:false) ;
+			mListItemAdapter.addOneItem(mListItemFuction);
+		}
 		
         // add 5th Item : light sensor 
 		mListItemFuction = new ListItemFuction();

@@ -14,7 +14,7 @@ import android.graphics.drawable.Drawable;
 public class OpenGraphLibBitmap {
 	public static final int mCount = 6;
 	//public static final int mCount = 18;
-	public static final int mStyle = 1;
+	public static final int mStyle = 3;
 	public static Bitmap mBitmap[] = new Bitmap[mCount];
 	
 	// width and height must be 2^N

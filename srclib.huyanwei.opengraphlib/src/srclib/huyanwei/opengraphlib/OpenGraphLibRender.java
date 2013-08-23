@@ -234,7 +234,7 @@ public class OpenGraphLibRender implements Renderer {
 		Log.d(TAG,"cube_vertices_coods[0].length="+cube_vertices_coods[0].length);
 		
 		for(int i=0; i < vertex_buffers.length;i++){
-			if(1 == 1)
+			//if(1 == 1)
 			{	
 				ByteBuffer vbb = ByteBuffer.allocateDirect(cube_vertices_coods[i].length * 4);
 				vbb.order(ByteOrder.nativeOrder());
@@ -245,7 +245,7 @@ public class OpenGraphLibRender implements Renderer {
 		}
 		/////color
 		for(int i=0; i < color_buffers.length;i++){
-			if(1 == 1)
+			//if(1 == 1)
 			{	
 				ByteBuffer cbb = ByteBuffer.allocateDirect(cube_vertices_color[i].length * 4);
 				cbb.order(ByteOrder.nativeOrder());
@@ -257,7 +257,7 @@ public class OpenGraphLibRender implements Renderer {
 
 		/////texture
 		for(int i=0; i < texture_buffers.length;i++){
-			if(1 == 1)
+			//if(1 == 1)
 			{	
 				ByteBuffer tbb = ByteBuffer.allocateDirect(cube_texture_coods[i].length * 4);
 				tbb.order(ByteOrder.nativeOrder());
@@ -269,7 +269,7 @@ public class OpenGraphLibRender implements Renderer {
 	
 		/////normal
 		for(int i=0; i < normal_buffers.length;i++){
-			if(1 == 1)
+			//if(1 == 1)
 			{	
 				ByteBuffer nbb = ByteBuffer.allocateDirect(cube_normal_coods[i].length * 4);
 				nbb.order(ByteOrder.nativeOrder());
@@ -358,7 +358,8 @@ public class OpenGraphLibRender implements Renderer {
 		gl.glPushMatrix();//保护变换矩阵现场
 		
 		// 左移 1.5 单位，并移入屏幕 6.0
-		gl.glTranslatef(0.0f, 0.0f, -4.0f);
+		//gl.glTranslatef(0.0f, 0.0f, -4.0f);
+		gl.glTranslatef(0.0f, 0.0f, -8.0f);
 
 		gl.glRotatef(xrot, 1.0f, 0.0f, 0.0f);
 		gl.glRotatef(yrot, 0.0f, 1.0f, 0.0f);
@@ -647,8 +648,8 @@ public class OpenGraphLibRender implements Renderer {
 			else if(event.getAction()==MotionEvent.ACTION_MOVE)	{
 
 		       //处理移动事件 手指在屏幕上移动时触发
-				//xrot -= (event.getY() - touchY);
-				yrot += (event.getX() - touchX);	
+				xrot += (event.getY() - touchY);
+				yrot += (event.getX() - touchX);
 				
 				eye_z += (event.getX() - touchX)/80;
 

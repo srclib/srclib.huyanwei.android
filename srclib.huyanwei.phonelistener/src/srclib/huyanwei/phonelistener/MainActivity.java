@@ -11,8 +11,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.KeyguardManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,8 +26,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.text.format.Time;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -93,6 +101,59 @@ public class MainActivity extends Activity {
 	private Thread mThread;
 	
 	private final int MSG_UPDATE_ANGLE  = 100;
+	
+	private SensorManager 		mSensorManager;
+	private Sensor 				mProximitySensor;
+	private Sensor 				mLightSensor;	
+	
+	private float 				mProximitySensorValue 	= 0.0f ;
+	private float 				mLightSensorValue 		= 0.0f ;
+	
+	private WindowManager 		mWindowManager;
+	private View 				mFloatView;
+	private WindowManager.LayoutParams  mLayoutParams ;
+	private TextView 	 		mSensorValueView;
+	
+	private SensorEventListener mProximitySensorEventListener = new SensorEventListener()
+	{
+
+		public void onAccuracyChanged(Sensor arg0, int arg1) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void onSensorChanged(SensorEvent arg0) {
+			// TODO Auto-generated method stub            
+            mProximitySensorValue = arg0.values[0];		
+            
+            update_window_sensor_value();
+		}
+	};
+	
+	private SensorEventListener mLightSensorEventListener = new SensorEventListener()
+	{
+
+		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void onSensorChanged(SensorEvent event) {
+			// TODO Auto-generated method stub
+			// we record the light sensor value to judge the  [pocket mode]			
+			mLightSensorValue = event.values[0];
+			
+			update_window_sensor_value();			
+		}
+	};
+	
+	
+	public void update_window_sensor_value()
+	{		
+		mSensorValueView.setTextColor(0xffffff00);
+		mSensorValueView.setTextSize(10.0f);		
+		mSensorValueView.setText(mResources.getString(R.string.proximity_value)+":"+mProximitySensorValue+ " "+mResources.getString(R.string.light_value)+"="+mLightSensorValue);
+	}		
 	
 	private Handler  mHandler  = new  Handler()
 	{
@@ -821,8 +882,90 @@ public class MainActivity extends Activity {
         
         mListView.setAdapter(mListItemAdapter);
         
+        
+		// SensorManager
+		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+		
+        mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        mLightSensor     = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        
+        
+		mWindowManager = (WindowManager)this.getSystemService(Context.WINDOW_SERVICE);
+		//mLayoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mFloatView = (LinearLayout)mLayoutInflater.inflate(R.layout.floater, null);
+        
+        mSensorValueView = (TextView) mFloatView.findViewById(R.id.SensorValueView);
+        
+        attachView(mFloatView);
     }
  
+	public void attachView(View view)
+	{
+		  mLayoutParams = new WindowManager.LayoutParams(
+				  WindowManager.LayoutParams.MATCH_PARENT,
+				  180,
+				  WindowManager.LayoutParams.TYPE_BASE_APPLICATION,
+				  WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,//WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+				  PixelFormat.RGBA_8888
+				  );
+	        /*
+	        mLayoutParams.type = WindowManager.LayoutParams.TYPE_SECURE_SYSTEM_OVERLAY;
+	        mLayoutParams.flags = WindowManager.LayoutParams.FLAG_FULLSCREEN
+	                			| WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+	                			| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+	                			| WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+	        mLayoutParams.format = PixelFormat.TRANSLUCENT;
+	        
+	        mLayoutParams.setTitle("PointerLocationFloatWindows");        
+	        
+	        mLayoutParams.inputFeatures |= WindowManager.LayoutParams.INPUT_FEATURE_NO_INPUT_CHANNEL;
+	        */
+	        
+	        /**
+	         *以下都是WindowManager.LayoutParams的相关属性
+	         * 具体用途可参考SDK文档
+	         */
+	        //mLayoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
+	        //mLayoutParams.type=WindowManager.LayoutParams.TYPE_PHONE;   //设置window type
+	        //mLayoutParams.format=PixelFormat.RGBA_8888;   //设置图片格式，效果为背景透明
+
+	        //设置Window flag
+//	        mLayoutParams.flags=WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+//	                              | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+	        /*
+	         * 下面的flags属性的效果形同“锁定”。
+	         * 悬浮窗不可触摸，不接受任何事件,同时不影响后面的事件响应。
+	         wmParams.flags=LayoutParams.FLAG_NOT_TOUCH_MODAL 
+	                               | LayoutParams.FLAG_NOT_FOCUSABLE
+	                               | LayoutParams.FLAG_NOT_TOUCHABLE;
+	        */
+	        
+	        //mLayoutParams.gravity=Gravity.CENTER_HORIZONTAL;   //调整悬浮窗口至底部居中
+	        
+			DisplayMetrics dm = new DisplayMetrics();
+	        getWindowManager().getDefaultDisplay().getMetrics(dm);
+	        int android_width = dm.widthPixels;
+	        int android_height = dm.heightPixels;
+
+	        //设置悬浮窗口长宽数据
+	        mLayoutParams.width=android_width;
+	        mLayoutParams.height=96;
+
+	        //以屏幕左上角为原点，设置x、y初始值
+	        mLayoutParams.x=(android_width  - mLayoutParams.width);
+	        mLayoutParams.y=(android_height - mLayoutParams.height);
+	        
+	        Log.d(TAG,""+mLayoutParams.toString());
+	        
+	        //显示FloatView图像
+	        mWindowManager.addView(view, mLayoutParams);
+	}
+	
+	public void disattachView(View view)
+	{
+		mWindowManager.removeViewImmediate(view);
+	}
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //getMenuInflater().inflate(R.menu.activity_main, menu);
@@ -832,6 +975,9 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
+		
+		disattachView(mFloatView);
+		
 		super.onDestroy();
 	}
 
@@ -841,6 +987,9 @@ public class MainActivity extends Activity {
 		
 		//停止 service state animation
 		mserver_is_running = false ; // thread 用了这个状态条件
+		
+		mSensorManager.unregisterListener(mLightSensorEventListener, mLightSensor);		
+		mSensorManager.unregisterListener(mProximitySensorEventListener, mProximitySensor);	
 		
 		super.onPause();
 	}
@@ -946,6 +1095,8 @@ public class MainActivity extends Activity {
 		config_light_sensor_threshold   = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_LIGHT_SENSOR_THRESHOLD);
 		config_audio_record             = query_config_value(ConfigContentProvider.TABLE_CONTENT_CONFIG_AUDIO_RECORD);
 		
+		Log.d(TAG,"config_light_sensor_threshold="+config_light_sensor_threshold);
+		
 		// update List data
 		updateListItemAdapterData();
 		
@@ -965,7 +1116,11 @@ public class MainActivity extends Activity {
 	            }
 	    }
 		update_running_view();
-		 
+
+		// start lister sensor
+        mSensorManager.registerListener(mProximitySensorEventListener, mProximitySensor,SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(mLightSensorEventListener,     mLightSensor,    SensorManager.SENSOR_DELAY_NORMAL);
+		
 		super.onResume();
 	}
 

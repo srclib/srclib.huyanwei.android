@@ -7,14 +7,15 @@
 
     <!-- audio record -->
     <integer name="config_audio_record">0</integer>
+
+    <!-- open speaker when connecting -->
+    <integer name="config_speaker">0</integer>
     
     <!-- light sensor ass -->
     <integer name="config_light_sensor_enable">1</integer>
     
     <integer name="config_light_sensor_threshold">30</integer>
-    
-    <!-- open speaker when connecting -->
-    <integer name="config_speaker">0</integer>
+
 </resources>
 
 

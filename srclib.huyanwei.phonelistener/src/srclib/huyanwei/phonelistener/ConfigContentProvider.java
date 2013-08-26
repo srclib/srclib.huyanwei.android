@@ -113,7 +113,9 @@ public class ConfigContentProvider extends ContentProvider {
 		//Log.d(TAG,"config() {");
 		String sql = String.format(Locale.ENGLISH,
 				"select "+TABLE_FIELD_VALUE+" from "+TABLE_NAME
-				+" where "+TABLE_FIELD_NAME+"=\"+TABLE_CONTENT_CONFIG_INITED+\" limit 1;");
+				+" where "+TABLE_FIELD_NAME+"=\""+TABLE_CONTENT_CONFIG_INITED+"\" limit 1;");
+
+		//Log.d(TAG,"sql="+sql);
 		
 		Cursor mCursor = mDatabase.rawQuery(sql,null);
 		if(mCursor.getCount() > 0)

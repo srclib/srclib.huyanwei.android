@@ -41,4 +41,11 @@
     
     <string name="copyright">Copyright ©2013 srclib@hotmail.com All Rights Reserved.</string>
     
+    <string name="help_title">help</string>
+    
+    <string name="help_content">none</string>
+    
+    <string name="proximity_value">proximity value</string>
+    
+    <string name="light_value">light value</string>
 </resources>

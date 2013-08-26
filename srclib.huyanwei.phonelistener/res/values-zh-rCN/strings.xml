@@ -39,4 +39,11 @@
         
     <string name="copyright">Copyright ©2013 srclib@hotmail.com All Rights Reserved.</string>
     
+    <string name="help_title">使用说明</string>
+    
+    <string name="help_content">无\n</string>
+    
+    <string name="proximity_value">距感值</string>
+    
+    <string name="light_value">光感值</string>
 </resources>

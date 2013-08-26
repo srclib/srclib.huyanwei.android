@@ -79,6 +79,16 @@
             </intent-filter>
         </activity>
         
+        <activity
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation"            
+            android:name=".Welcome"
+            android:label="@string/help_title" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        
          <receiver android:name=".BootCompletedReceiver">
              <intent-filter>
               <action android:name="android.intent.action.BOOT_COMPLETED" />  

@@ -441,6 +441,12 @@ public class MainActivity extends Activity {
 						 }						 						 
 					 }
 					break;
+				case R.id.btn_help:			
+					Intent intent = new Intent();
+					intent.setClassName(mContext, "srclib.huyanwei.phonelistener.Welcome");
+					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					mContext.startActivity(intent);
+					break;
 			}
 		}
 	};
@@ -858,6 +864,9 @@ public class MainActivity extends Activity {
         
         mLayoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mHeaderView = 	(LinearLayout)mLayoutInflater.inflate(R.layout.header, null);
+        
+        mImageButton = (ImageButton) this.findViewById(R.id.btn_help);
+        mImageButton.setOnClickListener(mOnClickListener);
         
         mImageButton = (ImageButton) mHeaderView.findViewById(R.id.btn_start_service);
         mImageButton.setOnClickListener(mOnClickListener);

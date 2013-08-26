@@ -13,18 +13,47 @@
         android:layout_alignParentTop="true"
         android:orientation="vertical" >
 	
+        <LinearLayout
+            android:id="@+id/LinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_gravity="center_vertical"
+            android:orientation="horizontal" >
+        
+        <ImageButton
+            android:id="@+id/btn_takeplace"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="right|center_vertical"
+            android:background="#00000000"
+            android:src="@drawable/help_button"
+            android:visibility="invisible" />
+            
         <TextView
             android:id="@+id/copyright"
             style="@style/Widget.srclib.TextView"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|center_horizontal"
+            android:layout_weight="3"
             android:gravity="center_vertical|center_horizontal"
             android:paddingRight="8dp"
             android:paddingTop="5dp"
             android:text="@string/copyright"
             android:textSize="9sp" />
-
+        
+	    <ImageButton
+	        android:id="@+id/btn_help"
+	        android:layout_width="40dp"
+	        android:layout_height="40dp"
+	        android:layout_gravity="right|center_vertical"
+	        android:layout_weight="1"
+	        android:background="#00000000"
+	        android:src="@drawable/help_button" />
+    	        
+        </LinearLayout>
+        
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"

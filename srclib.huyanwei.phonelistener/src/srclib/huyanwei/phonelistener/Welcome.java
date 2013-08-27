@@ -15,6 +15,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -69,7 +71,7 @@ public class Welcome extends Activity implements OnPageChangeListener {
     		((ViewPager) arg0).addView(views.get(arg1), 0);
     		if (arg1 == views.size() - 1) {
     			ImageView mStartWeiboImageButton = (ImageView) arg0
-    					.findViewById(R.id.iv_start_weibo);
+    					.findViewById(R.id.iv_setting);
     			mStartWeiboImageButton.setOnClickListener(new OnClickListener() {
 
     				@Override
@@ -77,7 +79,6 @@ public class Welcome extends Activity implements OnPageChangeListener {
     					// 设置已经引导
     					setGuided();
     					goHome();
-
     				}
 
     			});
@@ -135,6 +136,7 @@ public class Welcome extends Activity implements OnPageChangeListener {
         views.add(inflater.inflate(R.layout.welcome_page_two, null));
         views.add(inflater.inflate(R.layout.welcome_page_three, null));
         views.add(inflater.inflate(R.layout.welcome_page_four, null));
+        views.add(inflater.inflate(R.layout.welcome_page_five, null));
 
         // 初始化Adapter
         vpAdapter = new ViewPagerAdapter(views, this);
@@ -177,6 +179,9 @@ public class Welcome extends Activity implements OnPageChangeListener {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
 		setContentView(R.layout.welcome);
 		
 		// 初始化页面

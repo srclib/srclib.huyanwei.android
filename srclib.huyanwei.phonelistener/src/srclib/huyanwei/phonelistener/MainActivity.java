@@ -19,6 +19,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -100,8 +101,16 @@ public class MainActivity extends Activity {
 	
 	private Thread mThread;
 	
-	private final int MSG_UPDATE_ANGLE  = 100;
+	private final int MSG_UPDATE_ANGLE  = 100;	
 	
+	boolean isFirstIn = false;
+	private static final int GO_HOME  = 101;
+	private static final int GO_GUIDE = 102;
+	// 延迟3秒
+	private static final long SPLASH_DELAY_MILLIS = 1000;
+
+	private static final String SHAREDPREFERENCES_NAME = "first_pref";
+		
 	private SensorManager 		mSensorManager;
 	private Sensor 				mProximitySensor;
 	private Sensor 				mLightSensor;	
@@ -166,6 +175,9 @@ public class MainActivity extends Activity {
 				case MSG_UPDATE_ANGLE:
 					//Log.d(TAG,"msg.arg1="+msg.arg1);
 					rotate_image_button_view(msg.arg1);
+					break;
+				case GO_GUIDE:
+					goGuide();
 					break;
 				default:
 					break;
@@ -849,6 +861,30 @@ public class MainActivity extends Activity {
 		mHeaderView.setPadding(0, 5, 0, 5);
 	}
 	
+	
+	private void init() {
+		// 读取SharedPreferences中需要的数据
+		// 使用SharedPreferences来记录程序的使用次数
+		SharedPreferences preferences = getSharedPreferences(
+				SHAREDPREFERENCES_NAME, MODE_PRIVATE);
+
+		// 取得相应的值，如果没有该值，说明还未写入，用true作为默认值
+		isFirstIn = preferences.getBoolean("isFirstIn", true);
+
+		// 判断程序与第几次运行，如果是第一次运行则跳转到引导界面，否则跳转到主界面
+		if (isFirstIn) 
+		{
+			mHandler.sendEmptyMessageDelayed(GO_GUIDE, SPLASH_DELAY_MILLIS);
+		}
+	}
+	
+	private void goGuide() {
+		Intent intent = new Intent(MainActivity.this, Welcome.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		MainActivity.this.startActivity(intent);
+		MainActivity.this.finish();
+	}
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -858,6 +894,8 @@ public class MainActivity extends Activity {
         
         setContentView(R.layout.activity_main);
 
+        init(); // guide or main activity.
+        
         mContext= this;
         
 		mResources = mContext.getResources();

@@ -8,18 +8,7 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
         android:adjustViewBounds="false"
-        android:background="@drawable/guide_350_04"
+        android:background="@drawable/guide_004"
         android:focusable="true"
         android:scaleType="centerCrop" />
-
-    <ImageView
-        android:id="@+id/iv_start_weibo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="108dp"
-        android:background="@drawable/whats_new_start_btn"
-        android:focusable="true" />
-
 </RelativeLayout>

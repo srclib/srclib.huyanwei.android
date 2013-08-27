@@ -8,7 +8,7 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
         android:adjustViewBounds="false"
-        android:background="@drawable/guide_350_03"
+        android:background="@drawable/guide_003"
         android:focusable="true"
         android:scaleType="centerCrop" />
 

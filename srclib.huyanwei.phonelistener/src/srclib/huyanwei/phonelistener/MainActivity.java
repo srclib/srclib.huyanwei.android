@@ -40,7 +40,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -94,6 +96,8 @@ public class MainActivity extends Activity {
 	private final boolean mSericeStateByAnimation               = false;
 	
 	private final boolean mBaseService                          = true;
+	
+	private final boolean mFloatWindowShow                      = true;
 	
 	private ListItemAdapter mListItemAdapter ;
 	
@@ -160,7 +164,8 @@ public class MainActivity extends Activity {
 	public void update_window_sensor_value()
 	{		
 		mSensorValueView.setTextColor(0xffffff00);
-		mSensorValueView.setTextSize(10.0f);		
+		//mSensorValueView.setTextSize(10.0f);		
+		mSensorValueView.setTextSize(18.0f);
 		mSensorValueView.setText(mResources.getString(R.string.proximity_value)+":"+mProximitySensorValue+ " "+mResources.getString(R.string.light_value)+"="+mLightSensorValue);
 	}		
 	
@@ -357,8 +362,10 @@ public class MainActivity extends Activity {
 	{
 		updateListItemAdapterData();
 		
-		// 下面的可以更新 Visual,但是不能更新 Value. 所以采用重新添加的这种方式 -> updateListItemAdapterData()	
+	
 		/*
+		 *
+		// 下面的可以更新 Visual,但是不能更新 Value. 所以采用重新添加的这种方式 -> updateListItemAdapterData()
 		if(config_proximity_sensor_enable == 0)
 		{
 			
@@ -417,8 +424,7 @@ public class MainActivity extends Activity {
 							 Log.d(TAG,"huyanwei start service by manual.");
 						 }
 						 Intent svc = new Intent(mContext, PhoneListenerService.class);
-						 mContext.startService(svc);
-						 
+						 mContext.startService(svc);						 
 						 
 						 Toast local_toast = Toast.makeText(mContext, R.string.service_start_notification, Toast.LENGTH_SHORT);
 						 //local_toast.setGravity(local_toast.getGravity(), 0, 100);
@@ -924,8 +930,54 @@ public class MainActivity extends Activity {
         mListView.setOnItemClickListener(mOnItemClickListener);
         mListItemAdapter = new ListItemAdapter(this);
         
+		mWindowManager = (WindowManager)this.getSystemService(Context.WINDOW_SERVICE);
+		//mLayoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mFloatView = (LinearLayout)mLayoutInflater.inflate(R.layout.floater, null);        
+        mSensorValueView = (TextView) mFloatView.findViewById(R.id.SensorValueView);
+
         mListView.addHeaderView(mHeaderView);
         mListView.addFooterView(mFooterView);
+
+        if(mFloatWindowShow)
+        {
+        	attachView(mFloatView);
+        	
+        	// 设置悬浮窗的Touch监听
+        	mFloatView.setOnTouchListener(new OnTouchListener()
+            {
+                int lastX, lastY;
+                int paramX, paramY;
+
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					// TODO Auto-generated method stub
+                    switch (event.getAction())
+                    {
+                    case MotionEvent.ACTION_DOWN:
+                        lastX = (int) event.getRawX();
+                        lastY = (int) event.getRawY();
+                        paramX = mLayoutParams.x;
+                        paramY = mLayoutParams.y;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        int dx = (int) event.getRawX() - lastX;
+                        int dy = (int) event.getRawY() - lastY;
+                        mLayoutParams.x = paramX + dx;
+                        mLayoutParams.y = paramY + dy;
+                        
+                        // 更新悬浮窗位置
+                        mWindowManager.updateViewLayout(mFloatView, mLayoutParams);
+                        
+                        break;
+                    }
+					return false;
+				}
+            });
+        }
+        else
+        {
+        	mListView.addFooterView(mFloatView);
+        }
         
         mListView.setAdapter(mListItemAdapter);
         
@@ -936,21 +988,13 @@ public class MainActivity extends Activity {
         mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         mLightSensor     = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         
-        
-		mWindowManager = (WindowManager)this.getSystemService(Context.WINDOW_SERVICE);
-		//mLayoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mFloatView = (LinearLayout)mLayoutInflater.inflate(R.layout.floater, null);
-        
-        mSensorValueView = (TextView) mFloatView.findViewById(R.id.SensorValueView);
-        
-        attachView(mFloatView);
     }
  
 	public void attachView(View view)
 	{
 		  mLayoutParams = new WindowManager.LayoutParams(
 				  WindowManager.LayoutParams.MATCH_PARENT,
-				  180,
+				  WindowManager.LayoutParams.WRAP_CONTENT,
 				  WindowManager.LayoutParams.TYPE_BASE_APPLICATION,
 				  WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,//WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
 				  PixelFormat.RGBA_8888
@@ -995,8 +1039,8 @@ public class MainActivity extends Activity {
 	        int android_height = dm.heightPixels;
 
 	        //设置悬浮窗口长宽数据
-	        mLayoutParams.width=android_width;
-	        mLayoutParams.height=96;
+	        //mLayoutParams.width=android_width;
+	        //mLayoutParams.height=40;
 
 	        //以屏幕左上角为原点，设置x、y初始值
 	        mLayoutParams.x=(android_width  - mLayoutParams.width);
@@ -1023,7 +1067,10 @@ public class MainActivity extends Activity {
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		
-		disattachView(mFloatView);
+		if(mFloatWindowShow)
+		{
+			disattachView(mFloatView);
+		}
 		
 		super.onDestroy();
 	}

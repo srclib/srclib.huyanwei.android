@@ -134,9 +134,10 @@ public class CameraViewActivity extends Activity {
         	
         	scaleAnimation = new ScaleAnimation(1f, 0.2f, 1f, 0.2f, 
                     Animation.RELATIVE_TO_SELF, 0.2f, 
-                    Animation.RELATIVE_TO_SELF, 0.2f); 
+                    Animation.RELATIVE_TO_SELF, 0.2f);
+        	scaleAnimation.setFillAfter(true);
             scaleAnimation.setDuration(2000); 
-            //animationSet.addAnimation(scaleAnimation);//将ScaleAnimation对象添加到AnimationSet当中
+            animationSet.addAnimation(scaleAnimation);//将ScaleAnimation对象添加到AnimationSet当中
         	
             
             // TODO Auto-generated method stub 
@@ -148,9 +149,10 @@ public class CameraViewActivity extends Activity {
             //第六个参数pivotYValue为动画相对于物件的Y坐标的开始位置  
             rotateAnimation = new RotateAnimation(0, 180, 
                     Animation.RELATIVE_TO_SELF, 0.5f, 
-                    Animation.RELATIVE_TO_SELF, 2.0f); 
+                    Animation.RELATIVE_TO_SELF, 0.5f); 
+            rotateAnimation.setFillAfter(true);
             rotateAnimation.setDuration(2000); 
-            //animationSet.addAnimation(rotateAnimation);//将RotateAnimation对象添加到AnimationSet当中
+            animationSet.addAnimation(rotateAnimation);//将RotateAnimation对象添加到AnimationSet当中
 
 			// TODO Auto-generated method stub 
             //fromXDelta为动画起始时 X坐标上的移动位置     
@@ -164,6 +166,7 @@ public class CameraViewActivity extends Activity {
                     Animation.RELATIVE_TO_SELF, 1.0f, 
                     Animation.RELATIVE_TO_SELF, 100.0f); 
             //设置动画持续时间  
+            translateAnimation.setFillAfter(true);
             translateAnimation.setDuration(2000); 
             //animationSet.addAnimation(translateAnimation);//将TranslateAnimation对象添加到AnimationSet当中
           
@@ -172,14 +175,14 @@ public class CameraViewActivity extends Activity {
             // 0.0表示完全透明 
             // 1.0表示完全不透明 
         	
-            alphaAnimation=new AlphaAnimation(1.0f, 0.0f); 
+            alphaAnimation=new AlphaAnimation(1.0f, 0.6f); 
             //设置时间
         	alphaAnimation.setInterpolator(new AccelerateInterpolator());            
-            //alphaAnimation.setFillAfter(false);
             alphaAnimation.setFillAfter(true);
-            alphaAnimation.setDuration(1000); 
+            alphaAnimation.setDuration(2000); 
             animationSet.addAnimation(alphaAnimation);//将AlphaAnimation对象添加到AnimationSet当中
             
+            animationSet.setFillAfter(true);
             mImageView1.startAnimation(animationSet);
         }	     
         //return true ;

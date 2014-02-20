@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>    
+    <string name="app_name">gsensor calib</string>
+    <string name="Calibrator">Calibrator</string>
+    <string name="help">help</string>    
+    <string name="help_content">Tip：\r\nDon\'t move mobile phone when calibrating，otherwise the result is incorrect .\r\n\r\nSteps：\r\n\r\n1.Place the mobile phone on the desktop horizontally.\r\n\r\n2.Click the button,then it will be disabled.\r\n\r\n3.Wait a moment,the button will be enabled.\r\n\r\n4. Finish.</string>
+</resources>

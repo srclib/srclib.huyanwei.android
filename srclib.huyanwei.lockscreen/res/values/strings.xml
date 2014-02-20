@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">srclib.huyanwei.lockscreen</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    
+    <string name="LockString">我就是那个锁，锁，锁！ 点我就开！</string>
+
+</resources>

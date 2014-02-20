@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+  
+          http://www.apache.org/licenses/LICENSE-2.0
+  
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<com.android.launcher3.DragLayer
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:launcher="http://schemas.android.com/apk/res/com.android.launcher3"
+
+    android:id="@+id/drag_layer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- old grid apps -->
+    <include layout="@layout/all_apps" />
+
+    <!-- The workspace contains 5 screens of cells -->
+    <com.android.launcher3.Workspace
+        android:id="@+id/workspace"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:nextFocusDown="@+id/all_apps_button_cluster"
+        launcher:defaultScreen="2">
+
+        <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
+        <include android:id="@+id/cell2" layout="@layout/workspace_screen" />
+        <include android:id="@+id/cell3" layout="@layout/workspace_screen" />
+        <include android:id="@+id/cell4" layout="@layout/workspace_screen" />
+        <include android:id="@+id/cell5" layout="@layout/workspace_screen" />
+		<!-- include android:id="@+id/cell6" layout="@layout/workspace_screen" -->
+		<!-- include android:id="@+id/cell7" layout="@layout/workspace_screen" -->        
+                
+    </com.android.launcher3.Workspace>
+
+		<RelativeLayout 
+			android:layout_width="fill_parent"
+			android:layout_height="@dimen/button_and_index_height"				
+			android:layout_gravity="bottom|center_horizontal"
+			android:layout_marginBottom="0dip"
+			android:layout_alignParentBottom="true"
+			android:focusable="true"		
+			>
+
+		    	<RelativeLayout
+		        android:id="@+id/all_apps_button_cluster"
+		        android:layout_width="fill_parent"
+		        android:layout_height="@dimen/button_bar_height"
+		        android:paddingBottom="4dip"
+		        android:layout_marginBottom="0dip"
+				android:layout_alignParentBottom="true"			
+				android:layout_gravity="bottom|center_horizontal"
+				android:background="@drawable/homescreen_menu_shortcut_bg"
+				android:focusable="true"
+		        >
+		
+				<com.android.launcher3.HomeItem
+					android:id="@+id/home_item_phone"
+					android:layout_width="wrap_content"
+        			android:layout_height="match_parent"
+			        android:layout_marginLeft="5dip" 
+			        android:layout_marginRight="5dip"     								
+					android:src="@drawable/home_item_phone"
+					android:onClick="launchHotSeat"			
+					android:clickable="true" 
+	                android:focusable="true"							
+				/>
+
+				<com.android.launcher3.HomeItem
+					android:id="@+id/home_item_contact"
+					android:layout_width="wrap_content"
+        			android:layout_height="match_parent"
+			        android:layout_marginLeft="5dip" 
+			        android:layout_marginRight="5dip"    								
+					android:layout_toRightOf="@id/home_item_phone"
+					android:src="@drawable/home_item_contact"
+					android:onClick="launchHotSeat"		
+					android:clickable="true" 
+	                android:focusable="true"
+								
+				/>
+
+				<com.android.launcher3.HomeItem
+					android:id="@+id/home_item_message"
+					android:layout_width="wrap_content"
+        			android:layout_height="match_parent"					
+			        android:layout_marginLeft="5dip" 
+			        android:layout_marginRight="5dip"     								
+					android:layout_toRightOf="@id/home_item_contact"
+					android:src="@drawable/home_item_message"
+					android:onClick="launchHotSeat"				
+					android:clickable="true" 
+	                android:focusable="true"
+						
+				/>
+
+				<com.android.launcher3.HomeItem
+					android:id="@+id/home_item_apps"
+					android:layout_width="wrap_content"
+        			android:layout_height="match_parent"				
+			        android:layout_marginLeft="5dip" 
+			        android:layout_marginRight="5dip"     								
+					android:layout_toRightOf="@id/home_item_message"
+					android:src="@drawable/home_item_apps"
+					android:onClick="launchHotSeat"					
+	                android:clickable="true" 
+	                android:focusable="true"
+				/>				
+				</RelativeLayout>
+				
+				<RelativeLayout 
+					android:layout_width="fill_parent"
+					android:layout_height="@dimen/page_index_height"				
+					android:layout_above="@id/all_apps_button_cluster"
+					android:layout_alignBottom="@+id/all_apps_button_cluster"
+					android:layout_marginBottom="@dimen/page_index_height_base_button_bar_bottom"
+				>
+				<LinearLayout
+					android:layout_width="fill_parent"
+					android:layout_height="@dimen/button_bar_height"
+					android:orientation="horizontal"	 
+				>
+					<LinearLayout
+					android:id="@+id/home_screen_indicator"
+					android:layout_width="fill_parent"
+					android:layout_height="36dp"
+					android:orientation="horizontal"
+					android:visibility="visible"					
+					android:gravity="center" >
+					</LinearLayout>
+
+					<LinearLayout
+					android:id="@+id/all_app_indicator"
+					android:layout_width="fill_parent"
+					android:layout_height="36dp"
+					android:orientation="horizontal"
+					android:visibility="gone"					
+					android:gravity="center" >
+					</LinearLayout>        
+			    </LinearLayout>
+				</RelativeLayout>				
+		</RelativeLayout>
+		
+	    <com.android.launcher3.DeleteZone
+        android:id="@+id/delete_zone"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/delete_zone_size"
+        android:paddingTop="@dimen/delete_zone_padding"
+        android:layout_gravity="bottom|center_horizontal"
+
+        android:scaleType="center"
+        android:src="@drawable/delete_zone_selector"
+        android:visibility="invisible"
+        launcher:direction="horizontal"
+        />
+
+		<com.android.launcher3.Indicator
+			android:id="@+id/indicator"			
+			android:background="#FF000000"	
+			android:layout_width="wrap_content"
+			android:layout_height="16dip">			 
+		</com.android.launcher3.Indicator>
+</com.android.launcher3.DragLayer>

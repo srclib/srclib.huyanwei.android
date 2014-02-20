@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="application_name" msgid="8424725141379931883">लांचर</string>
+    <string name="uid_name" msgid="3371120195364560632">एंड्रॉएड कोर एप्‍स</string>
+    <string name="folder_name" msgid="4588446541914685904">फोल्‍डर</string>
+    <string name="chooser_wallpaper" msgid="5988031014201479733">वॉलपेपर यहां से चुनें</string>
+    <string name="wallpaper_instructions" msgid="4215640646180727542">वॉलपेपर सेट करें</string>
+    <string name="pick_wallpaper" msgid="5630222540525626723">वॉलपेपर</string>
+    <string name="activity_not_found" msgid="3571057450431950427">आपके फोन पर एप्‍लीकेशन संस्‍थापित नहीं हुई</string>
+    <string name="configure_wallpaper" msgid="2820186271419674623">कन्फिगर करें...</string>
+    <string name="rename_folder_label" msgid="5646236631298452787">फोल्‍डर का नाम</string>
+    <string name="rename_folder_title" msgid="4544573104191526550">फोल्‍डर को दूसरा नाम दें</string>
+    <string name="rename_action" msgid="6016003384693240896">ठीक</string>
+    <string name="cancel_action" msgid="3811860427489435048">रद्द</string>
+    <string name="menu_item_add_item" msgid="6233177331075781114">होम स्‍क्रीन में जोड़ें</string>
+    <string name="group_applications" msgid="4118484163419674240">एप्‍लीकेशन</string>
+    <string name="group_shortcuts" msgid="9133529424900391877">शॉर्टकट </string>
+    <string name="group_folder" msgid="5143593791798929193">नया फोल्‍डर</string>
+    <string name="group_live_folders" msgid="2664945399140647217">फोल्‍डर</string>
+    <string name="group_widgets" msgid="6704978494073105844">विजेट</string>
+    <string name="group_wallpapers" msgid="1568191644272224858">वॉलपेपर</string>
+    <string name="group_video_wallpaper">वीडियो वालपेपर</string>
+    <string name="add_folder" msgid="3521088587367839879">फोल्‍डर</string>
+    <string name="add_clock" msgid="2337943840175865746">घड़ी</string>
+    <string name="add_photo_frame" msgid="3154058437359487954">तस्‍वीर का फ्रेम </string>
+    <string name="out_of_space" msgid="8365249326091984698">इस होम स्‍क्रीन पर अधिक स्‍थान नहीं है।</string>
+    <string name="shortcut_installed" msgid="7071557296331322355">शोर्टकट  \"<xliff:g example="Browser" id="name">%s</xliff:g>\"  बनाया गया।</string>
+    <string name="shortcut_uninstalled" msgid="2129499669449749995">शोर्टकट  \"<xliff:g example="Browser" id="name">%s</xliff:g>\" को हटाया गया।</string>
+    <string name="shortcut_duplicate" msgid="4757756326465060694">शोर्टकट  \"<xliff:g example="Browser" id="name">%s</xliff:g>\" पहले से मौजूद है।</string>
+    <string name="title_select_shortcut" msgid="2858897527672831763">शोर्टकट चुनें</string>
+    <string name="title_select_application" msgid="8031072293115454221">अनुप्रयोग चुनें</string>
+    <string name="title_select_live_folder" msgid="3753447798805166749">फोल्‍डर चुनें</string>
+    <string name="all_apps_button_label" msgid="3953036962111614813">सभी एप्‍लीकेशन</string>
+    <string name="all_apps_home_button_label" msgid="1022222300329398558">होम</string>
+    <string name="menu_add" msgid="3065046628354640854">जोड़ें</string>
+    <string name="menu_manage_apps" msgid="2308685199463588895">अनुप्रयोग का प्रबंधन करें</string>
+    <string name="menu_wallpaper" msgid="5837429080911269832">वॉलपेपर</string>
+    <string name="menu_search" msgid="4826514464423239041">सर्च</string>
+    <string name="menu_notifications" msgid="6424587053194766192">सूचना</string>
+    <string name="menu_gestures" msgid="514678675575912237">हावभाव </string>
+    <string name="menu_settings" msgid="6233960148378443661">सेटिंग</string>
+    <string name="permlab_install_shortcut" msgid="1201690825493376489">शोर्टकट संस्‍थापित करें</string>
+    <string name="permdesc_install_shortcut" msgid="7429365847558984148">एप्‍लीकेशन को प्रयोक्‍ता के हस्‍तक्षेप के बगैर शोर्टकट जोड़ने की अनुमति दें।</string>
+    <string name="permlab_uninstall_shortcut" msgid="7696645932555926449">शोर्टकट अनइंस्‍टाल करें</string>
+    <string name="permdesc_uninstall_shortcut" msgid="959972195916090900">एप्‍लीकेशन को प्रयोक्‍ता के हस्‍तक्षेप के बगैर शोर्टकट हटाने की अनुमति दें।</string>
+    <string name="permlab_read_settings" msgid="3452408290738106747">होम सेटिंग व शोर्टकट पढ़ें</string>
+    <string name="permdesc_read_settings" msgid="8377434937176025492">एप्‍लीकेशन को होम पेज की सेटिंग व  शॉर्टकट जानने की अनुमति दें।</string>
+    <string name="permlab_write_settings" msgid="1360567537236705628">होम से व शोर्टकट लिखें</string>
+    <string name="permdesc_write_settings" msgid="1098648778383349818">एप्‍लीकेशन को होम में सेटिंग व शोर्टकट बदलने की अनुमति दें।</string>
+    <string name="gadget_error_text" msgid="8359351016167075858">विजेड लोड करने में समस्‍या</string>
+    <string name="one_video_widget">होम स्क्रीन में केवल एक वीडियो प्लेयर ही स्वीकार्य है</string>
+
+    <!-- Theme feature -->
+    <string name="theme">थीम</string>
+</resources>
+

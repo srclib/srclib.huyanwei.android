@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>    
+    <string name="app_name">重力校准</string>
+    <string name="Calibrator">校准</string>
+    <string name="help">使用说明</string>
+    <string name="help_content">友情提示：\r\n校准过程中，请不要移动手机，否则，校准出来的数据会影响正常的使用！\r\n\r\n校准步骤：\r\n\r\n第一步:将手机水平放置,建议放置在水平的桌面上.\r\n\r\n第二步:.点击 校准 按钮.正常情况下，点击后的校准按钮会变灰色，为不可互交状态.\r\n\r\n第三步：稍稍等待，直到水泡位于平衡木中间线上.此时 校准 按钮会重新变为可互交状态.\r\n\r\n第四步： 完成.</string>
+</resources>

@@ -1,6 +1,35 @@
-<srclib.huyanwei.window.FloatView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/ic_launcher" />
+    android:background="#0000FF00"
+    android:orientation="vertical"
+    android:showDividers="middle" >
 
+    <ImageButton
+        android:id="@+id/Pointer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/zzz_x_panel_clock" />
+
+    <srclib.huyanwei.window.FloatView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/zzz_x_panel_calc" />
+
+    <srclib.huyanwei.window.FloatView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/zzz_x_panel_camera" />
+
+    <srclib.huyanwei.window.FloatView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/zzz_x_panel_clock" />
+            
+    <srclib.huyanwei.window.FloatView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/zzz_x_panel_flashlight_off" />            
+
+</LinearLayout>

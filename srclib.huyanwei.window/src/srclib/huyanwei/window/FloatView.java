@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -22,24 +24,39 @@ public class FloatView extends ImageView {
 	     private float x;
 	     private float y;
 
-	     GestureDetector mGestureDetector;
-	     
-	     private WindowManager wm=(WindowManager)getContext().getApplicationContext().getSystemService("window");
+	     private GestureDetector mGestureDetector;	     
+	     private WindowManager wm ;
+	     private View mParentView;
 	     
 	     //此wmParams为获取的全局变量，用以保存悬浮窗口的属性
-	     private WindowManager.LayoutParams wmParams = ((FloatWindowApp)getContext().getApplicationContext()).getParams();
+	     private WindowManager.LayoutParams wmParams ; 
 	 
 	     public FloatView(Context context) {
-	         super(context);
-
-	         //mGestureDetector = new GestureDetector(context, gestureListener);
 	         
+	    	 this(context, null);
 	         // TODO Auto-generated constructor stub
 	     }
 	     
+	 	public FloatView(Context context, AttributeSet attrs) {
+			this(context, attrs, 0);
+			// TODO Auto-generated constructor stub
+		}
+	 	
+		public FloatView(Context context, AttributeSet attrs, int defStyle) 
+		{
+			super(context, attrs, defStyle);
+	        wm=(WindowManager)getContext().getApplicationContext().getSystemService("window");
+	        //mGestureDetector = new GestureDetector(context, gestureListener);
+	        wmParams = (LayoutParams) this.getLayoutParams();
+		}
+		
 	      @Override
 	      public boolean onTouchEvent(MotionEvent event) {
 	    	  
+	    	  	int [] location = new int[2];
+	    	  	
+	    	  	mParentView = (View) this.getParent();
+	    	  	
 				if(mGestureDetector != null)
 				{
 						return mGestureDetector.onTouchEvent(event);
@@ -48,24 +65,25 @@ public class FloatView extends ImageView {
 				{
 					//getRawX()获取相对屏幕的坐标，即以屏幕左上角为原点         
 					x = event.getRawX();   
-					y = event.getRawY()-25;   //25是系统状态栏的高度
+					y = event.getRawY();
 					Log.i("currP", "currX"+x+"====currY"+y);
 					switch (event.getAction())
 					{
 			             case MotionEvent.ACTION_DOWN:
-			                 //getX()获取相对View的坐标，即以此View左上角为原点
-			                 mTouchStartX =  event.getX(); 
-			                 mTouchStartY =  event.getY();
-			                 
+			                 //getX()获取相对View的坐标，即以此View左上角为原点,
+			            	 //getRawX()获取相对屏幕的坐标，即以屏幕左上角为原点.         
+			                 mTouchStartX =  event.getRawX(); 
+			                 mTouchStartY =  event.getRawY();
+			                 mParentView.getLocationInWindow(location);
 			                 Log.i("startP", "startX"+mTouchStartX+"====startY"+mTouchStartY);
-			                 
 			                 break;
-			             case MotionEvent.ACTION_MOVE:                
-			                 updateViewPosition();
-			                 break;
-			 
+			             case MotionEvent.ACTION_MOVE:
+			    	         wmParams.x=(int)( x-mTouchStartX);
+			    	         //System.out.println(mTouchStartX);
+			    	         wmParams.y=(int) (y-mTouchStartY);
+			    	         wm.updateViewLayout(mParentView, wmParams);
+			                 break;			 
 			             case MotionEvent.ACTION_UP:
-			                 updateViewPosition();
 			                 mTouchStartX=mTouchStartY=0;
 			                 break;
 	             	}
@@ -78,8 +96,7 @@ public class FloatView extends ImageView {
 	         wmParams.x=(int)( x-mTouchStartX);
 	         //System.out.println(mTouchStartX);
 	         wmParams.y=(int) (y-mTouchStartY);
-	         wm.updateViewLayout(this, wmParams);
-	         
+	         wm.updateViewLayout(mParentView, wmParams);
 	      }
 	      
 

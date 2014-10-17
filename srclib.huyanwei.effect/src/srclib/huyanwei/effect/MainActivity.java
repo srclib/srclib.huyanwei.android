@@ -22,6 +22,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.LayoutAnimationController;
+import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -175,7 +180,9 @@ public class MainActivity extends Activity {
 		mListView.startAnimation(mEffectAnimation);
 */
 		
-		// M2
+
+
+ 		// M2		
 		mListView.setAlpha(0);
 		AnimatorSet set = new AnimatorSet();
 		ObjectAnimator objectAnimator0_px = ObjectAnimator.ofFloat(mListView, "pivotX",0f);
@@ -194,6 +201,7 @@ public class MainActivity extends Activity {
 		set.start();
 		
 		
+/*		
 		//M3
 		WindowManager.LayoutParams mLayoutParams_start = new WindowManager.LayoutParams();
 		mLayoutParams_start.y = -700;
@@ -207,9 +215,29 @@ public class MainActivity extends Activity {
 		mAnimatorSet.play(objectAnimator_xx);
 		mAnimatorSet.setStartDelay(10);
 		mAnimatorSet.start();
-		
+*/
+	
+		/*
 		// M4
-		//mListView.postDelayed(effect_runnable, 10);
+		//mListView.postDelayed(effect_runnable, 10); 
+		*/
+		
+		AnimationSet mAnimatorSet = new AnimationSet(true);				
+		Animation animation = new AlphaAnimation(0.5f, 1.0f);		
+		animation.setDuration(10);
+		mAnimatorSet.addAnimation(animation);		
+		animation = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 1, Animation.RELATIVE_TO_PARENT, 0, Animation.RELATIVE_TO_PARENT, 0, Animation.RELATIVE_TO_PARENT, 0);
+		animation.setDuration(20);
+		mAnimatorSet.addAnimation(animation);
+		mAnimatorSet.setDuration(500);
+
+		LayoutAnimationController  mLayoutAnimationController = new LayoutAnimationController (mAnimatorSet);		
+		mLayoutAnimationController.setDelay(0.3f);		
+		mLayoutAnimationController.setOrder(LayoutAnimationController.ORDER_NORMAL);
+		mLayoutAnimationController.setAnimation(mAnimatorSet);
+		
+		mListView.setLayoutAnimation(mLayoutAnimationController);		
+		mListView.startLayoutAnimation();
 	}
 
 	@SuppressLint("NewApi")

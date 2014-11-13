@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android" android:oneshot="true">
+<item android:drawable="@drawable/water_waver_01" android:duration="200" />
+<item android:drawable="@drawable/water_waver_02" android:duration="200" />
+<item android:drawable="@drawable/water_waver_03" android:duration="200" />
+<item android:drawable="@drawable/water_waver_04" android:duration="200" />
+<item android:drawable="@drawable/water_waver_05" android:duration="200" />
+<item android:drawable="@drawable/water_waver_06" android:duration="200" />
+<item android:drawable="@drawable/water_waver_07" android:duration="200" />
+<item android:drawable="@drawable/water_waver_08" android:duration="200" />
+<item android:drawable="@drawable/water_waver_09" android:duration="200" />
+<item android:drawable="@drawable/water_waver_10" android:duration="200" />
+<item android:drawable="@drawable/water_waver_11" android:duration="200" />
+<item android:drawable="@drawable/water_waver_12" android:duration="200" />
+<item android:drawable="@drawable/water_waver_13" android:duration="200" />
+<item android:drawable="@drawable/water_waver_14" android:duration="200" />
+<item android:drawable="@drawable/water_waver_15" android:duration="200" />
+<item android:drawable="@drawable/water_waver_16" android:duration="200" />
+<item android:drawable="@drawable/water_waver_17" android:duration="200" />
+</animation-list>
+

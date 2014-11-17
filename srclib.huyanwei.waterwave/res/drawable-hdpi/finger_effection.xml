@@ -16,7 +16,5 @@
 <item android:drawable="@drawable/water_waver_13" android:duration="200" />
 <item android:drawable="@drawable/water_waver_14" android:duration="200" />
 <item android:drawable="@drawable/water_waver_15" android:duration="200" />
-<item android:drawable="@drawable/water_waver_16" android:duration="200" />
-<item android:drawable="@drawable/water_waver_17" android:duration="200" />
 </animation-list>
 

@@ -48,6 +48,8 @@ public class WaterWaveView extends View {
 	private float mNowPointX, mNowPointY;
 	private float mWaverPointX, mWaverPointY;
 	
+	private float mLastDownPointX, mLastDownPointY;
+	
 	private View mHelpViewer;
 	private AnimationDrawable mAnimationDrawable;	
 	private Paint mPaint;
@@ -78,6 +80,9 @@ public class WaterWaveView extends View {
 		mPaint.setColor(Color.CYAN);
 		
 		// mPaint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
+		
+		mLastDownPointX = -100 ;
+		mLastDownPointY = -100 ;
 		
 		setLockBack();
 		
@@ -190,7 +195,15 @@ public class WaterWaveView extends View {
 			mWaverPointX = mNowPointX = mPrePointX = event.getX();
 			mWaverPointY = mNowPointY = mPrePointY = event.getY();
 			Log.d(TAG,"huyanwei debug AddWaterWave("+mNowPointX+","+mNowPointY+");");
-			AddWaterWave(mWaverPointX,mWaverPointY,1.2f);
+
+			if ((event.getPointerCount() == 1) && ((mNowPointX - mLastDownPointX) * (mNowPointX - mLastDownPointX)
+					+ (mNowPointY - mLastDownPointY)* ( mNowPointY - mLastDownPointY) > 400.00F))
+			{
+				mLastDownPointX = mWaverPointX ;
+				mLastDownPointY = mWaverPointY ;
+			}
+			AddWaterWave(mLastDownPointX,mLastDownPointY,1.25f);			
+			
 			/*
             if (mSoundManager != null) 
             {	            
@@ -208,7 +221,7 @@ public class WaterWaveView extends View {
 				mWaverPointX = mNowPointX ;
 				mWaverPointY = mNowPointY ;
 				
-				AddWaterWave(mWaverPointX,mWaverPointY,1.2f);
+				AddWaterWave(mWaverPointX,mWaverPointY,1.25f);
 				/*
 	            if (mSoundManager != null) 
 	            {	            
@@ -224,7 +237,7 @@ public class WaterWaveView extends View {
 					+ (mNowPointY - mPrePointY)* ( mNowPointY - mPrePointY) > 100.00F))
 			{
 				//AddWaterWave(screenWidth/2,screenHeight/2,2.0f);
-				AddWaterWave(mNowPointX,mNowPointY,6.5f);
+				AddWaterWave(mNowPointX,mNowPointY,0.25f);
 			}			
 			if ((event.getPointerCount() == 1) && ((mNowPointX - mPrePointX) * (mNowPointX - mPrePointX)
 					+ (mNowPointY - mPrePointY)* ( mNowPointY - mPrePointY) > 40000.00F))
@@ -284,7 +297,7 @@ public class WaterWaveView extends View {
 				// TODO Auto-generated method stub				
 			}			
 		});
-		mObjectAnimator.setDuration(200);
+		mObjectAnimator.setDuration(500);
 		mObjectAnimator.setInterpolator(new TimeInterpolator(){
 			@Override
 			public float getInterpolation(float input) {
@@ -295,7 +308,7 @@ public class WaterWaveView extends View {
 		);
 		
 		mAnimatorSet.play(mObjectAnimator);
-		mAnimatorSet.setDuration(1000);
+		mAnimatorSet.setDuration(600);
 		mAnimatorSet.start();
 		
 		// Animation }	
